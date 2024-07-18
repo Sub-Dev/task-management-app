@@ -8,6 +8,9 @@ Aplicação de gerenciamento de tarefas fullstack, utilizando React.js no fronte
 - **Backend:** NestJS, TypeORM, JWT
 - **Banco de Dados:** PostgreSQL
 - **DevOps:** Docker, Docker Compose
+- **Design e Modelagem:**
+-   ***dbDesigner:*** Ferramenta online para modelagem de banco de dados ER.
+-   ***Figma:*** Ferramenta para design de interface e prototipagem
 
 ## Funcionalidades
 - [ ] Autenticação e autorização de usuários
