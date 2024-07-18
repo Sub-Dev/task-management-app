@@ -10,11 +10,9 @@ Aplicação de gerenciamento de tarefas fullstack, utilizando React.js no fronte
 - **DevOps:** Docker, Docker Compose
 
 ## Funcionalidades
-- Autenticação e autorização de usuários
-- CRUD de tarefas
-- Gestão de projetos
-- Notificações e alertas
-- Dashboards e relatórios
+- [ ] Autenticação e autorização de usuários
+- [ ] CRUD de tarefas
+- [ ] Gestão de projetos
 
 ## Estrutura do Projeto
 
