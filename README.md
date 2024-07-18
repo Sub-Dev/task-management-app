@@ -17,6 +17,7 @@ Aplicação de gerenciamento de tarefas fullstack, utilizando React.js no fronte
 - **Class-Validator**: Biblioteca para validação de objetos e propriedades.
 - **Class-Transformer**: Biblioteca para transformar objetos em classes e vice-versa. 
 
+
 ### Banco de Dados
 - **PostgreSQL**: Sistema de gerenciamento de banco de dados relacional poderoso e open-source.
 
@@ -25,11 +26,13 @@ Aplicação de gerenciamento de tarefas fullstack, utilizando React.js no fronte
 - **Docker Compose**: Ferramenta para definir e gerenciar multi-containers Docker.
 - **Adminer**: Ferramenta de gerenciamento de banco de dados com uma interface de usuário amigável.
 
+
 ### Design e Modelagem
 - **dbDesigner**: Ferramenta online para modelagem de banco de dados ER.
 - **Figma**: Ferramenta para design de interface e prototipagem colaborativa.
 
 ## Funcionalidades
+
 - [ ] Autenticação e autorização de usuários na manipulação das tarefas de projetos
 - [ ] CRUD de tarefas
 - [ ] Gestão de projetos
