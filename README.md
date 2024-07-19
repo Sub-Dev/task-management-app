@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img alt="TaskLogo" title="TaskMaster" src=".github/logo-no-background.png" width="400px" />
+  <img alt="TaskLogo" title="TaskMaster" src=".github/logo-no-background.png" width="200px" />
 </p>
 <h3 align = "center" fontSize="60px">
   Task Management App aplicativo fullstack de gerenciamento de tarefas
@@ -9,9 +9,10 @@
 <p align="center">
   <img alt="Interface da aplicação" src=".github/frontend-v1.png" width="100%">
   <h3 align = "center" fontSize="60px">
-  Versão Previa(Em desenvolvimenro)
+  Versão Previa(Em desenvolvimento)
   </h3>
 </p>
+
 # Task Management App
 
 ## 💻 Descrição
@@ -22,16 +23,16 @@ Este aplicativo fullstack de gerenciamento de tarefas demonstra minha experiênc
 
 ### Progresso Total
 ![Progresso Total](https://geps.dev/progress/10)
- **Progresso Total**: 10% concluído
- **Descrição**: Implementação inicial concluída, estrutura básica do projeto configurada.
+- **Progresso Total**: 10% concluído
+- **Descrição**: Implementação inicial concluída, estrutura básica do projeto configurada.
 ### Frontend
 ![Progresso Frontend](https://geps.dev/progress/5)
-**Frontend**: 5% concluído
-**Descrição**: Estrutura do frontend configurada, começando a implementação dos componentes principais.
+- **Frontend**: 5% concluído
+- **Descrição**: Estrutura do frontend configurada, começando a implementação dos componentes principais.
 ### Backend
 ![Progresso Backend](https://geps.dev/progress/5)
-**Backend**: 5% concluído
-**Descrição**: Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
+- **Backend**: 5% concluído
+- **Descrição**: Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
 ---
 ### Próximos Passos
 
