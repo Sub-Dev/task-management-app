@@ -1,12 +1,54 @@
+
+<p align="center">
+  <img alt="TaskLogo" title="TaskMaster" src=".github/logo-no-background.png" width="400px" />
+</p>
+<h3 align = "center" fontSize="60px">
+  Task Management App aplicativo fullstack de gerenciamento de tarefas
+</h3>
+
+<p align="center">
+  <img alt="Interface da aplicação" src=".github/frontend-v1.png" width="100%">
+  <h3 align = "center" fontSize="60px">
+  Versão Previa(Em desenvolvimenro)
+  </h3>
+</p>
 # Task Management App
 
 ## 💻 Descrição
-Aplicação de gerenciamento de tarefas fullstack, utilizando React.js no frontend, NestJS para a API no backend, PostgreSQL para o banco de dados e Docker para conteinerização.
+
+Este aplicativo fullstack de gerenciamento de tarefas demonstra minha experiência em tecnologias modernas de desenvolvimento web. O projeto usa React.js para um front-end dinâmico e responsivo, NestJS para uma API de back-end robusta e escalável, PostgreSQL para armazenamento de dados eficiente e confiável e Docker para conteinerização e implantação contínuas.
+
+## 📊 Progresso do Projeto
+
+### Progresso Total
+![Progresso Total](https://geps.dev/progress/10)
+ **Progresso Total**: 10% concluído
+ **Descrição**: Implementação inicial concluída, estrutura básica do projeto configurada.
+### Frontend
+![Progresso Frontend](https://geps.dev/progress/5)
+**Frontend**: 5% concluído
+**Descrição**: Estrutura do frontend configurada, começando a implementação dos componentes principais.
+### Backend
+![Progresso Backend](https://geps.dev/progress/5)
+**Backend**: 5% concluído
+**Descrição**: Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
+---
+### Próximos Passos
+
+- **Frontend**:
+  - Desenvolver páginas adicionais.
+  - Integrar com a API do backend.
+- **Backend**:
+  - Completar endpoints da API.
+  - Implementar autenticação e autorização.
+- **Progresso Total**:
+  - Refinar a estrutura do projeto.
+  - Realizar testes e ajustes conforme necessário.
 
 ## 🎨 Tecnologias Utilizadas
 
 ### Frontend
-- **React.js**: Biblioteca JavaScript para construção de interfaces de usuário.
+- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
 - **Material-UI**: Biblioteca de componentes React para um design moderno e responsivo.
 - **Axios**: Cliente HTTP para fazer requisições à API.
 
@@ -106,3 +148,5 @@ npm install @nestjs/class-validator @nestjs/class-transformer
 
 ## Licença
 Este projeto está licenciado sob a Licença MIT.
+
+
