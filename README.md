@@ -22,17 +22,21 @@ Este aplicativo fullstack de gerenciamento de tarefas demonstra minha experiênc
 ## 📊 Progresso do Projeto
 
 ### Progresso Total
-![Progresso Total](https://geps.dev/progress/10)
-- **Progresso Total**: 10% concluído
-- **Descrição**: Implementação inicial concluída, estrutura básica do projeto configurada.
+![Progresso Total](https://geps.dev/progress/30)
+- **Progresso Total**: 30% concluído
+- **Descrição**: 
+1. Implementação inicial concluída, estrutura básica do projeto configurada.
 ### Frontend
-![Progresso Frontend](https://geps.dev/progress/5)
-- **Frontend**: 5% concluído
-- **Descrição**: Estrutura do frontend configurada, começando a implementação dos componentes principais.
+![Progresso Frontend](https://geps.dev/progress/25)
+- **Frontend**: 25% concluído
+- **Descrição**: 
+1. Estrutura do frontend configurada, começando a implementação dos componentes principais
+2. Criação das telas de login,cadastro e tela do dashboard com o kanban inicial
 ### Backend
 ![Progresso Backend](https://geps.dev/progress/5)
 - **Backend**: 5% concluído
-- **Descrição**: Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
+- **Descrição**: 
+1. Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
 ---
 ### Próximos Passos
 
@@ -130,7 +134,14 @@ npm install @nestjs/class-validator @nestjs/class-transformer
 ```
 ### Frontend (React.js)
 
-.....
+Foram criados as telas de login,cadastro,homepage e também do dashboard com o kanban inicial do projeto em desenvolvimento como nas imagens abaixo:
+
+<p align="center">
+  <img alt="Interface Signin" src=".github/frontend-signin-v1.png" width="100%">  
+  <img alt="Interface Signup" src=".github/frontend-signup-v1.png" width="100%">
+  <img alt="Interface HomePage" src=".github/frontend-homepage-v1.png" width="100%">
+  <img alt="Interface Kanban" src=".github/frontend-v2-kanban.png" width="100%">
+</p>
 
 ## 👥 Autor
 
