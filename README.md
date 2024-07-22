@@ -17,7 +17,14 @@
 
 ## 💻 Descrição
 
-Este aplicativo fullstack de gerenciamento de tarefas demonstra minha experiência em tecnologias modernas de desenvolvimento web. O projeto usa React.js para um front-end dinâmico e responsivo, NestJS para uma API de back-end robusta e escalável, PostgreSQL para armazenamento de dados eficiente e confiável e Docker para conteinerização e implantação contínuas.
+Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do meu progresso na aplicação de tecnologias modernas de desenvolvimento web. No desenvolvimento deste projeto, estou explorando e aprimorando minhas habilidades nas seguintes áreas:
+
+- React.js: Utilizado para criar uma interface de usuário dinâmica e responsiva, com o objetivo de melhorar a experiência do usuário e a interação com a aplicação.
+- NestJS: Implementado para construir uma API de back-end robusta e escalável, proporcionando uma base sólida para a manipulação de dados e lógica de negócios.
+- PostgreSQL: Escolhido para o armazenamento de dados, com o intuito de garantir eficiência e confiabilidade no gerenciamento e recuperação de informações.
+- Docker: Utilizado para conteinerização, facilitando a implantação contínua e a gestão de ambientes de desenvolvimento e produção.
+
+Estou constantemente aprendendo e aplicando novas técnicas e boas práticas para otimizar a performance e a escalabilidade do aplicativo. Este projeto não apenas me permite explorar novas tecnologias, mas também me desafia a resolver problemas complexos e a melhorar minhas habilidades de desenvolvimento.
 
 ## 📊 Progresso do Projeto
 
