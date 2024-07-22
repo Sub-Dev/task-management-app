@@ -7,7 +7,7 @@
 </h3>
 
 <p align="center">
-  <img alt="Interface da aplicação" src=".github/frontend-v1.png" width="100%">
+  <img alt="Interface da aplicação" src=".github/frontend-v2-kanban.png" width="100%">
   <h3 align = "center" fontSize="60px">
   Versão Previa(Em desenvolvimento)
   </h3>

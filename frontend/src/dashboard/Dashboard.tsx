@@ -14,31 +14,19 @@ import Avatar from '@mui/material/Avatar';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from './listItems.tsx';
-// import Chart from './Chart.tsx';
-// import Deposits from './Deposits.tsx';
-import Orders from './Orders.tsx';
+import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { mainListItems, secondaryListItems } from './components/listItems.tsx';
+import { Link, Routes, Route } from 'react-router-dom';
+import Orders from './components/Orders.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
 import Avatar1 from '../img/avatar/1.jpg';
 import { colors } from '@mui/material';
-
-
-function Copyright(props: any) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="/">
-        TaskMaster Gerenciamento
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import Copyright from '../Copyright.tsx';
+import Kanban from './components/Kanban.tsx'; // Importe o novo componente
 
 const drawerWidth: number = 240;
 
@@ -75,6 +63,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         duration: theme.transitions.duration.enteringScreen,
       }),
       boxSizing: 'border-box',
+      ...(open && {
+        overflowX: 'hidden',
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        width: drawerWidth,
+        [theme.breakpoints.up('sm')]: {
+          width: drawerWidth,
+        },
+      }),
       ...(!open && {
         overflowX: 'hidden',
         transition: theme.transitions.create('width', {
@@ -90,7 +89,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
@@ -103,53 +101,27 @@ export default function Dashboard() {
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open} sx={{ backgroundColor: '#1b222a', color: 'white' }}>
-          <Toolbar
-            sx={{
-              pr: '24px', // keep right padding when drawer closed
-            }}
-          >
+        <AppBar position="absolute" open={open} sx={{ backgroundColor: '#1b222a', color: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+          <Toolbar sx={{ pr: '24px' }}>
             <IconButton
               edge="start"
               color="inherit"
               aria-label="open drawer"
               onClick={toggleDrawer}
-              sx={{
-                marginRight: '36px',
-                ...(open && { display: 'none' }),
-              }}
+              sx={{ marginRight: '36px', ...(open && { display: 'none' }) }}
             >
               <MenuIcon />
             </IconButton>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              sx={{ flexGrow: 1 }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                {/* Link para a home com o logo */}
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                  <img src={LogoNoBackground} alt="Logo" style={{ width: 60, height: 60, marginRight: 16 }} />
-                </Link>
-                {/* Texto com link para a home */}
-                <Link href="/" style={{ color: 'white', textDecoration: 'none' }}>
-                  <Typography variant="h6">TaskMaster - Dashboard</Typography>
-                </Link>
-              </Box>
+            <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+              Dashboard
             </Typography>
             <IconButton color="inherit" sx={{ mr: '10px' }}>
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
-
             </IconButton>
             <IconButton>
-              <Avatar
-                alt="Remy Sharp"
-                src={Avatar1}
-              />
+              <Avatar alt="Remy Sharp" src={Avatar1} />
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -158,29 +130,52 @@ export default function Dashboard() {
             sx={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [2],
-              backgroundColor: '#1b222a'
+              justifyContent: 'space-between',
+              px: 2,
+              backgroundColor: '#1b222a',
+              borderBottom: 'none',
             }}
           >
-
-            <Box sx={{ display: 'flex', alignItems: 'left' }}>
-              {/* Link para a home com o logo */}
-              <Link href="/" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-                <Avatar
-                  alt="Remy Sharp"
-                  src={Avatar1}
-                  sx={{ width: 46, height: 46, marginRight: 1 }}
-                />
-                <Typography variant="h6" sx={{ color: 'white' }}>
-                  Remy Sharp
-                </Typography>
-              </Link>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                src={LogoNoBackground}
+                alt="Logo"
+                style={{
+                  width: 60,
+                  height: 60,
+                  marginRight: 16,
+                  transition: 'transform 0.3s',
+                  '&:hover': { transform: 'scale(1.1)' },
+                }}
+              />
+              <Typography variant="h6" color="white" sx={{ fontWeight: 'bold' }}>TaskMaster</Typography>
             </Box>
             <IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
+          <Divider sx={{ height: '1px', backgroundColor: '#335' }} />
+          {/* Conditional rendering of the avatar and user info */}
+          {open && (
+            <Box sx={{ p: 2, color: '#707070', textAlign: 'center' }}>
+              <Avatar
+                alt="Remy Sharp"
+                src={Avatar1}
+                sx={{
+                  width: 80,
+                  height: 80,
+                  mx: 'auto',
+                  mb: 1,
+                  border: `2px solid ${colors.grey[500]}`,
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Remy Sharp</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                <IconButton sx={{ color: colors.grey[400] }}><SettingsIcon /></IconButton>
+                <IconButton sx={{ color: colors.grey[400] }}><LogoutIcon /></IconButton>
+              </Box>
+            </Box>
+          )}
           <Divider />
           <List component="nav">
             {mainListItems}
@@ -188,6 +183,7 @@ export default function Dashboard() {
             {secondaryListItems}
           </List>
         </Drawer>
+
         <Box
           component="main"
           sx={{
@@ -198,21 +194,15 @@ export default function Dashboard() {
             flexGrow: 1,
             height: '90vh',
             overflow: 'auto',
+            p: 3,
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
-                </Paper>
-              </Grid>
-            </Grid>
-
-          </Container>
+          <Routes>
+            <Route path="/" element={<Orders />} />
+            <Route path="/kanban" element={<Kanban />} /> {/* Rota para Kanban */}
+          </Routes>
         </Box>
-
       </Box>
       <Box
         component="footer"
@@ -223,14 +213,13 @@ export default function Dashboard() {
           backgroundColor: '#1b222a',
           width: '100%',
           position: 'relative',
+          textAlign: 'center',
         }}
       >
         <Container maxWidth="lg">
           <Copyright sx={{ pt: 2, color: 'white' }} />
         </Container>
       </Box>
-
     </ThemeProvider>
   );
 }
-
