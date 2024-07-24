@@ -20,13 +20,14 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { mainListItems, secondaryListItems } from './components/listItems.tsx';
-import { Link, Routes, Route } from 'react-router-dom';
+import { Link, Routes, Route, useNavigate } from 'react-router-dom';
 import Orders from './components/Orders.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
 import Avatar1 from '../img/avatar/1.jpg';
 import { colors } from '@mui/material';
 import Copyright from '../Copyright.tsx';
-import Kanban from './components/Kanban.tsx'; // Importe o novo componente
+import Kanban from './components/Kanban.tsx';
+import UserProfile from './components/UserProfile.tsx';
 
 const drawerWidth: number = 240;
 
@@ -95,6 +96,13 @@ export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  // Define a função de navegação para a página de perfil
+  const navigate = useNavigate();
+
+  const handleNavigateToProfile = () => {
+    navigate('/dashboard/profile'); // Redireciona para a rota de perfil
   };
 
   return (
@@ -171,8 +179,12 @@ export default function Dashboard() {
               />
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Remy Sharp</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                <IconButton sx={{ color: colors.grey[400] }}><SettingsIcon /></IconButton>
-                <IconButton sx={{ color: colors.grey[400] }}><LogoutIcon /></IconButton>
+                <IconButton sx={{ color: colors.grey[400] }} onClick={handleNavigateToProfile}>
+                  <SettingsIcon />
+                </IconButton>
+                <IconButton sx={{ color: colors.grey[400] }}>
+                  <LogoutIcon />
+                </IconButton>
               </Box>
             </Box>
           )}
@@ -200,14 +212,15 @@ export default function Dashboard() {
           <Toolbar />
           <Routes>
             <Route path="/" element={<Orders />} />
-            <Route path="/kanban" element={<Kanban />} /> {/* Rota para Kanban */}
+            <Route path="/kanban" element={<Kanban sidebarOpen={open} />} />
+            <Route path="/profile" element={<UserProfile />} />
           </Routes>
         </Box>
       </Box>
       <Box
         component="footer"
         sx={{
-          py: 3,
+          py: 2.2,
           px: 2,
           mt: 'auto',
           backgroundColor: '#1b222a',

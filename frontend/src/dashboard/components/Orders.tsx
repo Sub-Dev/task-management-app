@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -9,6 +10,15 @@ import Title from './Title.tsx';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
+import TablePagination from '@mui/material/TablePagination';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import { IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import { useNavigate } from 'react-router-dom';
 
 // Função para truncar a descrição
 function truncateText(text: string, maxWords: number): string {
@@ -32,7 +42,7 @@ function createData(
   return { id, date, name, description: truncatedDescription, users, tasksCount };
 }
 
-const rows = [
+const initialRows = [
   createData(
     0,
     '16 Mar, 2019',
@@ -73,21 +83,75 @@ const rows = [
     'João,Paulo,Ana',
     25,
   ),
+  // Adicione mais dados conforme necessário
 ];
 
-function preventDefault(event: React.MouseEvent) {
-  event.preventDefault();
-}
-
 export default function Orders() {
+  const [rows, setRows] = React.useState(initialRows);
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [newProject, setNewProject] = React.useState({
+    name: '',
+    description: '',
+    users: '',
+  });
+
+  const navigate = useNavigate();
+
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleAddProject = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleSaveProject = () => {
+    const newProjectData = createData(
+      rows.length,
+      new Date().toLocaleDateString(),
+      newProject.name,
+      newProject.description,
+      newProject.users,
+      0 // Você pode ajustar isso conforme necessário
+    );
+    setRows([...rows, newProjectData]);
+    setNewProject({ name: '', description: '', users: '' });
+    handleCloseModal();
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewProject({
+      ...newProject,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <React.Fragment>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              {/* Certifique-se de que o Paper envolve todos os componentes internos */}
               <Title>Projetos</Title>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ mb: 2 }}
+                onClick={handleAddProject}
+              >
+                Adicionar Projeto
+              </Button>
               <Table size="small">
                 <TableHead>
                   <TableRow>
@@ -99,10 +163,18 @@ export default function Orders() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row) => (
+                  {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                     <TableRow key={row.id}>
                       <TableCell>{row.date}</TableCell>
-                      <TableCell>{row.name}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/dashboard/kanban/${row.id}`}
+                          color="primary"
+                          underline="hover"
+                        >
+                          {row.name}
+                        </Link>
+                      </TableCell>
                       <TableCell>{row.description}</TableCell>
                       <TableCell>{row.users}</TableCell>
                       <TableCell align="right">{row.tasksCount}</TableCell>
@@ -110,13 +182,81 @@ export default function Orders() {
                   ))}
                 </TableBody>
               </Table>
-              <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
-                Veja mais Projetos
-              </Link>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
             </Paper>
           </Grid>
         </Grid>
       </Container>
+
+      {/* Modal para adicionar projeto */}
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          Adicionar Novo Projeto
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleCloseModal}
+            aria-label="close"
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="name"
+                label="Nome do Projeto"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={newProject.name}
+                onChange={handleChange}
+                required
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                margin="dense"
+                name="description"
+                label="Descrição"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={newProject.description}
+                onChange={handleChange}
+                multiline
+                rows={4}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="inherit">Cancelar</Button>
+          <Button onClick={handleSaveProject} variant="contained" color="primary">Salvar</Button>
+        </DialogActions>
+      </Dialog>
     </React.Fragment>
   );
 }

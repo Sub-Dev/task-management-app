@@ -14,8 +14,8 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 
 export const mainListItems = (
   <React.Fragment>
-    <ListItemButton>
-      <ListItemIcon>
+    <ListItemButton >
+      <ListItemIcon >
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
