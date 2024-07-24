@@ -12,6 +12,8 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../Copyright.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
+import axiosInstance from '../axiosInstance'; // Importe o axiosInstance
+import { useNavigate } from 'react-router-dom'; // Importe useNavigate
 
 const theme = createTheme({
   palette: {
@@ -44,13 +46,28 @@ const theme = createTheme({
 });
 
 export default function SignIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate(); // Inicialize o useNavigate
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    const email = data.get('email')?.toString();
+    const password = data.get('password')?.toString();
+
+    try {
+      const response = await axiosInstance.post('/auth/login', { email, password });
+      const { access_token } = response.data;
+
+      if (access_token) {
+        localStorage.setItem('token', access_token); // Armazene o token no localStorage
+        navigate('/dashboard'); // Redirecione para a página de dashboard
+      } else {
+        console.error('Token não encontrado na resposta');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer login:', error);
+    }
   };
 
   return (

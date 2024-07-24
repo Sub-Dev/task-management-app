@@ -1,13 +1,21 @@
 // src/users/users.controller.ts
 
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Request } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './user.dto';
 import { User } from './user.entity';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.usersService.findById(req.user.userId);
+  }
 
   @Get()
   async findAll(): Promise<User[]> {
