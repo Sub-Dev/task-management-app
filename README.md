@@ -7,7 +7,7 @@
 </h3>
 
 <p align="center">
-  <img alt="Interface da aplicação" src=".github/frontend-v2-kanban.png" width="100%">
+  <img alt="Interface da aplicação" src=".github/frontend-v3-kanban.png" width="100%">
   <h3 align = "center" fontSize="60px">
   Versão Previa(Em desenvolvimento)
   </h3>
@@ -41,9 +41,10 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 2. Criação das telas de login,cadastro e tela do dashboard com o kanban inicial
 ### Backend
 ![Progresso Backend](https://geps.dev/progress/5)
-- **Backend**: 5% concluído
+- **Backend**: 25% concluído
 - **Descrição**: 
 1. Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
+2. Configurado o JWT criando componentes referentes a autenticação do login e cadastro de usuario nas fases iniciais através do token.
 ---
 ### Próximos Passos
 

@@ -1,19 +1,22 @@
-import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
+import React, { useState } from 'react';
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+  Alert,
+} from '@mui/material'; // Importação simplificada do MUI
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Copyright from '../Copyright.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
+import axiosInstance from '../axiosInstance';
+import { useNavigate } from 'react-router-dom';
+import Copyright from '../Copyright.tsx';
 
 const theme = createTheme({
   palette: {
@@ -46,13 +49,49 @@ const theme = createTheme({
 });
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+
+    const firstName = data.get('firstName')?.toString() ?? '';
+    const lastName = data.get('lastName')?.toString() ?? '';
+    const username = `${firstName} ${lastName}`.trim(); // Adicione um `trim` para remover espaços desnecessários
+    const email = data.get('email')?.toString() ?? '';
+    const password = data.get('password')?.toString() ?? '';
+    console.log("Nome de usuário:", username);
+
+    try {
+      await axiosInstance.post('/auth/register', { username, email, password });
+      navigate('/signin');
+    } catch (error: any) {
+      console.error('Erro ao cadastrar:', error);
+
+      if (error.response) {
+        // Erro de resposta (servidor respondeu com um status diferente de 2xx)
+        const statusCode = error.response.status;
+
+        if (statusCode === 400) {
+          setError('Verifique os dados enviados. Alguma informação pode estar incorreta.');
+        } else if (statusCode === 500) {
+          setError('Erro interno no servidor. Tente novamente mais tarde.');
+        } else {
+          setError(`Erro inesperado: ${statusCode}. Por favor, tente novamente.`);
+        }
+      } else if (error.request) {
+        // Erro de requisição (a requisição foi feita mas não houve resposta)
+        setError('Sem resposta do servidor. Por favor, verifique sua conexão de internet.');
+      } else {
+        // Outro erro
+        setError('Erro ao realizar cadastro. Por favor, tente novamente.');
+      } if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+        setError('O nome de usuário contém caracteres inválidos.');
+        return;
+      }
+
+    }
   };
 
   return (
@@ -76,13 +115,12 @@ export default function SignUp() {
               alignItems: 'center',
             }}
           >
-
             <img src={LogoNoBackground} alt="Logo" style={{ width: 100, height: 100 }} />
-
             <Typography component="h1" variant="h5" sx={{ color: theme.palette.text.primary, mt: 2 }}>
               Sign up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+              {error && <Alert severity="error">{error}</Alert>}
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField

@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { UserModule } from './user/user.module'; // Importe os módulos necessários
 // import { ProjectModule } from './projects/project.module';
 // import { TaskModule } from './tasks/task.module';
+import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -23,6 +24,7 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true, // somente em ambiente de desenvolvimento
     }),
     UserModule,
+    AuthModule,
     // ProjectModule,
     // TaskModule,
   ],
