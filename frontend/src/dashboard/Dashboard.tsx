@@ -12,15 +12,13 @@ import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { mainListItems, secondaryListItems } from './components/listItems.tsx';
-import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Orders from './components/Orders.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
 import Avatar1 from '../img/avatar/1.jpg';
@@ -220,7 +218,7 @@ export default function Dashboard() {
       <Box
         component="footer"
         sx={{
-          py: 2.2,
+          py: 2.7,
           px: 2,
           mt: 'auto',
           backgroundColor: '#1b222a',
