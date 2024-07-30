@@ -4,9 +4,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module'; // Importe os módulos necessários
 // import { ProjectModule } from './projects/project.module';
-// import { TaskModule } from './tasks/task.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { TasksModule } from './tasks/tasks.module';
+import { ColumnsModule } from './columns/columns.module';
+
 
 @Module({
   imports: [
@@ -25,8 +27,9 @@ import { ConfigModule } from '@nestjs/config';
     }),
     UserModule,
     AuthModule,
+    ColumnsModule,
+    TasksModule,
     // ProjectModule,
-    // TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
