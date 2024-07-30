@@ -1,5 +1,3 @@
-// src/users/user.entity.ts
-
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Project } from '../projects/project.entity';
 import { Task } from '../tasks/task.entity';
@@ -25,13 +23,22 @@ export class User extends BaseEntity {
   updated_at: Date;
 
   @ManyToMany(() => Project, project => project.users)
-  @JoinTable()
+  @JoinTable({
+    name: 'user_projects_project',
+    joinColumn: {
+      name: 'userId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'projectId',
+      referencedColumnName: 'id',
+    },
+  })
   projects: Project[];
 
   @ManyToMany(() => Task, task => task.users)
-  @JoinTable()
   tasks: Task[];
 
   @OneToMany(() => Task, task => task.created_by)
-  tasks_created: Task[]; // Relacionamento para as tarefas criadas pelo usuário
+  tasks_created: Task[];
 }

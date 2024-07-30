@@ -1,8 +1,9 @@
 // src/projects/project.entity.ts
 
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, OneToMany, JoinTable } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Task } from '../tasks/task.entity';
+import { Column as KanbanColumn } from '../columns/column.entity'; // Importar a entidade Column com alias
 
 @Entity()
 export class Project extends BaseEntity {
@@ -15,13 +16,14 @@ export class Project extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToMany(() => User, user => user.projects)
-  @JoinTable()
+  @ManyToMany(() => User, (user) => user.projects)
   users: User[];
 
-  @ManyToMany(() => Task, task => task.project)
-  @JoinTable()
+  @OneToMany(() => Task, task => task.project) // Relacionamento OneToMany com Task
   tasks: Task[];
+
+  @OneToMany(() => KanbanColumn, column => column.project)  // Relacionamento OneToMany com Column
+  columns: KanbanColumn[];  // Tipo KanbanColumn[]
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -1,3 +1,4 @@
+// src/dashboard/components/Kanban.tsx
 import React from 'react';
 import { Container, Box, Typography, Paper, IconButton, Modal, TextField, Button, Card, CardContent } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';

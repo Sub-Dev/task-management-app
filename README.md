@@ -29,10 +29,11 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 ## 📊 Progresso do Projeto
 
 ### Progresso Total
-![Progresso Total](https://geps.dev/progress/30)
-- **Progresso Total**: 30% concluído
+![Progresso Total](https://geps.dev/progress/40)
+- **Progresso Total**: 40% concluído
 - **Descrição**: 
 1. Implementação inicial concluída, estrutura básica do projeto configurada.
+2. Configurações basicas frontend e backend finalizadas.
 ### Frontend
 ![Progresso Frontend](https://geps.dev/progress/25)
 - **Frontend**: 25% concluído
@@ -40,11 +41,12 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 1. Estrutura do frontend configurada, começando a implementação dos componentes principais
 2. Criação das telas de login,cadastro e tela do dashboard com o kanban inicial
 ### Backend
-![Progresso Backend](https://geps.dev/progress/5)
-- **Backend**: 25% concluído
+![Progresso Backend](https://geps.dev/progress/50)
+- **Backend**: 50% concluído
 - **Descrição**: 
 1. Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
 2. Configurado o JWT criando componentes referentes a autenticação do login e cadastro de usuario nas fases iniciais através do token.
+3. Finalizado CRUD basico dos usuarios,tarefas,colunas e projetos com seus devidos endpoints.
 ---
 ### Próximos Passos
 
@@ -89,7 +91,7 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 ## Funcionalidades
 
 - [ ] Autenticação e autorização de usuários na manipulação das tarefas de projetos
-- [ ] CRUD de tarefas
+- [x] CRUD de tarefas
 - [ ] Gestão de projetos
 
 ## Estrutura do Projeto
