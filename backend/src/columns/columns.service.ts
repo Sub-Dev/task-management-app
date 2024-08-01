@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Column } from './column.entity';
@@ -54,23 +54,21 @@ export class ColumnsService {
     return this.columnsRepository.save(column);
   }
 
-  async remove(id: number): Promise<void> {
-    const columnToRemove = await this.columnsRepository.findOneBy({ id });
-    if (!columnToRemove) {
-      throw new Error('Coluna não encontrada');
+  async remove(columnId: number): Promise<void> {
+    try {
+      const column = await this.columnsRepository.findOne({
+        where: { id: columnId },
+      });
+
+      if (!column) {
+        throw new NotFoundException(`Column with ID ${columnId} not found`);
+      }
+
+      await this.columnsRepository.remove(column);
+      console.log(`Column with ID ${columnId} removed successfully.`);
+    } catch (error) {
+      console.error('Erro ao remover coluna:', error);
+      throw new InternalServerErrorException('Erro ao remover a coluna');
     }
-
-    await this.columnsRepository.delete(id);
-
-    // Atualiza a ordem das colunas restantes
-    await this.columnsRepository
-      .createQueryBuilder()
-      .update(Column)
-      .set({ order: () => 'order - 1' })
-      .where('order > :order AND projectId = :projectId', {
-        order: columnToRemove.order,
-        projectId: columnToRemove.project.id
-      })
-      .execute();
   }
 }
