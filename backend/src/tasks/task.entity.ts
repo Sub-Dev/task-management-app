@@ -49,7 +49,10 @@ export class Task extends BaseEntity {
   @ManyToOne(() => User, user => user.tasks_created)
   created_by: User;
 
-  @ManyToOne(() => KanbanColumn, column => column.tasks)
+  @ManyToOne(() => KanbanColumn, column => column.tasks, {
+
+    onDelete: 'CASCADE', // Essa linha garante a exclusão em cascata
+  })
   column: KanbanColumn;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
