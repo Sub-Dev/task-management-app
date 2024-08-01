@@ -1,7 +1,17 @@
-// src/dashboard/components/Kanban.tsx
 import React from 'react';
-import { Container, Box, Typography, Paper, IconButton, Modal, TextField, Button, Card, CardContent } from '@mui/material';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import {
+  Container,
+  Box,
+  Typography,
+  Paper,
+  IconButton,
+  Modal,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+} from '@mui/material';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -9,40 +19,41 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import api from '../../axiosInstance';
 
+// Definindo a interface para Task
 interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'todo' | 'inProgress' | 'done';
+  status: string;
   completed: boolean;
 }
 
+// Definindo a interface para Column
+interface Column {
+  id: string;
+  title: string;
+  order: number;
+  tasks: Task[];
+}
 
-const initialData: Record<string, Task[]> = {
-  todo: [
-    { id: '1', title: 'Task 1', description: 'Description of Task 1', status: 'todo', completed: false },
-    { id: '2', title: 'Task 2', description: 'Description of Task 2', status: 'todo', completed: false },
-  ],
-  inProgress: [
-    { id: '3', title: 'Task 3', description: 'Description of Task 3', status: 'inProgress', completed: false },
-  ],
-  done: [
-    { id: '4', title: 'Task 4', description: 'Description of Task 4', status: 'done', completed: true },
-  ],
-};
+// Definindo o estado inicial para o Kanban
+const initialData: Record<string, Column> = {};
 
-const Kanban = ({ sidebarOpen }) => {
-  const [data, setData] = React.useState(initialData);
+const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
+  const [data, setData] = React.useState<Record<string, Column>>(initialData);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isColumnModalOpen, setIsColumnModalOpen] = React.useState(false);
   const [currentTask, setCurrentTask] = React.useState<Task | null>(null);
-  const [currentColumn, setCurrentColumn] = React.useState<string | null>(null);
+  const [currentColumn, setCurrentColumn] = React.useState<Column | null>(null);
   const [newTaskTitles, setNewTaskTitles] = React.useState<Record<string, string>>({});
   const [newTaskDescriptions, setNewTaskDescriptions] = React.useState<Record<string, string>>({});
   const [newColumnName, setNewColumnName] = React.useState('');
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [showArrows, setShowArrows] = React.useState(false);
+  const [column, setColumn] = React.useState<boolean>(false);
+  const [updateFlag, setUpdateFlag] = React.useState(0);
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -57,39 +68,72 @@ const Kanban = ({ sidebarOpen }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [data]); // Added data dependency to check whenever columns are added or removed
 
-  const onDragEnd = (result: DropResult) => {
+  React.useEffect(() => {
+    // Função para buscar dados das colunas e tarefas do backend
+    const fetchData = async () => {
+      try {
+        const response = await api.get('/columns');
+        const columns: Column[] = response.data;
+        const formattedData: Record<string, Column> = {};
+
+        columns.forEach((column) => {
+          formattedData[column.title] = column;
+        });
+
+        setData(formattedData);
+      } catch (error) {
+        console.error('Erro ao buscar dados do backend:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId } = result;
 
     if (!destination) {
       return; // Se a tarefa não for colocada em um destino válido, não faz nada
     }
 
-    const sourceColumn = source.droppableId;
-    const destColumn = destination.droppableId;
+    const sourceColumnId = source.droppableId;
+    const destColumnId = destination.droppableId;
 
-    if (sourceColumn === destColumn && source.index === destination.index) {
+    if (sourceColumnId === destColumnId && source.index === destination.index) {
       return; // Se a posição não mudou dentro da mesma coluna, não faz nada
     }
 
-    // Encontra a tarefa arrastada no estado atual
-    const item = data[sourceColumn][source.index];
+    const sourceColumn = data[sourceColumnId];
+    const destColumn = data[destColumnId];
 
-    // Cria uma nova cópia da tarefa com o status atualizado para a nova coluna
-    const newItem = { ...item, status: destColumn };
+    const item = sourceColumn.tasks[source.index];
 
-    // Atualiza o estado removendo a tarefa da coluna de origem
-    const updatedSourceItems = Array.from(data[sourceColumn]);
+    // Atualiza o estado local removendo a tarefa da coluna de origem
+    const updatedSourceItems = Array.from(sourceColumn.tasks);
     updatedSourceItems.splice(source.index, 1);
 
-    // Atualiza o estado adicionando a tarefa à coluna de destino
-    const updatedDestItems = Array.from(data[destColumn]);
-    updatedDestItems.splice(destination.index, 0, newItem);
+    // Atualiza o estado local adicionando a tarefa à coluna de destino
+    const updatedDestItems = Array.from(destColumn.tasks);
+    updatedDestItems.splice(destination.index, 0, item);
 
-    setData((prevData) => ({
-      ...prevData,
-      [sourceColumn]: updatedSourceItems,
-      [destColumn]: updatedDestItems,
-    }));
+    // Atualiza o status da tarefa no backend
+    try {
+      await api.put(`/tasks/${draggableId}`, { status: destColumnId });
+
+      setData((prevData) => ({
+        ...prevData,
+        [sourceColumnId]: {
+          ...sourceColumn,
+          tasks: updatedSourceItems,
+        },
+        [destColumnId]: {
+          ...destColumn,
+          tasks: updatedDestItems,
+        },
+      }));
+    } catch (error) {
+      console.error('Erro ao mover tarefa:', error);
+    }
   };
 
   const handleEditTask = (task: Task) => {
@@ -97,14 +141,23 @@ const Kanban = ({ sidebarOpen }) => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTask = (task: Task) => {
-    setData((prevData) => {
-      const newColumnItems = prevData[task.status].filter((t) => t.id !== task.id);
-      return {
-        ...prevData,
-        [task.status]: newColumnItems,
-      };
-    });
+  const handleDeleteTask = async (task: Task) => {
+    try {
+      await api.delete(`/tasks/${task.id}`);
+
+      setData((prevData) => {
+        const newColumnItems = prevData[task.status].tasks.filter((t) => t.id !== task.id);
+        return {
+          ...prevData,
+          [task.status]: {
+            ...prevData[task.status],
+            tasks: newColumnItems,
+          },
+        };
+      });
+    } catch (error) {
+      console.error('Erro ao deletar tarefa:', error);
+    }
   };
 
   const handleModalClose = () => {
@@ -112,93 +165,163 @@ const Kanban = ({ sidebarOpen }) => {
     setCurrentTask(null);
   };
 
-  const handleTaskUpdate = () => {
+  const handleTaskUpdate = async () => {
     if (currentTask) {
-      setData((prevData) => {
-        const updatedColumnItems = prevData[currentTask.status].map((t) =>
-          t.id === currentTask.id ? currentTask : t
-        );
-        return {
-          ...prevData,
-          [currentTask.status]: updatedColumnItems,
-        };
-      });
-      handleModalClose();
+      try {
+        await api.put(`/tasks/${currentTask.id}`, {
+          title: currentTask.title,
+          description: currentTask.description,
+          completed: currentTask.completed,
+        });
+
+        setData((prevData) => {
+          const updatedColumnItems = prevData[currentTask.status].tasks.map((t) =>
+            t.id === currentTask.id ? currentTask : t
+          );
+          return {
+            ...prevData,
+            [currentTask.status]: {
+              ...prevData[currentTask.status],
+              tasks: updatedColumnItems,
+            },
+          };
+        });
+        handleModalClose();
+      } catch (error) {
+        console.error('Erro ao atualizar tarefa:', error);
+      }
     }
   };
 
-  const handleAddTask = (column: string) => {
+  const handleAddTask = async (column: string) => {
     const newTask: Task = {
-      id: (Math.random() * 10000).toString(),
+      id: '',
       title: newTaskTitles[column],
       description: newTaskDescriptions[column],
-      status: column as 'todo' | 'inProgress' | 'done',
+      status: column,
       completed: false,
     };
 
-    setData((prevData) => ({
-      ...prevData,
-      [column]: [...prevData[column], newTask],
-    }));
+    try {
+      const response = await api.post('/tasks', newTask);
+      const addedTask = response.data;
 
-    setNewTaskTitles((prevTitles) => ({
-      ...prevTitles,
-      [column]: '',
-    }));
-
-    setNewTaskDescriptions((prevDescriptions) => ({
-      ...prevDescriptions,
-      [column]: '',
-    }));
-  };
-
-  const handleToggleTaskStatus = (task: Task) => {
-    setData((prevData) => {
-      const updatedColumnItems = prevData[task.status].map((t) =>
-        t.id === task.id ? { ...t, completed: !t.completed } : t
-      );
-      return {
+      setData((prevData) => ({
         ...prevData,
-        [task.status]: updatedColumnItems,
-      };
-    });
+        [column]: {
+          ...prevData[column],
+          tasks: [...prevData[column].tasks, addedTask],
+        },
+      }));
+
+      setNewTaskTitles((prevTitles) => ({
+        ...prevTitles,
+        [column]: '',
+      }));
+
+      setNewTaskDescriptions((prevDescriptions) => ({
+        ...prevDescriptions,
+        [column]: '',
+      }));
+    } catch (error) {
+      console.error('Erro ao adicionar tarefa:', error);
+    }
   };
 
-  const handleAddColumn = () => {
+  const handleToggleTaskStatus = async (task: Task) => {
+    try {
+      await api.put(`/tasks/${task.id}`, { completed: !task.completed });
+
+      setData((prevData) => {
+        const updatedColumnItems = prevData[task.status].tasks.map((t) =>
+          t.id === task.id ? { ...t, completed: !t.completed } : t
+        );
+        return {
+          ...prevData,
+          [task.status]: {
+            ...prevData[task.status],
+            tasks: updatedColumnItems,
+          },
+        };
+      });
+    } catch (error) {
+      console.error('Erro ao atualizar status da tarefa:', error);
+    }
+  };
+
+  const handleAddColumn = async () => {
     if (!newColumnName) return;
-    setData((prevData) => ({
-      ...prevData,
-      [newColumnName]: [],
-    }));
-    setNewColumnName('');
+
+    try {
+      const response = await api.post('/columns', { title: newColumnName });
+      const addedColumn = response.data;
+
+      setData((prevData) => ({
+        ...prevData,
+        [addedColumn.title]: addedColumn,
+      }));
+
+      setNewColumnName('');
+    } catch (error) {
+      console.error('Erro ao adicionar coluna:', error);
+    }
+
     setIsColumnModalOpen(false);
   };
 
-  const handleColumnEdit = (column: string) => {
+  // Função para excluir uma coluna
+  const handleDeleteColumn = async (columnId: string) => {
+    const confirmDelete = window.confirm('Você tem certeza que deseja excluir esta coluna?');
+
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`/columns/${columnId}`);
+
+      // Recarrega os dados das colunas do backend após a exclusão
+      const response = await api.get('/columns');
+      const updatedColumns = response.data;
+
+      // Atualiza o estado com os dados mais recentes
+      setData(updatedColumns.reduce((acc: Record<string, Column>, column: Column) => {
+        acc[column.id] = column;
+        return acc;
+      }, {}));
+    } catch (error) {
+      console.error('Erro ao deletar coluna:', error);
+    }
+  };
+
+
+
+
+  const handleEditColumn = (column: Column) => {
     setCurrentColumn(column);
-    setNewColumnName(column);
     setIsColumnModalOpen(true);
   };
 
-  const handleColumnUpdate = () => {
-    if (!currentColumn) return;
-    const newData: Record<string, Task[]> = {};
-    for (const key in data) {
-      if (key === currentColumn) {
-        newData[newColumnName] = data[key];
-      } else {
-        newData[key] = data[key];
+  const handleUpdateColumn = async () => {
+    if (currentColumn) {
+      try {
+        await api.put(`/columns/${currentColumn.id}`, { title: currentColumn.title });
+
+        setData((prevData) => ({
+          ...prevData,
+          [currentColumn.id]: {
+            ...currentColumn,
+          },
+        }));
+
+        setIsColumnModalOpen(false);
+      } catch (error) {
+        console.error('Erro ao atualizar coluna:', error);
       }
     }
-    setData(newData);
-    setCurrentColumn(null);
-    setNewColumnName('');
-    setIsColumnModalOpen(false);
   };
 
-  const handleDeleteColumn = (column: string) => {
-    const { [column]: _, ...rest } = data;
-    setData(rest);
+  const handleModalColumnClose = () => {
+    setIsColumnModalOpen(false);
+    setCurrentColumn(null);
   };
 
   const scrollLeft = () => {
@@ -220,282 +343,284 @@ const Kanban = ({ sidebarOpen }) => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ mb: 4 }}>
-        <Card sx={{ mb: 1, boxShadow: 3, backgroundColor: '#f4f4f4', width: '100%' }}>
-          <CardContent>
-            <Typography
-              variant="h5"
-              align="center"
-              sx={{
-                mb: 2,
-                fontWeight: 'bold',
-                color: '#333',
-                textTransform: 'uppercase',
-                letterSpacing: 1.5,
-              }}
-            >
-              Projeto: TaskMaster Kanban Board
-            </Typography>
-
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
-                variant="contained"
-                onClick={() => setIsColumnModalOpen(true)}
-                startIcon={<AddIcon />}
-                sx={{
-                  backgroundColor: '#1976d2',
-                  '&:hover': { backgroundColor: '#115293' },
-                  fontWeight: 'bold',
-                  padding: '10px 20px',
-                  boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
-                  transition: 'all 0.3s ease-in-out',
-                }}
-              >
-                Adicionar Coluna
-              </Button>
-            </Box>
-          </CardContent>
-        </Card>
+    < Container maxWidth={false} >
+      <Box display="flex" alignItems="center" mb={2}>
+        <Typography variant="h4" component="h1">
+          Kanban Board
+        </Typography>
+        <Box ml="auto">
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => setIsColumnModalOpen(true)}
+          >
+            Add Column
+          </Button>
+        </Box>
       </Box>
 
-      {showArrows && (
-        <>
-          <IconButton
-            onClick={scrollLeft}
-            sx={{
-              position: 'absolute',
-              left: sidebarOpen ? 240 : 120,
-              top: '50%',
-              transform: 'translateY(-20%)',
-              zIndex: 1,
-              backgroundColor: '#1976d2',
-              borderRadius: '50%',
-              boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
-              '&:hover': { backgroundColor: '#115293' },
-            }}
-          >
-            <ArrowBackIosNewIcon sx={{ color: 'white' }} />
-          </IconButton>
+      <Box position="relative" ref={containerRef} overflow="auto" display="flex" py={2}>
 
-          <IconButton
-            onClick={scrollRight}
-            sx={{
-              position: 'absolute',
-              right: sidebarOpen ? 20 : 80,
-              top: '50%',
-              transform: 'translateY(-20%)',
-              zIndex: 1,
-              backgroundColor: '#1976d2',
-              borderRadius: '50%',
-              boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
-              '&:hover': { backgroundColor: '#115293' },
-            }}
-          >
-            <ArrowForwardIosIcon sx={{ color: 'white' }} />
-          </IconButton>
-        </>
-      )}
-      <Box sx={{ position: 'relative', overflowX: 'auto', display: 'flex' }} ref={containerRef}>
+
         <DragDropContext onDragEnd={onDragEnd}>
-          {Object.keys(data).map((column) => (
-            <Droppable key={column} droppableId={column}>
+          {Object.entries(data).map(([columnId, column]) => (
+            <Droppable droppableId={columnId} key={columnId}>
               {(provided) => (
                 <Box
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  sx={{
-                    minWidth: 250,
-                    p: 2,
-                    mr: 2,
-                    borderRadius: 1,
-                    backgroundColor: '#e0e0e0',
-                    boxShadow: 2,
-                  }}
+                  width={300}
+                  minHeight={500}
+                  bgcolor="#f5f5f5"
+                  borderRadius={2}
+                  p={1}
+                  m={1}
+                  boxShadow={1}
+                  flexShrink={0}
                 >
-                  <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold', color: '#333' }}>
-                    {column}
-                    <IconButton
-                      onClick={() => handleColumnEdit(column)}
-                      sx={{ ml: 2 }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDeleteColumn(column)}
-                      sx={{ ml: 1 }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Typography>
-                  {data[column].map((task, index) => (
-                    <Draggable draggableId={task.id} index={index} key={task.id}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Typography variant="h6" component="h2">
+                      {column.title}
+                    </Typography>
+                    <Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditColumn(column)}
+                        style={{ marginRight: 8 }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDeleteColumn(column.id)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  {column.tasks.map((task, index) => (
+                    <Draggable draggableId={task.id.toString()} index={index} key={task.id}>
                       {(provided) => (
-                        <Paper
-                          {...provided.draggableProps}
+                        <Box
                           ref={provided.innerRef}
+                          {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          sx={{
-                            mb: 2,
-                            p: 2,
-                            backgroundColor: task.completed ? '#c8e6c9' : '#fff',
-                            boxShadow: 2,
-                            cursor: 'pointer',
-                            '&:hover': { boxShadow: 4 },
-                          }}
+                          mb={1}
+                          bgcolor="white"
+                          p={1}
+                          borderRadius={2}
+                          boxShadow={1}
                         >
-                          <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                          <Typography variant="subtitle1" component="h3" gutterBottom>
                             {task.title}
                           </Typography>
-                          <Typography variant="body2">{task.description}</Typography>
-                          <Box sx={{ mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" gutterBottom>
+                            {task.description}
+                          </Typography>
+                          <Box display="flex" alignItems="center">
                             <IconButton
+                              size="small"
                               onClick={() => handleEditTask(task)}
-                              sx={{ mr: 1 }}
+                              style={{ marginRight: 8 }}
                             >
-                              <EditIcon />
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => handleDeleteTask(task)}>
+                              <DeleteIcon fontSize="small" />
                             </IconButton>
                             <IconButton
-                              onClick={() => handleDeleteTask(task)}
-                              sx={{ mr: 1 }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                            <IconButton
+                              size="small"
                               onClick={() => handleToggleTaskStatus(task)}
                             >
                               {task.completed ? (
-                                <CancelOutlinedIcon />
+                                <CheckCircleOutlineIcon color="primary" fontSize="small" />
                               ) : (
-                                <CheckCircleOutlineIcon />
+                                <CancelOutlinedIcon color="error" fontSize="small" />
                               )}
                             </IconButton>
                           </Box>
-                        </Paper>
+                        </Box>
                       )}
                     </Draggable>
                   ))}
                   {provided.placeholder}
-                  <Box sx={{ mt: 2 }}>
-                    <TextField
-                      label="Título da nova tarefa"
-                      variant="outlined"
-                      fullWidth
-                      value={newTaskTitles[column] || ''}
-                      onChange={(e) => setNewTaskTitles({ ...newTaskTitles, [column]: e.target.value })}
-                      sx={{ mb: 1 }}
-                    />
-                    <TextField
-                      label="Descrição da nova tarefa"
-                      variant="outlined"
-                      fullWidth
-                      multiline
-                      rows={2}
-                      value={newTaskDescriptions[column] || ''}
-                      onChange={(e) => setNewTaskDescriptions({ ...newTaskDescriptions, [column]: e.target.value })}
-                    />
-                    <Button
-                      variant="contained"
-                      onClick={() => handleAddTask(column)}
-                      startIcon={<AddIcon />}
-                      sx={{ mt: 1 }}
-                    >
-                      Adicionar Tarefa
-                    </Button>
-                  </Box>
+
+                  <Card>
+                    <CardContent>
+                      <TextField
+                        fullWidth
+                        label="Task Title"
+                        value={newTaskTitles[columnId] || ''}
+                        onChange={(e) =>
+                          setNewTaskTitles({ ...newTaskTitles, [columnId]: e.target.value })
+                        }
+                        margin="normal"
+                        variant="outlined"
+                      />
+                      <TextField
+                        fullWidth
+                        label="Task Description"
+                        value={newTaskDescriptions[columnId] || ''}
+                        onChange={(e) =>
+                          setNewTaskDescriptions({
+                            ...newTaskDescriptions,
+                            [columnId]: e.target.value,
+                          })
+                        }
+                        margin="normal"
+                        variant="outlined"
+                      />
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleAddTask(columnId)}
+                      >
+                        Add Task
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </Box>
               )}
             </Droppable>
           ))}
         </DragDropContext>
-
-
       </Box>
+      {
+        showArrows && (
+          <>
+            <IconButton
+              onClick={scrollLeft}
+              sx={{
+                position: 'absolute',
+                left: sidebarOpen ? 240 : 80,
+                top: '50%',
+                transform: 'translateY(-20%)',
+                zIndex: 1,
+                backgroundColor: '#1976d2',
+                borderRadius: '50%',
+                boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
+                '&:hover': { backgroundColor: '#115293' },
+              }}
+            >
+              <ArrowBackIosNewIcon sx={{ color: 'white' }} />
+            </IconButton>
 
+            <IconButton
+              onClick={scrollRight}
+              sx={{
+                position: 'absolute',
+                right: sidebarOpen ? 20 : 20,
+                top: '50%',
+                transform: 'translateY(-20%)',
+                zIndex: 1,
+                backgroundColor: '#1976d2',
+                borderRadius: '50%',
+                boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
+                '&:hover': { backgroundColor: '#115293' },
+              }}
+            >
+              <ArrowForwardIosIcon sx={{ color: 'white' }} />
+            </IconButton>
+          </>
+        )
+      }
+      {/* Modal para edição de tarefas */}
       <Modal open={isModalOpen} onClose={handleModalClose}>
         <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
-          }}
+          position="absolute"
+          top="50%"
+          left="50%"
+          bgcolor="background.paper"
+          borderRadius={2}
+          boxShadow={3}
+          p={4}
+          style={{ transform: 'translate(-50%, -50%)' }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Editar Tarefa
+          <Typography variant="h6" gutterBottom>
+            Edit Task
           </Typography>
           {currentTask && (
             <>
               <TextField
-                label="Título"
-                variant="outlined"
                 fullWidth
+                label="Title"
                 value={currentTask.title}
-                onChange={(e) => setCurrentTask({ ...currentTask, title: e.target.value })}
-                sx={{ mb: 2 }}
+                onChange={(e) =>
+                  setCurrentTask({ ...currentTask, title: e.target.value })
+                }
+                margin="normal"
+                variant="outlined"
               />
               <TextField
-                label="Descrição"
-                variant="outlined"
                 fullWidth
-                multiline
-                rows={2}
+                label="Description"
                 value={currentTask.description}
-                onChange={(e) => setCurrentTask({ ...currentTask, description: e.target.value })}
-                sx={{ mb: 2 }}
+                onChange={(e) =>
+                  setCurrentTask({ ...currentTask, description: e.target.value })
+                }
+                margin="normal"
+                variant="outlined"
               />
-              <Button
-                variant="contained"
-                onClick={handleTaskUpdate}
-                sx={{ backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#115293' } }}
-              >
-                Atualizar
-              </Button>
+              <Box mt={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleTaskUpdate}
+                  style={{ marginRight: 8 }}
+                >
+                  Save
+                </Button>
+                <Button variant="outlined" onClick={handleModalClose}>
+                  Cancel
+                </Button>
+              </Box>
             </>
           )}
         </Box>
       </Modal>
 
-      <Modal open={isColumnModalOpen} onClose={() => setIsColumnModalOpen(false)}>
+      {/* Modal para edição de colunas */}
+      <Modal open={isColumnModalOpen} onClose={handleModalColumnClose}>
         <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: 24,
-            p: 4,
-          }}
+          position="absolute"
+          top="50%"
+          left="50%"
+          bgcolor="background.paper"
+          borderRadius={2}
+          boxShadow={3}
+          p={4}
+          style={{ transform: 'translate(-50%, -50%)' }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {currentColumn ? 'Editar Coluna' : 'Adicionar Nova Coluna'}
+          <Typography variant="h6" gutterBottom>
+            {currentColumn ? 'Edit Column' : 'Add Column'}
           </Typography>
           <TextField
-            label="Nome da Coluna"
-            variant="outlined"
             fullWidth
-            value={newColumnName}
-            onChange={(e) => setNewColumnName(e.target.value)}
-            sx={{ mb: 2 }}
+            label="Column Name"
+            value={currentColumn ? currentColumn.title : newColumnName}
+            onChange={(e) =>
+              currentColumn
+                ? setCurrentColumn({ ...currentColumn, title: e.target.value })
+                : setNewColumnName(e.target.value)
+            }
+            margin="normal"
+            variant="outlined"
           />
-          <Button
-            variant="contained"
-            onClick={currentColumn ? handleColumnUpdate : handleAddColumn}
-            sx={{ backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#115293' } }}
-          >
-            {currentColumn ? 'Atualizar Coluna' : 'Adicionar Coluna'}
-          </Button>
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={currentColumn ? handleUpdateColumn : handleAddColumn}
+              style={{ marginRight: 8 }}
+            >
+              {currentColumn ? 'Save' : 'Add'}
+            </Button>
+            <Button variant="outlined" onClick={handleModalColumnClose}>
+              Cancel
+            </Button>
+          </Box>
         </Box>
       </Modal>
-    </Container>
+    </Container >
   );
 };
 
