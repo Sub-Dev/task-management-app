@@ -12,7 +12,37 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
-  ) { }
+  ) {}
+
+  // Método para validar o token
+  async validateToken(token: string): Promise<any> {
+    try {
+      // Verifica e decodifica o token JWT usando o JwtService do NestJS
+      const decoded = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      // Obtem o usuário pelo ID decodificado no token
+      const user = await this.userRepository.findOne({ where: { id: decoded.sub } });
+
+      if (!user) {
+        throw new UnauthorizedException('Token inválido. Usuário não encontrado.');
+      }
+
+      return {
+        success: true,
+        message: 'Token é válido',
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          profileImageUrl: user.profileImageUrl
+        },
+      };
+    } catch (error) {
+      throw new UnauthorizedException('Token inválido.');
+    }
+  }
 
   async validateUser(email: string, password: string): Promise<any> {
     // Busca o usuário pelo email
@@ -21,7 +51,7 @@ export class AuthService {
       const { password, ...result } = user; // Exclui a senha dos dados retornados
       return result; // Retorna o usuário sem a senha
     }
-    throw new UnauthorizedException('Invalid email or password'); // Lança exceção se as credenciais estiverem erradas
+    throw new UnauthorizedException('Email ou senha inválidos'); // Lança exceção se as credenciais estiverem erradas
   }
 
   async validateUserById(userId: number): Promise<any> {
@@ -46,11 +76,11 @@ export class AuthService {
     const { username, email, password } = userData;
     // Verificar se o usuário com o mesmo email ou username já existe
     const existingUser = await this.userRepository.findOne({
-      where: [{ email }, { username }]
+      where: [{ email }, { username }],
     });
 
     if (existingUser) {
-      throw new ConflictException('Username or email already in use');
+      throw new ConflictException('Username ou email já em uso');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha para armazenamento seguro

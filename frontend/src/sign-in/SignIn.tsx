@@ -1,3 +1,4 @@
+// src/sign-in/SignIn.tsx
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -14,6 +15,8 @@ import Copyright from '../Copyright.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
 import axiosInstance from '../axiosInstance'; // Importe o axiosInstance
 import { useNavigate } from 'react-router-dom'; // Importe useNavigate
+import useAuth from '../hooks/useAuth'; // Importe useAuth
+import LoadingSpinner from '../components/LoadingSpinner.tsx'; // Importe o componente de carregamento
 
 const theme = createTheme({
   palette: {
@@ -47,6 +50,17 @@ const theme = createTheme({
 
 export default function SignIn() {
   const navigate = useNavigate(); // Inicialize o useNavigate
+  const { user, loading } = useAuth(); // Utilize useAuth para verificar a autenticação
+  const [redirecting, setRedirecting] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      setRedirecting(true);
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 3000); // Delay de 2 segundos
+    }
+  }, [user, loading, navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -61,14 +75,20 @@ export default function SignIn() {
 
       if (access_token) {
         localStorage.setItem('token', access_token); // Armazene o token no localStorage
-        navigate('/dashboard'); // Redirecione para a página de dashboard
+        // O redirecionamento será tratado no useEffect
       } else {
         console.error('Token não encontrado na resposta');
+        // Adicione uma mensagem de erro aqui se necessário
       }
     } catch (error) {
       console.error('Erro ao fazer login:', error);
+      // Adicione uma mensagem de erro aqui se necessário
     }
   };
+
+  if (redirecting || loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <ThemeProvider theme={theme}>

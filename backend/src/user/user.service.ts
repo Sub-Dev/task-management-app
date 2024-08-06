@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   private readonly saltRounds = 10; // Define o número de rounds para bcrypt
+  private readonly defaultProfileImage = './avatars/avatar-default.png'; // URL da imagem padrão
 
   constructor(
     @InjectRepository(User)
@@ -40,10 +41,11 @@ export class UsersService {
     // Criptografar a senha antes de criar o usuário
     const hashedPassword = await bcrypt.hash(createUserDto.password, this.saltRounds);
 
-    // Criar o novo usuário com a senha criptografada
+    // Criar o novo usuário com a senha criptografada e a imagem de perfil
     const newUser = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
+      profileImageUrl: createUserDto.profileImageUrl || this.defaultProfileImage, // Use a URL fornecida ou a padrão
     });
 
     return await this.userRepository.save(newUser);
@@ -55,6 +57,11 @@ export class UsersService {
     // Verificar se a senha foi atualizada e, se sim, criptografá-la
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, this.saltRounds);
+    }
+
+    // Atualizar a URL da imagem de perfil se fornecida
+    if (!updateUserDto.profileImageUrl) {
+      updateUserDto.profileImageUrl = user.profileImageUrl || this.defaultProfileImage; // Mantém a imagem atual ou define a padrão
     }
 
     this.userRepository.merge(user, updateUserDto);
