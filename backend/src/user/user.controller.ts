@@ -1,3 +1,5 @@
+// src/users/users.controller.ts
+
 import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Request, NotFoundException, BadRequestException } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './user.dto';
@@ -18,12 +20,14 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
   }
-
+  
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<User[]> {
     return await this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
     const user = await this.usersService.findById(+id);
@@ -33,6 +37,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     // Validação adicional pode ser realizada aqui, se necessário
@@ -42,6 +47,7 @@ export class UsersController {
     return await this.usersService.create(createUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: Partial<CreateUserDto>): Promise<User> {
     // Validação adicional pode ser realizada aqui, se necessário
@@ -56,6 +62,7 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {
     try {

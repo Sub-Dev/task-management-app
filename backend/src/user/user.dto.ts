@@ -1,6 +1,6 @@
 // src/users/user.dto.ts
 
-import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsOptional, IsUrl } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -14,4 +14,8 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
   password: string;
+
+  @IsOptional()
+  @IsUrl()
+  profileImageUrl?: string; // Torna o campo opcional
 }

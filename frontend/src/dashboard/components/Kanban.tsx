@@ -29,6 +29,7 @@ import { faEdit, faSave, faTimes, faHeading, faAlignLeft, faCalendar } from '@fo
 import moment from 'moment';
 import { Project } from '../../interface/project.interface.ts';
 import DialogDelete from './DialogDelete.tsx'; // Importar o DialogDeleteColumn
+import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o modal de edição
 interface Task {
   id: number;
   title: string;
@@ -406,6 +407,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const handleModalColumnClose = () => {
     setIsColumnModalOpen(false);
     setCurrentColumn(null);
+    setNewColumnName('');
   };
 
   const scrollLeft = () => {
@@ -705,9 +707,9 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                 fullWidth
                 label="Data de vencimento"
                 type="date"
-                value={currentTask.due_date}
+                value={moment(currentTask.due_date).format('YYYY-MM-DD')}
                 onChange={(e) =>
-                  setCurrentTask({ ...currentTask, due_date: moment(e.target.value).format('YYYY-MM-DD') })
+                  setCurrentTask({ ...currentTask, due_date: e.target.value })
                 }
                 margin="normal"
                 variant="outlined"
@@ -745,81 +747,16 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       </Modal>
 
       {/* Modal para edição de colunas */}
-      <Modal open={isColumnModalOpen} onClose={handleModalColumnClose}>
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          bgcolor="#f7f7f7"
-          borderRadius={2}
-          boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-          p={4}
-          style={{ transform: 'translate(-50%, -50%)', width: '400px' }}
-        >
-          <Typography variant="h4" gutterBottom>
-            <FontAwesomeIcon icon={faEdit} /> {currentColumn ? 'Editar Coluna' : 'Adicionar Coluna'}
-          </Typography>
-          <form>
-            <TextField
-              fullWidth
-              label="Nome da Coluna"
-              value={currentColumn ? currentColumn.title : newColumnName}
-              onChange={(e) =>
-                currentColumn
-                  ? setCurrentColumn({ ...currentColumn, title: e.target.value })
-                  : setNewColumnName(e.target.value)
-              }
-              margin="normal"
-              variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FontAwesomeIcon icon={faHeading} />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Box mt={2} display="flex" justifyContent="flex-end">
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={currentColumn ? handleUpdateColumn : handleAddColumn}
-                style={{
-                  marginRight: 8,
-                  fontSize: '1.2rem',
-                }}
-              >
-                <FontAwesomeIcon
-                  icon={faSave}
-                  size="lg"
-                  style={{ marginRight: 4 }}
-                />
-                <Typography variant="button" component="span" mt={0.2} ml={1}>
-                  {currentColumn ? 'Salvar' : 'Adicionar'}
-                </Typography>
-              </Button>
-
-              <Button
-                variant="outlined"
-                onClick={handleModalColumnClose}
-                style={{
-                  fontSize: '1.2rem',
-                }}
-              >
-                <FontAwesomeIcon
-                  icon={faTimes}
-                  size="lg"
-                  style={{ marginRight: 4 }}
-                />
-                <Typography variant="button" component="span" mt={0.2} ml={1}>
-                  Cancelar
-                </Typography>
-              </Button>
-            </Box>
-          </form>
-        </Box>
-      </Modal>
-
+      <ModalColumn
+        isColumnModalOpen={isColumnModalOpen}
+        handleModalColumnClose={handleModalColumnClose}
+        currentColumn={currentColumn}
+        setCurrentColumn={setCurrentColumn}
+        handleUpdateColumn={handleUpdateColumn}
+        newColumnName={newColumnName}
+        setNewColumnName={setNewColumnName}
+        handleAddColumn={handleAddColumn}
+      />
       <DialogDelete
         open={openDeleteColumnDialog}
         onClose={handleDeleteColumnCancel}

@@ -1,3 +1,5 @@
+// src/users/user.entity.ts
+
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Project } from '../projects/project.entity';
 import { Task } from '../tasks/task.entity';
@@ -15,6 +17,9 @@ export class User extends BaseEntity {
 
   @Column()
   password: string;
+
+  @Column({ nullable: true }) // Permite que o campo seja opcional
+  profileImageUrl: string;
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
