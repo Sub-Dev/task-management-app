@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TasksModule } from './tasks/tasks.module';
 import { ColumnsModule } from './columns/columns.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 
 @Module({
@@ -24,6 +26,10 @@ import { ColumnsModule } from './columns/columns.module';
       database: process.env.DATABASE_NAME || 'task_management',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // somente em ambiente de desenvolvimento
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Mapeia a pasta uploads para servir as imagens
+      serveRoot: '/avatars', // O prefixo de URL
     }),
     UserModule,
     AuthModule,
