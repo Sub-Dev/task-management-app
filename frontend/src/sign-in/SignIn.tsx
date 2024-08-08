@@ -68,7 +68,7 @@ export default function SignIn() {
 
     const email = data.get('email')?.toString();
     const password = data.get('password')?.toString();
-
+    console.log('Dados de login:', { email, password });
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { access_token } = response.data;

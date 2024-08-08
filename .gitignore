@@ -12,3 +12,8 @@ yarn-error.log*
 
 # Docker
 /docker-compose.override.yml
+
+# Ignore all images in the avatars folder
+backend/avatars/*
+# Except the 1.png image
+!backend/avatars/1.png

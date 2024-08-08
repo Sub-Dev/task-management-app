@@ -21,7 +21,7 @@ import { mainListItems, secondaryListItems } from './components/listItems.tsx';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Orders from './components/Orders.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
-import Avatar1 from '../img/avatar/1.jpg';
+import Avatar1 from '../img/avatar/1.png';
 import { colors } from '@mui/material';
 import Copyright from '../Copyright.tsx';
 import Kanban from './components/Kanban.tsx';
@@ -102,7 +102,13 @@ export default function Dashboard() {
   const handleNavigateToProfile = () => {
     navigate('/dashboard/profile'); // Redireciona para a rota de perfil
   };
+  const handleLogout = () => {
+    // Remove o token do localStorage
+    localStorage.removeItem('token');
 
+    // Redireciona o usuário para a página de login
+    navigate('/signin');
+  };
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -180,7 +186,7 @@ export default function Dashboard() {
                 <IconButton sx={{ color: colors.grey[400] }} onClick={handleNavigateToProfile}>
                   <SettingsIcon />
                 </IconButton>
-                <IconButton sx={{ color: colors.grey[400] }}>
+                <IconButton sx={{ color: colors.grey[400] }} onClick={handleLogout}>
                   <LogoutIcon />
                 </IconButton>
               </Box>
