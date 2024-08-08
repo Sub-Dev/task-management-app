@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
+import axios from 'axios';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
@@ -20,6 +21,16 @@ import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 
+// Define um tipo para os dados do projeto
+interface ProjectData {
+  id: number;
+  date: string;
+  name: string;
+  description: string;
+  users: string;
+  tasksCount: number;
+}
+
 // Função para truncar a descrição
 function truncateText(text: string, maxWords: number): string {
   const words = text.split(' ');
@@ -29,65 +40,22 @@ function truncateText(text: string, maxWords: number): string {
   return words.slice(0, maxWords).join(' ') + '...';
 }
 
-// Generate Order Data
+// Função para criar dados do projeto
 function createData(
   id: number,
   date: string,
   name: string,
   description: string,
   users: string,
-  tasksCount: number,
-) {
+  tasksCount: number
+): ProjectData {
   const truncatedDescription = truncateText(description, 10);
   return { id, date, name, description: truncatedDescription, users, tasksCount };
 }
 
-const initialRows = [
-  createData(
-    0,
-    '16 Mar, 2019',
-    'Layout Page',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'João,Paulo,Ana',
-    10,
-  ),
-  createData(
-    1,
-    '16 Mar, 2019',
-    'Desenvolver Backend',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'João,Paulo,Ana',
-    5,
-  ),
-  createData(
-    2,
-    '16 Mar, 2019',
-    'Banco de dados',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-    'Anthony,João,Paulo',
-    10,
-  ),
-  createData(
-    3,
-    '16 Mar, 2019',
-    'Desenvolver Frontend',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'João,Paulo,Ana',
-    20,
-  ),
-  createData(
-    4,
-    '15 Mar, 2019',
-    'Desenvolver App',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'João,Paulo,Ana',
-    25,
-  ),
-  // Adicione mais dados conforme necessário
-];
-
+// Component Principal
 export default function Orders() {
-  const [rows, setRows] = React.useState(initialRows);
+  const [rows, setRows] = React.useState<ProjectData[]>([]); // Use o tipo ProjectData
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [openModal, setOpenModal] = React.useState(false);
@@ -98,6 +66,52 @@ export default function Orders() {
   });
 
   const navigate = useNavigate();
+
+  // Função para buscar dados do backend
+  const fetchProjects = async () => {
+    try {
+      const token = localStorage.getItem('token'); // Recupera o token JWT do localStorage
+
+      // Verifica se o token existe
+      if (!token) {
+        console.error('Erro: Token JWT não encontrado.');
+        return;
+      }
+
+      const response = await axios.get('http://localhost:4000/projects', {
+        headers: {
+          Authorization: `Bearer ${token}` // Adiciona o token ao cabeçalho da requisição
+        }
+      });
+
+      const projectsData = response.data;
+
+      // Transforme os dados recebidos para o formato desejado
+      const formattedProjects = projectsData.map((project: any) => // Use 'any' se o tipo do backend não for conhecido
+        createData(
+          project.id,
+          new Date(project.date).toLocaleDateString(), // Formata a data para string
+          project.name,
+          project.description,
+          project.users.join(', '), // Converte array de usuários em string
+          project.tasksCount
+        )
+      );
+
+      setRows(formattedProjects);
+    } catch (error) {
+      console.error('Erro ao buscar dados do backend:', error);
+      // Se o erro for 401, redirecione para a página de login
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    }
+  };
+
+  // useEffect para buscar dados quando o componente monta
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
@@ -117,8 +131,8 @@ export default function Orders() {
   };
 
   const handleSaveProject = () => {
-    const newProjectData = createData(
-      rows.length,
+    const newProjectData: ProjectData = createData(
+      rows.length + 1, // Garantir que o id seja único
       new Date().toLocaleDateString(),
       newProject.name,
       newProject.description,
@@ -250,11 +264,27 @@ export default function Orders() {
                 rows={4}
               />
             </Grid>
+            <Grid item xs={12}>
+              <TextField
+                margin="dense"
+                name="users"
+                label="Participantes (separados por vírgula)"
+                type="text"
+                fullWidth
+                variant="outlined"
+                value={newProject.users}
+                onChange={handleChange}
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="inherit">Cancelar</Button>
-          <Button onClick={handleSaveProject} variant="contained" color="primary">Salvar</Button>
+          <Button onClick={handleCloseModal} color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleSaveProject} color="primary">
+            Salvar
+          </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
