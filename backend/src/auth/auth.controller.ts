@@ -1,7 +1,12 @@
-import { Controller, Post, Body, Headers, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Headers, UnauthorizedException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/user.dto'; // Ajuste o caminho conforme necessário
 import { ValidateTokenDto } from './validate-token.dto'; // Importa o DTO
+
+import { SetMetadata } from '@nestjs/common';
+
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +18,7 @@ export class AuthController {
     const user = await this.authService.validateUser(loginDto.email, loginDto.password);
     return this.authService.login(loginDto);
   }
-
+  @Public()
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     console.log('Dados recebidos:', createUserDto);
