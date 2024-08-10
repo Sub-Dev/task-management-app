@@ -112,18 +112,24 @@ export class AuthService {
     if (existingUser) {
       throw new ConflictException('Username ou email já em uso');
     }
+  
     const profile = "http://localhost:4000/users/avatars/1.png";
     const hashedPassword = await bcrypt.hash(password, 10); // Hash da senha para armazenamento seguro
-    const newUser = this.userRepository.create({ username, email, password: hashedPassword ,profileImageUrl: profile});
+  
+    // Criar e salvar o novo usuário
+    const newUser = this.userRepository.create({
+      username,
+      email,
+      password: hashedPassword,
+      profileImageUrl: profile,
+    });
+  
     await this.userRepository.save(newUser);
   
-    // Garante que o ID está presente e disponível para o login
-    const userWithId = await this.userRepository.findOne({ where: { email } });
-  
-    if (userWithId) {
-      return this.login(userWithId); // Retorna o token JWT após registro
-    } else {
-      throw new UnauthorizedException('Usuário registrado, mas não encontrado para login');
-    }
+    // Retornar uma mensagem de sucesso
+    return {
+      message: 'Cadastro realizado com sucesso! Por favor, faça login.',
+    };
   }
+  
 }
