@@ -215,7 +215,7 @@ export default function Dashboard() {
         >
           <Toolbar />
           <Routes>
-            <Route path="/" element={<Orders />} />
+            <Route path="/project" element={<Orders />} />
             <Route path="/kanban" element={<Kanban sidebarOpen={open} />} />
             <Route path="/profile" element={<UserProfile />} />
           </Routes>
