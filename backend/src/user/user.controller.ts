@@ -13,6 +13,7 @@ import {
   UploadedFile,
   UseInterceptors,
   Res,
+  Query
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './user.dto';
@@ -38,7 +39,11 @@ export class UsersController {
       throw new NotFoundException('User not found');
     }
   }
-
+  @UseGuards(JwtAuthGuard)
+  @Get('search')
+  async findByCriteria(@Query() criteria: any): Promise<User[]> {
+    return await this.usersService.findUsersByCriteria(criteria);
+  }
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<User[]> {

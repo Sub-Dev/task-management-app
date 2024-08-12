@@ -74,7 +74,6 @@ export class UsersService {
     this.userRepository.merge(user, updateUserDto);
     return await this.userRepository.save(user);
   }
-  
 
   async delete(id: number): Promise<void> {
     const user = await this.findById(id);
@@ -90,6 +89,23 @@ export class UsersService {
     }
 
     return null;
+  }
+
+  // Novo método usando createQueryBuilder
+  async findUsersByCriteria(criteria: any): Promise<User[]> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    
+    // Adicione condições de busca com base nos critérios fornecidos
+    if (criteria.email) {
+      queryBuilder.andWhere('user.email = :email', { email: criteria.email });
+    }
+    if (criteria.username) {
+      const usernamesArray = criteria.username.split(',').map(username => username.trim());
+      queryBuilder.andWhere('user.username IN (:...usernames)', { usernames: usernamesArray });
+    }
+    
+    // Execute a consulta e retorne os resultados
+    return await queryBuilder.getMany();
   }
 
   private deleteOldProfileImage(imageName: string): void {

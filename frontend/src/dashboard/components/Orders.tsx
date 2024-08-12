@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -20,18 +20,22 @@ import TextField from '@mui/material/TextField';
 import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-// Define um tipo para os dados do projeto
 interface ProjectData {
   id: number;
-  date: string;
+  created_at: string;
   name: string;
   description: string;
   users: string;
   tasksCount: number;
 }
 
-// Função para truncar a descrição
+interface UserPayload {
+  sub: number;
+  email: string;
+}
+
 function truncateText(text: string, maxWords: number): string {
   const words = text.split(' ');
   if (words.length <= maxWords) {
@@ -40,26 +44,24 @@ function truncateText(text: string, maxWords: number): string {
   return words.slice(0, maxWords).join(' ') + '...';
 }
 
-// Função para criar dados do projeto
 function createData(
   id: number,
-  date: string,
+  created_at: string,
   name: string,
   description: string,
   users: string,
   tasksCount: number
 ): ProjectData {
   const truncatedDescription = truncateText(description, 10);
-  return { id, date, name, description: truncatedDescription, users, tasksCount };
+  return { id, created_at, name, description: truncatedDescription, users, tasksCount };
 }
 
-// Component Principal
 export default function Orders() {
-  const [rows, setRows] = React.useState<ProjectData[]>([]); // Use o tipo ProjectData
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [openModal, setOpenModal] = React.useState(false);
-  const [newProject, setNewProject] = React.useState({
+  const [rows, setRows] = useState<ProjectData[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [openModal, setOpenModal] = useState(false);
+  const [newProject, setNewProject] = useState({
     name: '',
     description: '',
     users: '',
@@ -67,48 +69,52 @@ export default function Orders() {
 
   const navigate = useNavigate();
 
-  // Função para buscar dados do backend
   const fetchProjects = async () => {
     try {
-      const token = localStorage.getItem('token'); // Recupera o token JWT do localStorage
-
-      // Verifica se o token existe
+      const token = localStorage.getItem('token');
       if (!token) {
         console.error('Erro: Token JWT não encontrado.');
+        navigate('/signin');
         return;
       }
 
+      const decoded = jwtDecode<UserPayload>(token);
+      const userId = decoded.sub;
+
       const response = await axios.get('http://localhost:4000/projects', {
         headers: {
-          Authorization: `Bearer ${token}` // Adiciona o token ao cabeçalho da requisição
+          Authorization: `Bearer ${token}`
         }
       });
 
       const projectsData = response.data;
 
-      // Transforme os dados recebidos para o formato desejado
-      const formattedProjects = projectsData.map((project: any) => // Use 'any' se o tipo do backend não for conhecido
-        createData(
+      const filteredProjects = projectsData.filter((project: any) =>
+        project.users.some((user: any) => user.id === userId)
+      );
+
+      const formattedProjects = filteredProjects.map((project: any) => {
+        const usernames = project.users.map((user: any) => user.username).join(', ');
+
+        return createData(
           project.id,
-          new Date(project.date).toLocaleDateString(), // Formata a data para string
+          new Date(project.created_at).toLocaleDateString(),
           project.name,
           project.description,
-          project.users.join(', '), // Converte array de usuários em string
-          project.tasksCount
-        )
-      );
+          usernames,
+          project.tasks.length
+        );
+      });
 
       setRows(formattedProjects);
     } catch (error) {
       console.error('Erro ao buscar dados do backend:', error);
-      // Se o erro for 401, redirecione para a página de login
       if (error.response && error.response.status === 401) {
-        navigate('/login');
+        navigate('/signin');
       }
     }
   };
 
-  // useEffect para buscar dados quando o componente monta
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -130,18 +136,49 @@ export default function Orders() {
     setOpenModal(false);
   };
 
-  const handleSaveProject = () => {
-    const newProjectData: ProjectData = createData(
-      rows.length + 1, // Garantir que o id seja único
-      new Date().toLocaleDateString(),
-      newProject.name,
-      newProject.description,
-      newProject.users,
-      0 // Você pode ajustar isso conforme necessário
-    );
-    setRows([...rows, newProjectData]);
-    setNewProject({ name: '', description: '', users: '' });
-    handleCloseModal();
+  const handleSaveProject = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Erro: Token JWT não encontrado.');
+        return;
+      }
+
+      const decoded = jwtDecode<UserPayload>(token);
+      const userId = decoded.sub;
+
+      const usernames = newProject.users.split(',').map(user => user.trim());
+
+      const usersResponse = await axios.get('http://localhost:4000/users/search', {
+        params: { username: usernames.join(',') },
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const userIds = usersResponse.data.map((user: any) => user.id);
+      userIds.push(userId); // Adiciona o ID do usuário logado
+
+      await axios.post(
+        'http://localhost:4000/projects',
+        {
+          name: newProject.name,
+          description: newProject.description,
+          users: userIds,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      fetchProjects(); // Atualiza a lista de projetos após salvar
+      setNewProject({ name: '', description: '', users: '' });
+      handleCloseModal();
+    } catch (error) {
+      console.error('Erro ao salvar o projeto:', error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,125 +203,85 @@ export default function Orders() {
               >
                 Adicionar Projeto
               </Button>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Data</TableCell>
-                    <TableCell>Nome</TableCell>
-                    <TableCell>Descrição</TableCell>
-                    <TableCell>Participantes</TableCell>
-                    <TableCell align="right">Número de Tarefas</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{row.date}</TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/dashboard/kanban/${row.id}`}
-                          color="primary"
-                          underline="hover"
-                        >
-                          {row.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{row.description}</TableCell>
-                      <TableCell>{row.users}</TableCell>
-                      <TableCell align="right">{row.tasksCount}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={rows.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
+              {rows.length === 0 ? (
+                <p>Você ainda não tem projetos. Crie um novo projeto para começar.</p>
+              ) : (
+                <>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Data</TableCell>
+                        <TableCell>Nome</TableCell>
+                        <TableCell>Descrição</TableCell>
+                        <TableCell>Participantes</TableCell>
+                        <TableCell align="right">Número de Tarefas</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.created_at}</TableCell>
+                          <TableCell>{row.name}</TableCell>
+                          <TableCell>{row.description}</TableCell>
+                          <TableCell>{row.users}</TableCell>
+                          <TableCell align="right">{row.tasksCount}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={rows.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </>
+              )}
             </Paper>
           </Grid>
         </Grid>
       </Container>
-
-      {/* Modal para adicionar projeto */}
-      <Dialog
-        open={openModal}
-        onClose={handleCloseModal}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>
-          Adicionar Novo Projeto
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={handleCloseModal}
-            aria-label="close"
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+      <Dialog open={openModal} onClose={handleCloseModal}>
+        <DialogTitle>Adicionar Projeto</DialogTitle>
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                autoFocus
-                margin="dense"
-                name="name"
-                label="Nome do Projeto"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newProject.name}
-                onChange={handleChange}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="description"
-                label="Descrição"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newProject.description}
-                onChange={handleChange}
-                multiline
-                rows={4}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                margin="dense"
-                name="users"
-                label="Participantes (separados por vírgula)"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={newProject.users}
-                onChange={handleChange}
-              />
-            </Grid>
-          </Grid>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="name"
+            label="Nome do Projeto"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProject.name}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="description"
+            label="Descrição"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProject.description}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="users"
+            label="Usuários (separados por vírgula)"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProject.users}
+            onChange={handleChange}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="secondary">
-            Cancelar
-          </Button>
-          <Button onClick={handleSaveProject} color="primary">
-            Salvar
-          </Button>
+          <Button onClick={handleCloseModal}>Cancelar</Button>
+          <Button onClick={handleSaveProject}>Salvar</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
