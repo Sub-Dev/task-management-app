@@ -16,7 +16,9 @@ export class Project extends BaseEntity {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToMany(() => User, (user) => user.projects)
+  @ManyToMany(() => User, (user) => user.projects,{
+    onDelete: 'CASCADE',
+  })
   users: User[];
 
   @OneToMany(() => Task, task => task.project) // Relacionamento OneToMany com Task
