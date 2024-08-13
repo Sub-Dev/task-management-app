@@ -17,7 +17,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { mainListItems, secondaryListItems } from './components/listItems.tsx';
+import { MainListItems, SecondaryListItems } from './components/listItems.tsx';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Orders from './components/Orders.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
@@ -194,9 +194,9 @@ export default function Dashboard() {
           )}
           <Divider />
           <List component="nav">
-            {mainListItems}
+            {MainListItems()}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {SecondaryListItems()}
           </List>
         </Drawer>
 
@@ -215,7 +215,7 @@ export default function Dashboard() {
         >
           <Toolbar />
           <Routes>
-            <Route path="/project" element={<Orders />} />
+            <Route path="/projects" element={<Orders />} />
             <Route path="/kanban" element={<Kanban sidebarOpen={open} />} />
             <Route path="/profile" element={<UserProfile />} />
           </Routes>

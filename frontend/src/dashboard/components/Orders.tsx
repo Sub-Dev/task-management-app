@@ -3,11 +3,11 @@ import axios from 'axios';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
+import Box from '@mui/material/Box';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Title from './Title.tsx';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
@@ -17,8 +17,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
@@ -61,12 +63,13 @@ export default function Orders() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
     users: '',
   });
-
+  const [currentProject, setCurrentProject] = useState<ProjectData | null>(null);
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -134,6 +137,9 @@ export default function Orders() {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setEditModalOpen(false);
+    setNewProject({ name: '', description: '', users: '' });
+    setCurrentProject(null);
   };
 
   const handleSaveProject = async () => {
@@ -156,28 +162,77 @@ export default function Orders() {
         }
       });
 
-      const userIds = usersResponse.data.map((user: any) => user.id);
-      userIds.push(userId); // Adiciona o ID do usuário logado
+      // Extrair IDs de usuários e garantir que não há duplicatas
+      const userIds = Array.from(new Set([
+        ...usersResponse.data.map((user: any) => user.id),
+        userId, // Adiciona o ID do usuário logado
+      ]));
 
-      await axios.post(
-        'http://localhost:4000/projects',
-        {
+      const url = currentProject ? `http://localhost:4000/projects/${currentProject.id}` : 'http://localhost:4000/projects';
+      const method = currentProject ? 'put' : 'post';
+
+      console.log(`URL da requisição: ${url}`);
+      console.log(`Dados enviados:`, {
+        name: newProject.name,
+        description: newProject.description,
+        users: userIds,
+      });
+
+      await axios({
+        method,
+        url,
+        data: {
           name: newProject.name,
           description: newProject.description,
           users: userIds,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       fetchProjects(); // Atualiza a lista de projetos após salvar
-      setNewProject({ name: '', description: '', users: '' });
       handleCloseModal();
     } catch (error) {
-      console.error('Erro ao salvar o projeto:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Erro ao salvar o projeto:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+        });
+      } else {
+        console.error('Erro inesperado:', error);
+      }
+    }
+  };
+
+  const handleEdit = (project: ProjectData) => {
+    setCurrentProject(project);
+    setNewProject({
+      name: project.name,
+      description: project.description,
+      users: project.users,
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Erro: Token JWT não encontrado.');
+        return;
+      }
+
+      await axios.delete(`http://localhost:4000/projects/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      fetchProjects(); // Atualiza a lista de projetos após exclusão
+    } catch (error) {
+      console.error('Erro ao excluir o projeto:', error);
     }
   };
 
@@ -194,7 +249,7 @@ export default function Orders() {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Title>Projetos</Title>
+              Projetos
               <Button
                 variant="contained"
                 color="primary"
@@ -215,6 +270,7 @@ export default function Orders() {
                         <TableCell>Descrição</TableCell>
                         <TableCell>Participantes</TableCell>
                         <TableCell align="right">Número de Tarefas</TableCell>
+                        <TableCell>Actions</TableCell> {/* Adicionado para ações */}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -225,6 +281,16 @@ export default function Orders() {
                           <TableCell>{row.description}</TableCell>
                           <TableCell>{row.users}</TableCell>
                           <TableCell align="right">{row.tasksCount}</TableCell>
+                          <TableCell>
+                            <Box display="flex" alignItems="center">
+                              <IconButton onClick={() => handleEdit(row)} color="primary">
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton onClick={() => handleDelete(row.id)} sx={{ color: 'red', ml: 1 }}>
+                                <DeleteIcon />
+                              </IconButton>
+                            </Box>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -244,8 +310,9 @@ export default function Orders() {
           </Grid>
         </Grid>
       </Container>
+
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Adicionar Projeto</DialogTitle>
+        <DialogTitle>Adicionar Novo Projeto</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -265,13 +332,58 @@ export default function Orders() {
             type="text"
             fullWidth
             variant="standard"
+            multiline
+            rows={4}
             value={newProject.description}
             onChange={handleChange}
           />
           <TextField
             margin="dense"
             name="users"
-            label="Usuários (separados por vírgula)"
+            label="Participantes (separados por vírgula)"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProject.users}
+            onChange={handleChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal}>Cancelar</Button>
+          <Button onClick={handleSaveProject}>Salvar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={editModalOpen} onClose={handleCloseModal}>
+        <DialogTitle>Editar Projeto</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            name="name"
+            label="Nome do Projeto"
+            type="text"
+            fullWidth
+            variant="standard"
+            value={newProject.name}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="description"
+            label="Descrição"
+            type="text"
+            fullWidth
+            variant="standard"
+            multiline
+            rows={4}
+            value={newProject.description}
+            onChange={handleChange}
+          />
+          <TextField
+            margin="dense"
+            name="users"
+            label="Participantes (separados por vírgula)"
             type="text"
             fullWidth
             variant="standard"

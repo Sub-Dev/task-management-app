@@ -7,7 +7,7 @@ import SignUp from './sign-up/SignUp.tsx';
 import Dashboard from './dashboard/Dashboard.tsx';
 import AuthenticatedRoute from './components/AuthenticatedRoute';
 import { AuthProvider } from './context/AuthContext'; // Importa o AuthProvider
-// import NotFound from './components/NotFound';
+import NotFound from './components/NotFound.tsx';
 
 const App = () => {
   return (
@@ -18,7 +18,7 @@ const App = () => {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </Router>
