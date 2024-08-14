@@ -68,7 +68,8 @@ export class UsersController {
     }
     return await this.usersService.create(createUserDto);
   }
-  @UseGuards(JwtAuthGuard)
+  
+  
   @Get('avatars/:filename')
   async getAvatar(@Param('filename') filename: string, @Res() res: Response): Promise<void> {
     const filePath = join(__dirname, '../../avatars', filename);

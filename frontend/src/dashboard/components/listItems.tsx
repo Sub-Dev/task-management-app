@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 
 interface Project {
   id: number;
@@ -107,7 +108,7 @@ export function SecondaryListItems() {
         </ListItemButton>
       ))}
       <ListItemButton onClick={() => navigate('/dashboard/projects')}>
-        <ListItemText primary="Mostrar mais" />
+        <MoreHorizOutlinedIcon />
       </ListItemButton>
     </React.Fragment>
   );
