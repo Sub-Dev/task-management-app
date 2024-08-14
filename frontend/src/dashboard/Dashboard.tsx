@@ -9,23 +9,28 @@ import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Container from '@mui/material/Container';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { MainListItems, SecondaryListItems } from './components/listItems.tsx';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import Orders from './components/Orders.tsx';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import Orders from './components/Projects.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
 import Avatar1 from '../img/avatar/1.png';
 import { colors } from '@mui/material';
 import Copyright from '../Copyright.tsx';
 import Kanban from './components/Kanban.tsx';
 import UserProfile from './components/UserProfile.tsx';
+import { jwtDecode } from 'jwt-decode';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Settings from '@mui/icons-material/Settings';
+import Logout from '@mui/icons-material/Logout';
+import HomeDashboard from './components/HomeDashboard.tsx';
 
 const drawerWidth: number = 240;
 
@@ -92,13 +97,61 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
+  const [user, setUser] = React.useState({ name: '', avatar: '' });
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Decodifica o token JWT para obter o ID do usuário
+      const decodedToken: any = jwtDecode(token);
+      const userId = decodedToken.sub; // Pega o ID do usuário do campo 'sub'
+
+      // Faz uma requisição para buscar os dados do usuário, incluindo o token no cabeçalho
+      fetch(`http://localhost:4000/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // Envia o token no cabeçalho de autorização
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          // Define o estado com o nome e avatar do usuário
+          setUser({
+            name: data.username,
+            avatar: data.profileImageUrl, // Assumindo que 'avatarPath' é o caminho do avatar na resposta da API
+          });
+
+        })
+
+        .catch(error => {
+          console.error('Erro ao buscar os dados do usuário:', error);
+        });
+    }
+  }, []);
+
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const getTitle = () => {
+    const path = location.pathname.split('/').pop();
+    if (path) {
+      return path.charAt(0).toUpperCase() + path.slice(1);
+    }
+    return 'Dashboard';
   };
 
   // Define a função de navegação para a página de perfil
   const navigate = useNavigate();
 
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const handleNavigateToProfile = () => {
     navigate('/dashboard/profile'); // Redireciona para a rota de perfil
   };
@@ -125,16 +178,65 @@ export default function Dashboard() {
               <MenuIcon />
             </IconButton>
             <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-              Dashboard
+              {getTitle()}
             </Typography>
-            <IconButton color="inherit" sx={{ mr: '10px' }}>
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
+            <IconButton
+              onClick={handleClick}
+              size="small"
+              sx={{ ml: 2 }}
+              aria-controls={openMenu ? 'account-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={openMenu ? 'true' : undefined}
+            >
+              <Avatar alt={user.name} src={user.avatar || Avatar1} />
             </IconButton>
-            <IconButton>
-              <Avatar alt="Remy Sharp" src={Avatar1} />
-            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              id="account-menu"
+              open={openMenu}
+              onClose={handleClose}
+              PaperProps={{
+                elevation: 0,
+                sx: {
+                  overflow: 'visible',
+                  filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                  mt: 1.5,
+                  '& .MuiAvatar-root': {
+                    width: 32,
+                    height: 32,
+                    ml: -0.5,
+                    mr: 1,
+                  },
+                  '&::before': {
+                    content: '""',
+                    display: 'block',
+                    position: 'absolute',
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: 'background.paper',
+                    transform: 'translateY(-50%) rotate(45deg)',
+                    zIndex: 0,
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={handleNavigateToProfile}>
+                <ListItemIcon>
+                  <Settings fontSize="small" />
+                </ListItemIcon>
+                Editar Perfil
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ListItemIcon>
+                  <Logout fontSize="small" />
+                </ListItemIcon>
+                Sair
+              </MenuItem>
+            </Menu>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -171,8 +273,8 @@ export default function Dashboard() {
           {open && (
             <Box sx={{ p: 2, color: '#707070', textAlign: 'center' }}>
               <Avatar
-                alt="Remy Sharp"
-                src={Avatar1}
+                alt={user.name}
+                src={user.avatar || Avatar1}
                 sx={{
                   width: 80,
                   height: 80,
@@ -181,7 +283,7 @@ export default function Dashboard() {
                   border: `2px solid ${colors.grey[500]}`,
                 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Remy Sharp</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{user.name}</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
                 <IconButton sx={{ color: colors.grey[400] }} onClick={handleNavigateToProfile}>
                   <SettingsIcon />
@@ -215,8 +317,9 @@ export default function Dashboard() {
         >
           <Toolbar />
           <Routes>
+            <Route path="/" element={<HomeDashboard />} />
             <Route path="/projects" element={<Orders />} />
-            <Route path="/kanban" element={<Kanban sidebarOpen={open} />} />
+            <Route path="/kanban/:id" element={<Kanban sidebarOpen={open} />} />
             <Route path="/profile" element={<UserProfile />} />
           </Routes>
         </Box>
@@ -234,9 +337,10 @@ export default function Dashboard() {
         }}
       >
         <Container maxWidth="lg">
-          <Copyright sx={{ pt: 2, color: 'white' }} />
+          <Copyright sx={{ pt: 1, color: 'white' }} />
         </Container>
       </Box>
     </ThemeProvider>
+
   );
 }
