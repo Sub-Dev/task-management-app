@@ -88,16 +88,20 @@ export class TasksService {
   }
 
   async updateTask(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    console.log('Updating task with ID:', id);
+    console.log('Data received:', updateTaskDto);
+    
     const { title, description, status, due_date, users, column } = updateTaskDto;
-
+  
     const task = await this.taskRepository.findOne({
       where: { id },
       relations: ['users', 'column'],
     });
     if (!task) {
+      console.log('Task not found');
       throw new NotFoundException('Tarefa não encontrada');
     }
-
+  
     if (title) {
       task.title = title;
     }
@@ -113,6 +117,7 @@ export class TasksService {
     if (users) {
       const userEntities = await this.userRepository.findByIds(users);
       if (userEntities.length !== users.length) {
+        console.log('Some users not found');
         throw new NotFoundException('Um ou mais usuários não foram encontrados');
       }
       task.users = userEntities;
@@ -120,13 +125,15 @@ export class TasksService {
     if (column !== undefined) {
       const columnEntity = await this.columnRepository.findOne({ where: { id: column } });
       if (!columnEntity) {
+        console.log('Column not found');
         throw new NotFoundException('Coluna não encontrada');
       }
       task.column = columnEntity;
     }
-
+  
     return this.taskRepository.save(task);
   }
+  
 
   async deleteTask(id: number): Promise<void> {
     const result = await this.taskRepository.delete(id);

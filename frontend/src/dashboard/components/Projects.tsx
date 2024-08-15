@@ -25,6 +25,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import { useLocation } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 interface ProjectData {
   id: number;
@@ -66,6 +69,10 @@ export default function Projects() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const location = useLocation();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('error');
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -123,7 +130,16 @@ export default function Projects() {
   useEffect(() => {
     fetchProjects();
   }, []);
+  useEffect(() => {
+    if (location.state?.error) {
+      setSnackbarMessage(location.state.error);
+      setSnackbarOpen(true);
+    }
+  }, [location.state]);
 
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
   };
@@ -368,6 +384,16 @@ export default function Projects() {
           <Button onClick={handleSaveProject}>{currentProject ? 'Salvar' : 'Adicionar'}</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </React.Fragment>
   );
 }

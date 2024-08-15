@@ -11,7 +11,6 @@ import {
   CardContent,
   Icon,
   InputAdornment,
-
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,6 +29,8 @@ import moment from 'moment';
 import { Project } from '../../interface/project.interface.ts';
 import DialogDelete from './DialogDelete.tsx'; // Importar o DialogDeleteColumn
 import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o modal de edição
+import { useParams, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 interface Task {
   id: number;
   title: string;
@@ -70,7 +71,10 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [columnToDelete, setColumnToDelete] = React.useState(null);
   const [taskToDelete, setTaskToDelete] = React.useState<Task | null>(null);
   const [openDeleteTaskDialog, setOpenDeleteTaskDialog] = React.useState(false);
-
+  interface UserPayload {
+    sub: number;
+    email: string;
+  }
   React.useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -83,32 +87,54 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, [data]); // Added data dependency to check whenever columns are added or removed
+  // Obtenha o projectId da URL
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await api.get('/columns');
-        const columns: Column[] = response.data;
-        const formattedData: Record<string, Column> = {};
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/signin', { state: { error: 'Erro: Token JWT não encontrado.' } });
+          return;
+        }
 
-        columns.forEach((column) => {
-          formattedData[column.title] = column;
+        const decoded: UserPayload = jwtDecode(token);
+        const userId = decoded.sub;
+
+        const response = await api.get(`/projects/${id}`);
+        const projectData = response.data;
+
+        const userIds = projectData.users.map((user: any) => user.id);
+        if (!userIds.includes(userId)) {
+          navigate('/dashboard/projects', { state: { error: 'Você não tem acesso a este projeto.' } });
+          return;
+        }
+
+        // Fetch columns with tasks associated with the project
+        const columnsResponse = await api.get('/columns');
+        const allColumns = columnsResponse.data;
+
+        // Filter columns by project ID
+        const projectColumns = allColumns.filter((column: any) => column.project.id === projectData.id);
+
+        // Format columns data to use column ID as the key
+        const formattedData: Record<string, Column> = {};
+        projectColumns.forEach((column: Column) => {
+          formattedData[column.id] = column; // Use column ID as the key
         });
 
         setData(formattedData);
+        setProject(projectData);
 
-        // Obter o projeto do primeiro elemento
-        const firstColumn = columns[0]; // ou outra lógica para selecionar um projeto
-        if (firstColumn) {
-          setProject(firstColumn.project); // Define o projeto diretamente
-        }
       } catch (error) {
-        console.error('Erro ao buscar dados do backend:', error);
+        navigate('/dashboard/projects', { state: { error: 'Erro ao buscar dados do projeto.' } });
       }
     };
 
     fetchData();
-  }, [data]); // Dependência específica: estado data
+  }, [id, navigate, data]);// Dependência específica: estado data
 
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId } = result;
@@ -137,9 +163,24 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     const updatedDestItems = Array.from(destColumn.tasks);
     updatedDestItems.splice(destination.index, 0, item);
 
+    // Converte destColumnId para número
+    const columnId = Number(destColumnId);
+
+    console.log('Task ID (draggableId):', draggableId);
+    console.log('Destination Column ID:', columnId);
+
     // Atualiza o status da tarefa no backend
     try {
-      await api.put(`/tasks/${draggableId}`, { status: destColumnId });
+      const token = localStorage.getItem('token');
+
+      console.log('Enviando requisição PUT para /tasks:', `/tasks/${draggableId}`);
+      console.log('Dados sendo enviados:', { column: columnId });
+
+      await api.put(`/tasks/${draggableId}`, { column: columnId }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setData((prevData) => ({
         ...prevData,
@@ -154,8 +195,13 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       }));
     } catch (error) {
       console.error('Erro ao mover tarefa:', error);
+      console.error('Dados:', columnId);
     }
   };
+
+
+
+
 
   const handleEditTask = (task: Task) => {
     setCurrentTask(task);
@@ -240,13 +286,22 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   };
 
   const handleAddTask = async (columnId: number) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error('Token JWT não encontrado.');
+      return;
+    }
+
+    const decoded: UserPayload = jwtDecode(token);
+    const userId = decoded.sub;
+
     const newTask: Omit<Task, 'id'> = {
       title: newTaskTitles[columnId],
       description: newTaskDescriptions[columnId],
       status: 'pending',
       due_date: newTaskDueDates[columnId] || '',
-      project: 1, // ID do projeto ao qual a tarefa pertence
-      users: [1], // ID do usuário responsável
+      project: project?.id, // ID do projeto ao qual a tarefa pertence
+      users: [userId], // ID do usuário responsável
       column: data[columnId].id, // Passa o ID da coluna como número
     };
 
@@ -328,15 +383,16 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
 
   const handleAddColumn = async () => {
-    if (!newColumnName) return;
+    if (!newColumnName || !project?.id) return; // Verifique se o ID do projeto está disponível
 
     try {
-      const response = await api.post('/columns', { title: newColumnName });
+      const response = await api.post('/columns', { title: newColumnName, projectId: project.id });
       const addedColumn = response.data;
+      console.log('Coluna adicionada:', addedColumn);
 
       setData((prevData) => ({
         ...prevData,
-        [addedColumn.title]: addedColumn,
+        [addedColumn.id]: addedColumn, // Use o ID da coluna como chave
       }));
 
       setNewColumnName('');
@@ -346,7 +402,6 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
     setIsColumnModalOpen(false);
   };
-
   // Função para excluir uma coluna
   const handleDeleteColumn = async (columnId: string) => {
     setColumnToDelete(columnId);
@@ -446,7 +501,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         </Box>
       </Box>
 
-      <Box position="relative" ref={containerRef} overflow="auto" display="flex" py={2}>
+      <Box position="relative" ref={containerRef} display="flex" py={2}>
 
 
         <DragDropContext onDragEnd={onDragEnd}>
