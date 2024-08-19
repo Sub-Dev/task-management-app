@@ -8,18 +8,21 @@ import Dashboard from './dashboard/Dashboard.tsx';
 import AuthenticatedRoute from './components/AuthenticatedRoute';
 import { AuthProvider } from './context/AuthContext'; // Importa o AuthProvider
 import NotFound from './components/NotFound.tsx';
+import { SnackbarProvider } from './context/SnackbarContext.tsx';
 
 const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <SnackbarProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </SnackbarProvider>
       </AuthProvider>
     </Router>
   );

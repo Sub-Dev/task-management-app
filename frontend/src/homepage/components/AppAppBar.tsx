@@ -17,13 +17,13 @@ const logoStyle = {
   width: '90px',
   height: 'auto',
   cursor: 'pointer',
-  filter: 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.8))', // Aumenta a sombra para mais destaque
-  transition: 'filter 0.3s ease', // Adiciona uma transição suave
+  filter: 'drop-shadow(0 0 8px rgba(0, 0, 0, 0.8))',
+  transition: 'filter 0.3s ease',
 };
 
 const logoHoverStyle = {
   ...logoStyle,
-  filter: 'drop-shadow(0 0 12px rgba(0, 0, 0, 1))', // Efeito de sombra ao passar o mouse
+  filter: 'drop-shadow(0 0 12px rgba(0, 0, 0, 1))',
 };
 
 const textStyle = {
@@ -32,12 +32,12 @@ const textStyle = {
   marginLeft: '8px',
   marginRight: '10px',
   cursor: 'pointer',
-  transition: 'color 0.3s ease', // Adiciona uma transição suave para a cor
+  transition: 'color 0.3s ease',
 };
 
 const textHoverStyle = {
   ...textStyle,
-  color: 'primary.main', // Altera a cor ao passar o mouse
+  color: 'primary.main',
 };
 
 const AppBarContainer = {
@@ -45,13 +45,13 @@ const AppBarContainer = {
   alignItems: 'center',
   justifyContent: 'space-between',
   flexShrink: 0,
-  borderRadius: '999px',
-  backdropFilter: 'blur(24px)',
-  maxHeight: 60,
+  borderRadius: '12px',
+  backdropFilter: 'blur(12px)',
+  maxHeight: 70,
   border: '1px solid',
   borderColor: 'divider',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', // Sombra mais suave
-  background: 'linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1))', // Gradiente sutil
+  boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2))',
 };
 
 interface AppAppBarProps {
@@ -116,7 +116,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 style={logoStyle}
                 onMouseOver={(e) => (e.currentTarget.style.filter = logoHoverStyle.filter)}
                 onMouseOut={(e) => (e.currentTarget.style.filter = logoStyle.filter)}
-                alt="TaskMaster logo"
+                alt="Logo TaskMaster"
                 onClick={scrollToTop}
               />
               <Typography
@@ -134,15 +134,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   sx={{ py: '6px', px: '12px' }}
                 >
                   <Typography variant="body2" color="text.primary">
-                    Features
-                  </Typography>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => scrollToSection('testimonials')}
-                  sx={{ py: '6px', px: '12px' }}
-                >
-                  <Typography variant="body2" color="text.primary">
-                    Testimonials
+                    Funcionalidades
                   </Typography>
                 </MenuItem>
                 <MenuItem
@@ -150,7 +142,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   sx={{ py: '6px', px: '12px' }}
                 >
                   <Typography variant="body2" color="text.primary">
-                    Highlights
+                    Destaques
                   </Typography>
                 </MenuItem>
                 <MenuItem
@@ -179,7 +171,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 href="/signin"
                 target="_blank"
               >
-                Sign in
+                Entrar
               </Button>
               <Button
                 color="primary"
@@ -189,7 +181,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 href="/signup"
                 target="_blank"
               >
-                Sign up
+                Registrar
               </Button>
             </Box>
             <Box sx={{ display: { sm: '', md: 'none' } }}>
@@ -222,18 +214,14 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                     <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
                   </Box>
                   <MenuItem onClick={() => scrollToSection('features')}>
-                    Features
-                  </MenuItem>
-                  <MenuItem onClick={() => scrollToSection('testimonials')}>
-                    Testimonials
+                    Funcionalidades
                   </MenuItem>
                   <MenuItem onClick={() => scrollToSection('highlights')}>
-                    Highlights
+                    Destaques
                   </MenuItem>
-                  <MenuItem onClick={() => scrollToSection('pricing')}>
-                    Pricing
+                  <MenuItem onClick={() => scrollToSection('faq')}>
+                    FAQ
                   </MenuItem>
-                  <MenuItem onClick={() => scrollToSection('faq')}>FAQ</MenuItem>
                   <Divider />
                   <MenuItem>
                     <Button
@@ -244,7 +232,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                       target="_blank"
                       sx={{ width: '100%' }}
                     >
-                      Sign up
+                      Registrar
                     </Button>
                   </MenuItem>
                   <MenuItem>
@@ -256,7 +244,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                       target="_blank"
                       sx={{ width: '100%' }}
                     >
-                      Sign in
+                      Entrar
                     </Button>
                   </MenuItem>
                 </Box>

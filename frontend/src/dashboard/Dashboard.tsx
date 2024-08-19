@@ -158,7 +158,7 @@ export default function Dashboard() {
   const handleLogout = () => {
     // Remove o token do localStorage
     localStorage.removeItem('token');
-
+    window.location.reload();
     // Redireciona o usuário para a página de login
     navigate('/signin');
   };
