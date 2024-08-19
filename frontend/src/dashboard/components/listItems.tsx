@@ -5,12 +5,11 @@ import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Corrigido para `jwtDecode`
+import { jwtDecode } from 'jwt-decode'; // Certifique-se de usar `jwtDecode`
 import { useNavigate } from 'react-router-dom';
-import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import ListAltIcon from '@mui/icons-material/ListAlt';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 
 interface Project {
   id: number;
@@ -23,7 +22,7 @@ interface UserPayload {
 }
 
 export function MainListItems() {
-  const navigate = useNavigate(); // Mover useNavigate para dentro do componente
+  const navigate = useNavigate(); // useNavigate está correto aqui
 
   return (
     <React.Fragment>
@@ -51,7 +50,8 @@ export function MainListItems() {
 
 export function SecondaryListItems() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const navigate = useNavigate(); // Mover useNavigate para dentro do componente
+  const [error, setError] = useState<string | null>(null); // Estado para erros
+  const navigate = useNavigate(); // useNavigate está correto aqui
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -59,6 +59,7 @@ export function SecondaryListItems() {
         const token = localStorage.getItem('token');
         if (!token) {
           console.error('Erro: Token JWT não encontrado.');
+          setError('Você precisa estar logado para ver seus projetos.');
           navigate('/signin');
           return;
         }
@@ -74,6 +75,11 @@ export function SecondaryListItems() {
 
         const projectsData = response.data;
 
+        // Verificar se `projectsData` é um array e se contém os dados esperados
+        if (!Array.isArray(projectsData)) {
+          throw new Error('Dados de projetos inválidos.');
+        }
+
         // Filtrando apenas os projetos em que o usuário está presente
         const userProjects = projectsData.filter((project: any) =>
           project.users.some((user: any) => user.id === userId)
@@ -85,6 +91,7 @@ export function SecondaryListItems() {
         setProjects(limitedProjects);
       } catch (error) {
         console.error('Erro ao buscar projetos:', error);
+        setError('Não foi possível carregar seus projetos.');
         if (error.response && error.response.status === 401) {
           navigate('/signin');
         }
@@ -99,6 +106,11 @@ export function SecondaryListItems() {
       <ListSubheader component="div" inset>
         Seus Projetos
       </ListSubheader>
+      {error && (
+        <div style={{ color: 'red', padding: '10px' }}>
+          {error}
+        </div>
+      )}
       {projects.map((project) => (
         <ListItemButton key={project.id}>
           <ListItemIcon>

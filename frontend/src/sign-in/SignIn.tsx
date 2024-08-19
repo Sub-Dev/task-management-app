@@ -1,5 +1,4 @@
-// src/sign-in/SignIn.tsx
-import * as React from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -13,10 +12,11 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Copyright from '../Copyright.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
-import axiosInstance from '../axiosInstance'; // Importe o axiosInstance
-import { useNavigate } from 'react-router-dom'; // Importe useNavigate
-import useAuth from '../hooks/useAuth'; // Importe useAuth
-import LoadingSpinner from '../components/LoadingSpinner.tsx'; // Importe o componente de carregamento
+import axiosInstance from '../axiosInstance';
+import { useNavigate } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+import LoadingSpinner from '../components/LoadingSpinner.tsx';
+import { useSnackbar } from '../context/SnackbarContext.tsx';
 
 const theme = createTheme({
   palette: {
@@ -49,44 +49,66 @@ const theme = createTheme({
 });
 
 export default function SignIn() {
-  const navigate = useNavigate(); // Inicialize o useNavigate
-  const { user, loading } = useAuth(); // Utilize useAuth para verificar a autenticação
-  const [redirecting, setRedirecting] = React.useState(false);
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const { showSnackbar } = useSnackbar();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [rememberMe, setRememberMe] = React.useState(false);
+
+  React.useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    const savedPassword = localStorage.getItem('rememberedPassword');
+    if (savedEmail && savedPassword) {
+      console.log('Dados salvos encontrados:', { savedEmail, savedPassword });
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (!loading && user) {
-      setRedirecting(true);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 3000); // Delay de 2 segundos
+      console.log('Usuário logado, redirecionando para /dashboard:', user);
+      navigate('/dashboard');
+    } else {
+      console.log('Nenhum usuário logado ou ainda carregando:', { user, loading });
     }
   }, [user, loading, navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    console.log('Tentativa de login com:', { email, password });
 
-    const email = data.get('email')?.toString();
-    const password = data.get('password')?.toString();
-    console.log('Dados de login:', { email, password });
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { access_token } = response.data;
 
       if (access_token) {
-        localStorage.setItem('token', access_token); // Armazene o token no localStorage
-        // O redirecionamento será tratado no useEffect
+        console.log('Login bem-sucedido, token recebido:', access_token);
+        localStorage.setItem('token', access_token);
+
+        if (rememberMe) {
+          console.log('Salvando dados de login no localStorage');
+          localStorage.setItem('rememberedEmail', email);
+          localStorage.setItem('rememberedPassword', password);
+        } else {
+          console.log('Removendo dados de login do localStorage');
+          localStorage.removeItem('rememberedEmail');
+          localStorage.removeItem('rememberedPassword');
+        }
+        window.location.reload();
+        navigate('/dashboard');
       } else {
-        console.error('Token não encontrado na resposta');
-        // Adicione uma mensagem de erro aqui se necessário
+        showSnackbar('Token não encontrado na resposta', 'error');
       }
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      // Adicione uma mensagem de erro aqui se necessário
+      console.error('Erro ao tentar fazer login:', error);
+      showSnackbar('Erro ao fazer login. Verifique suas credenciais e tente novamente.', 'error');
     }
   };
 
-  if (redirecting || loading) {
+  if (loading) {
     return <LoadingSpinner />;
   }
 
@@ -113,7 +135,7 @@ export default function SignIn() {
           >
             <img src={LogoNoBackground} alt="Logo" style={{ width: 150, height: 150 }} />
             <Typography component="h1" variant="h5" sx={{ color: theme.palette.text.primary, mt: 2 }}>
-              Sign in
+              Entrar
             </Typography>
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
               <TextField
@@ -121,10 +143,12 @@ export default function SignIn() {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="Endereço de email"
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 sx={{
                   '& .MuiInputBase-root': {
                     borderRadius: 2,
@@ -151,10 +175,12 @@ export default function SignIn() {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label="Senha"
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 sx={{
                   '& .MuiInputBase-root': {
                     borderRadius: 2,
@@ -177,8 +203,15 @@ export default function SignIn() {
                 }}
               />
               <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
+                control={
+                  <Checkbox
+                    value="remember"
+                    color="primary"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                }
+                label="Lembre de mim"
                 sx={{ color: theme.palette.text.primary }}
               />
               <Button
@@ -195,23 +228,18 @@ export default function SignIn() {
                   },
                 }}
               >
-                Sign In
+                Entrar
               </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2" sx={{ color: theme.palette.text.primary }}>
-                    Forgot password?
-                  </Link>
-                </Grid>
                 <Grid item>
                   <Link href="/signup" variant="body2" sx={{ color: theme.palette.text.primary }}>
-                    {"Don't have an account? Sign Up"}
+                    {"Não tem uma conta? Registre"}
                   </Link>
                 </Grid>
               </Grid>
             </Box>
           </Box>
-          <Copyright sx={{ mt: 8, mb: 4, color: theme.palette.text.primary }} />
+          <Copyright sx={{ mt: 5 }} />
         </Container>
       </Box>
     </ThemeProvider>

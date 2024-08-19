@@ -9,42 +9,38 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verifica se há um token armazenado no localStorage ao carregar o app
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Faz a validação do token com o backend
-      fetch('http://localhost:4000/auth/validate-token', {
-        method: 'POST', // Use o método POST para enviar o token
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Envie o token no cabeçalho Authorization
-        },
-        // Remova o corpo da requisição
-      })
-        .then((response) => {
+    const checkToken = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:4000/auth/validate-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
           if (!response.ok) {
             throw new Error('Falha na validação do token');
           }
-          return response.json();
-        })
-        .then((data) => {
+
+          const data = await response.json();
           console.log('Dados do usuário:', data);
-          setUser(data.user); // Atualize o estado do usuário com os dados retornados
-          setLoading(false);
-        })
-        .catch((error) => {
+          setUser(data.user);
+        } catch (error) {
           console.error('Erro:', error);
           setUser(null);
-          setLoading(false);
-        });
-    } else {
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    checkToken();
   }, []);
 
   const login = (token, user) => {
     localStorage.setItem('token', token);
-    console.log(localStorage.getItem('token'));
     setUser(user);
   };
 

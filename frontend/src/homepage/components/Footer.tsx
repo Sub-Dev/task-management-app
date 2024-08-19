@@ -22,6 +22,7 @@ const logoStyle = {
 
 export default function Footer() {
   const theme = useTheme();
+
   return (
     <Container
       sx={{
@@ -47,27 +48,26 @@ export default function Footer() {
             flexDirection: 'column',
             gap: 4,
             minWidth: { xs: '100%', sm: '60%' },
+            textAlign: { sm: 'left', xs: 'center' },
           }}
         >
           <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
-            <Box sx={{ ml: '-15px' }}>
-
-            </Box>
             <img
               src={LogoNoBackground}
               style={logoStyle}
-              alt="TaskMaster logo"
+              alt="Logo do TaskMaster"
             />
             <Typography
               variant="h6"
+              sx={{ mt: 2 }}
             >
               TaskMaster
             </Typography>
             <Typography variant="body2" fontWeight={600} gutterBottom>
-              Newsletter
+              Boletim Informativo
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
-              Subscribe to our newsletter for weekly updates and promotions.
+              Inscreva-se em nosso boletim para atualizações semanais e promoções.
             </Typography>
             <Stack direction="row" spacing={1} useFlexGap>
               <TextField
@@ -76,15 +76,15 @@ export default function Footer() {
                 size="small"
                 variant="outlined"
                 fullWidth
-                aria-label="Enter your email address"
-                placeholder="Your email address"
+                aria-label="Digite seu endereço de e-mail"
+                placeholder="Seu endereço de e-mail"
                 inputProps={{
                   autoComplete: 'off',
-                  'aria-label': 'Enter your email address',
+                  'aria-label': 'Digite seu endereço de e-mail',
                 }}
               />
               <Button variant="contained" color="primary" sx={{ flexShrink: 0 }}>
-                Subscribe
+                Inscrever-se
               </Button>
             </Stack>
           </Box>
@@ -94,22 +94,23 @@ export default function Footer() {
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
             gap: 1,
+            textAlign: { sm: 'left', xs: 'center' },
           }}
         >
           <Typography variant="body2" fontWeight={600}>
-            Product
+            Produto
           </Typography>
           <Link color="text.secondary" href="#">
-            Features
+            Funcionalidades
           </Link>
           <Link color="text.secondary" href="#">
-            Testimonials
+            Depoimentos
           </Link>
           <Link color="text.secondary" href="#">
-            Highlights
+            Destaques
           </Link>
           <Link color="text.secondary" href="#">
-            FAQs
+            Perguntas Frequentes
           </Link>
         </Box>
         <Box
@@ -117,19 +118,20 @@ export default function Footer() {
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
             gap: 1,
+            textAlign: { sm: 'left', xs: 'center' },
           }}
         >
           <Typography variant="body2" fontWeight={600}>
-            Company
+            Empresa
           </Typography>
           <Link color="text.secondary" href="#">
-            About us
+            Sobre nós
           </Link>
           <Link color="text.secondary" href="#">
-            Careers
+            Carreiras
           </Link>
           <Link color="text.secondary" href="#">
-            Press
+            Imprensa
           </Link>
         </Box>
         <Box
@@ -137,19 +139,20 @@ export default function Footer() {
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
             gap: 1,
+            textAlign: { sm: 'left', xs: 'center' },
           }}
         >
           <Typography variant="body2" fontWeight={600}>
             Legal
           </Typography>
           <Link color="text.secondary" href="#">
-            Terms
+            Termos
           </Link>
           <Link color="text.secondary" href="#">
-            Privacy
+            Privacidade
           </Link>
           <Link color="text.secondary" href="#">
-            Contact
+            Contato
           </Link>
         </Box>
       </Box>
@@ -165,13 +168,13 @@ export default function Footer() {
       >
         <div>
           <Link color="text.secondary" href="#">
-            Privacy Policy
+            Política de Privacidade
           </Link>
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>
             &nbsp;•&nbsp;
           </Typography>
           <Link color="text.secondary" href="#">
-            Terms of Service
+            Termos de Serviço
           </Link>
           <Copyright />
         </div>
