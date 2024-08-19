@@ -7,8 +7,8 @@
 
 <p align="center">
   <img alt="Interface da aplicação" src=".github/frontend-dashboard-v3.png" width="100%">
-  <img alt="Interface da aplicação" src=".github/frontend-dashboard-v3.png" width="100%">
-  <img alt="Interface da aplicação" src=".github/frontend-dashboard-v3.png" width="100%">
+  <img alt="Interface Projetos" src=".github/frontend-projects-v2.png" width="100%">
+  <img alt="Interface Kanban" src=".github/frontend-kanban-v3.png" width="100%">
   <h3 align = "center" fontSize="60px">
   Versão Previa(Em desenvolvimento)
   </h3>
