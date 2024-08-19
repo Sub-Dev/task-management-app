@@ -6,11 +6,12 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useTheme } from '@mui/material/styles';
 
 export default function FAQ() {
   const [expanded, setExpanded] = React.useState<string | false>(false);
+  const theme = useTheme(); // Hook para acessar o tema atual
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -28,6 +29,8 @@ export default function FAQ() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: { xs: 3, sm: 6 },
+        bgcolor: theme.palette.mode === 'dark' ? '#1b222a' : '#f5f5f5', // Adapta a cor de fundo com base no tema
+        color: theme.palette.text.primary,
       }}
     >
       <Typography
@@ -37,114 +40,165 @@ export default function FAQ() {
         sx={{
           width: { sm: '100%', md: '60%' },
           textAlign: { sm: 'left', md: 'center' },
+          fontWeight: 'bold',
         }}
       >
-        Frequently asked questions
+        Perguntas Frequentes
       </Typography>
       <Box sx={{ width: '100%' }}>
         <Accordion
           expanded={expanded === 'panel1'}
           onChange={handleChange('panel1')}
+          sx={{
+            borderRadius: '8px',
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            mb: 1,
+            '&:before': {
+              display: 'none',
+            },
+            '& .MuiAccordionSummary-root': {
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+            '& .MuiAccordionDetails-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+          }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
             aria-controls="panel1d-content"
             id="panel1d-header"
           >
             <Typography component="h3" variant="subtitle2" color="text.primary">
-              How do I contact customer support if I have a question or issue?
+              Como posso obter suporte técnico se encontrar problemas com o aplicativo?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography
               variant="body2"
-              gutterBottom
               color="text.primary"
               sx={{ maxWidth: { sm: '100%', md: '70%' } }}
             >
-              You can reach our customer support team by emailing
-              <Link> support@email.com </Link>
-              or calling our toll-free number. We&apos;re here to assist you
-              promptly.
+              Se você encontrar problemas ou tiver dúvidas sobre o funcionamento do aplicativo, entre em contato através do e-mail <Link href="mailto:bilomarin@gmail.com" color="inherit">bilomarin@gmail.com</Link>. Estou à disposição para ajudar com qualquer questão que você possa ter.
             </Typography>
           </AccordionDetails>
         </Accordion>
         <Accordion
           expanded={expanded === 'panel2'}
           onChange={handleChange('panel2')}
+          sx={{
+            borderRadius: '8px',
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            mb: 1,
+            '&:before': {
+              display: 'none',
+            },
+            '& .MuiAccordionSummary-root': {
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+            '& .MuiAccordionDetails-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+          }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
             aria-controls="panel2d-content"
             id="panel2d-header"
           >
             <Typography component="h3" variant="subtitle2" color="text.primary">
-              Can I return the product if it doesn&apos;t meet my expectations?
+              O aplicativo possui uma política de devolução?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography
               variant="body2"
-              gutterBottom
               color="text.primary"
               sx={{ maxWidth: { sm: '100%', md: '70%' } }}
             >
-              Absolutely! We offer a hassle-free return policy. If you&apos;re not
-              completely satisfied, you can return the product within [number of
-              days] days for a full refund or exchange.
+              Como este aplicativo é destinado exclusivamente para demonstração de habilidades e não está à venda, não oferecemos uma política de devolução. No entanto, estou disponível para discutir qualquer feedback ou sugestão que você tenha.
             </Typography>
           </AccordionDetails>
         </Accordion>
         <Accordion
           expanded={expanded === 'panel3'}
           onChange={handleChange('panel3')}
+          sx={{
+            borderRadius: '8px',
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            mb: 1,
+            '&:before': {
+              display: 'none',
+            },
+            '& .MuiAccordionSummary-root': {
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+            '& .MuiAccordionDetails-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+          }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
             aria-controls="panel3d-content"
             id="panel3d-header"
           >
             <Typography component="h3" variant="subtitle2" color="text.primary">
-              What makes your product stand out from others in the market?
+              O que diferencia este aplicativo de outros projetos similares?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography
               variant="body2"
-              gutterBottom
               color="text.primary"
               sx={{ maxWidth: { sm: '100%', md: '70%' } }}
             >
-              Our product distinguishes itself through its adaptability, durability,
-              and innovative features. We prioritize user satisfaction and
-              continually strive to exceed expectations in every aspect.
+              Este aplicativo foi desenvolvido para demonstrar habilidades técnicas e boas práticas de desenvolvimento web. Ele se destaca pela sua implementação eficiente de um Kanban board, boas práticas de design, e integração de tecnologias modernas, como React, NestJS, PostgreSQL e Docker.
             </Typography>
           </AccordionDetails>
         </Accordion>
         <Accordion
           expanded={expanded === 'panel4'}
           onChange={handleChange('panel4')}
+          sx={{
+            borderRadius: '8px',
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            mb: 1,
+            '&:before': {
+              display: 'none',
+            },
+            '& .MuiAccordionSummary-root': {
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+            '& .MuiAccordionDetails-root': {
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+            },
+          }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
             aria-controls="panel4d-content"
             id="panel4d-header"
           >
             <Typography component="h3" variant="subtitle2" color="text.primary">
-              Is there a warranty on the product, and what does it cover?
+              Há alguma garantia associada a este aplicativo?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Typography
               variant="body2"
-              gutterBottom
               color="text.primary"
               sx={{ maxWidth: { sm: '100%', md: '70%' } }}
             >
-              Yes, our product comes with a [length of warranty] warranty. It covers
-              defects in materials and workmanship. If you encounter any issues
-              covered by the warranty, please contact our customer support for
-              assistance.
+              Como o aplicativo é parte de um portfólio para fins de demonstração, não há garantia associada. No entanto, estou aberto a feedbacks e sugestões para aprimorar o projeto e garantir que ele atenda às expectativas de quem o visualiza.
             </Typography>
           </AccordionDetails>
         </Accordion>

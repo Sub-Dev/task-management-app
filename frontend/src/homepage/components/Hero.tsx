@@ -52,7 +52,7 @@ export default function Hero() {
                 theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
             }}
           >
-            Welcome to&nbsp;
+            Bem-vindo ao&nbsp;
             <Typography
               component="span"
               variant="h1"
@@ -70,7 +70,7 @@ export default function Hero() {
             color="text.secondary"
             sx={{ width: { sm: '100%', md: '80%' } }}
           >
-            TaskMaster is your ultimate task management solution. Streamline your workflow, stay organized, and enhance productivity with our cutting-edge features.
+            TaskMaster é sua solução definitiva de gerenciamento de tarefas. Simplifique seu fluxo de trabalho, mantenha-se organizado e melhore a produtividade.
           </Typography>
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
@@ -85,7 +85,7 @@ export default function Hero() {
               component="a"
               href="/signup"
             >
-              Get Started
+              Começar
             </Button>
           </Stack>
         </Stack>

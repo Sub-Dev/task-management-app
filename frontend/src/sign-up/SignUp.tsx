@@ -3,9 +3,6 @@ import {
   Button,
   CssBaseline,
   TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
   Grid,
   Box,
   Typography,
@@ -13,6 +10,7 @@ import {
   Alert,
   IconButton,
   InputAdornment,
+  Snackbar,
 } from '@mui/material'; // Importação simplificada do MUI
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LogoNoBackground from '../img/logo-no-background.png';
@@ -69,6 +67,11 @@ export default function SignUp() {
     email: '',
     password: '',
   });
+
+  // Snackbar States
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -127,7 +130,9 @@ export default function SignUp() {
 
     try {
       await axiosInstance.post('/auth/register', dataToSend);
-      setSuccess('Cadastro realizado com sucesso! Redirecionando para login...');
+      setSnackbarMessage('Cadastro realizado com sucesso! Redirecionando para login...');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
       setTimeout(() => navigate('/signin'), 2000); // Redireciona após 2 segundos
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
@@ -136,21 +141,33 @@ export default function SignUp() {
         const statusCode = error.response.status;
 
         if (statusCode === 409) {
-          setError('Nome de usuário ou email já estão em uso.');
+          setSnackbarMessage('Nome de usuário ou email já estão em uso.');
+          setSnackbarSeverity('error');
         } else if (statusCode === 400) {
-          setError('Verifique os dados enviados. Alguma informação pode estar incorreta.');
+          setSnackbarMessage('Verifique os dados enviados. Alguma informação pode estar incorreta.');
+          setSnackbarSeverity('error');
         } else if (statusCode === 500) {
-          setError('Erro interno no servidor. Tente novamente mais tarde.');
+          setSnackbarMessage('Erro interno no servidor. Tente novamente mais tarde.');
+          setSnackbarSeverity('error');
         } else {
-          setError(`Erro inesperado: ${statusCode}. Por favor, tente novamente.`);
+          setSnackbarMessage(`Erro inesperado: ${statusCode}. Por favor, tente novamente.`);
+          setSnackbarSeverity('error');
         }
       } else if (error.request) {
-        setError('Sem resposta do servidor. Por favor, verifique sua conexão de internet.');
+        setSnackbarMessage('Sem resposta do servidor. Por favor, verifique sua conexão de internet.');
+        setSnackbarSeverity('error');
       } else {
-        setError('Erro ao realizar cadastro. Por favor, tente novamente.');
+        setSnackbarMessage('Erro ao realizar cadastro. Por favor, tente novamente.');
+        setSnackbarSeverity('error');
       }
+      setSnackbarOpen(true);
     }
   };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -174,11 +191,9 @@ export default function SignUp() {
           >
             <img src={LogoNoBackground} alt="Logo" style={{ width: 100, height: 100 }} />
             <Typography component="h1" variant="h5" sx={{ color: theme.palette.text.primary, mt: 2 }}>
-              Sign Up
+              Registrar
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              {success && <Alert severity="success">{success}</Alert>}
-              {error && <Alert severity="error">{error}</Alert>}
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
@@ -187,7 +202,7 @@ export default function SignUp() {
                     required
                     fullWidth
                     id="firstName"
-                    label="First Name"
+                    label="Nome"
                     autoFocus
                     value={formData.firstName}
                     onChange={handleChange}
@@ -220,7 +235,7 @@ export default function SignUp() {
                     required
                     fullWidth
                     id="lastName"
-                    label="Last Name"
+                    label="Sobrenome"
                     name="lastName"
                     autoComplete="family-name"
                     value={formData.lastName}
@@ -254,7 +269,7 @@ export default function SignUp() {
                     required
                     fullWidth
                     id="email"
-                    label="Email Address"
+                    label="Endereço de email"
                     name="email"
                     autoComplete="email"
                     value={formData.email}
@@ -288,7 +303,7 @@ export default function SignUp() {
                     required
                     fullWidth
                     name="password"
-                    label="Password"
+                    label="Senha"
                     type={showPassword ? 'text' : 'password'}
                     id="password"
                     autoComplete="new-password"
@@ -305,7 +320,7 @@ export default function SignUp() {
                             onMouseDown={handleMouseDownPassword}
                             edge="end"
                           >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                            {showPassword ? <Visibility /> : <VisibilityOff />}
                           </IconButton>
                         </InputAdornment>
                       ),
@@ -337,22 +352,43 @@ export default function SignUp() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2, bgcolor: '#00bfae', '&:hover': { bgcolor: '#009c8f' } }}
+                sx={{ mt: 3, mb: 2 }}
               >
-                Sign Up
+                Inscrever-se
               </Button>
               <Grid container justifyContent="flex-end">
-                <Grid item>
-                  <Link href="/signin" variant="body2" sx={{ color: '#ffffff' }}>
-                    Already have an account? Sign In
-                  </Link>
+                <Grid item mb={2}>
+                  <Button onClick={() => navigate('/signin')} variant="text" sx={{ color: '#ffffff', textTransform: 'none', }}>
+                    Já tem uma conta? Entrar
+                  </Button>
                 </Grid>
               </Grid>
             </Box>
           </Box>
-          <Copyright />
+          <Copyright sx={{ color: theme.palette.text.primary }} />
         </Container>
       </Box>
+      {/* Snackbar Component */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+        action={
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={handleSnackbarClose}
+          >
+            <i className="material-icons">close</i>
+          </IconButton>
+        }
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 }

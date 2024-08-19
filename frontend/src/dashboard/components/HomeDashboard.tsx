@@ -2,14 +2,18 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, Typography, Grid, Box } from '@mui/material';
 import { Work, Task, Done, HourglassEmpty } from '@mui/icons-material';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from '../../context/SnackbarContext.tsx';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const HomeDashboard = () => {
+  const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const [dashboardData, setDashboardData] = useState({
     projectCount: 0,
     completedTasks: 0,
@@ -23,10 +27,11 @@ const HomeDashboard = () => {
         const token = localStorage.getItem('token');
         if (!token) {
           console.error('Erro: Token JWT não encontrado.');
+          navigate('/signin');
           return;
         }
 
-        const decoded = jwtDecode(token);
+        const decoded = jwtDecode<any>(token);
         const userId = decoded.sub;
 
         const projectsResponse = await axios.get('http://localhost:4000/projects', {
@@ -60,11 +65,13 @@ const HomeDashboard = () => {
         });
       } catch (error) {
         console.error('Erro ao buscar dados do backend:', error);
+        showSnackbar('Erro ao buscar dados do backend. Por favor, tente novamente.', 'error');
+        navigate('/signin');
       }
     };
 
     fetchData();
-  }, []);
+  }, [navigate, showSnackbar]);
 
   const { projectCount, completedTasks, pendingTasks, totalTasks } = dashboardData;
 
