@@ -23,8 +23,8 @@ export class ColumnsController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateColumnDto: { title: string }): Promise<Column> {
-    return this.columnsService.update(id, updateColumnDto.title);
+  update(@Param('id') id: number, @Body() updateColumnDto: { title: string , order: number }): Promise<Column> {
+    return this.columnsService.update(id, updateColumnDto.title,updateColumnDto.order);
   }
 
   @UseGuards(JwtAuthGuard)

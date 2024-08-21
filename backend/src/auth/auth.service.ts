@@ -19,18 +19,13 @@ export class AuthService {
   // Método para validar o token
   async validateToken(token: string): Promise<any> {
     try {
-      // Verifica e decodifica o token JWT usando o JwtService do NestJS
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET,
-      });
-
-      // Obtem o usuário pelo ID decodificado no token
+      const decoded = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
       const user = await this.userRepository.findOne({ where: { id: decoded.sub } });
-
+  
       if (!user) {
         throw new UnauthorizedException('Token inválido. Usuário não encontrado.');
       }
-
+  
       return {
         success: true,
         message: 'Token é válido',
@@ -45,6 +40,7 @@ export class AuthService {
       throw new UnauthorizedException('Token inválido.');
     }
   }
+  
   async login(userCredentials: any) {
     const { email, password } = userCredentials;
     

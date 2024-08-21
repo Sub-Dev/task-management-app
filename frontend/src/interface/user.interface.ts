@@ -13,4 +13,5 @@ export interface User {
   projects: Project[];       // Projetos associados ao usuário
   tasks: Task[];             // Tarefas associadas ao usuário
   tasks_created: Task[];     // Tarefas criadas pelo usuário
+  profileImageUrl: string;
 }

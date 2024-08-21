@@ -112,8 +112,8 @@ export function SecondaryListItems() {
         </div>
       )}
       {projects.map((project) => (
-        <ListItemButton key={project.id}>
-          <ListItemIcon>
+        <ListItemButton key={project.id} onClick={() => navigate(`/dashboard/kanban/${project.id}`)}>
+          <ListItemIcon >
             <AssignmentIcon />
           </ListItemIcon>
           <ListItemText primary={project.name} />
