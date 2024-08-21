@@ -1,6 +1,6 @@
 // src/tasks/tasks.controller.ts
 
-import { Controller, Post, Get, Put, Delete, Body, Param,UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param,UseGuards, Request } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './create-task.dto';
 import { UpdateTaskDto } from './update-task.dto';
@@ -14,8 +14,8 @@ export class TasksController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
-    return this.tasksService.createTask(createTaskDto);
+  createTask(@Body() createTaskDto: CreateTaskDto, @Request() req): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto, req);
   }
 
   @UseGuards(JwtAuthGuard)

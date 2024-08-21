@@ -1,16 +1,6 @@
 import React from 'react';
 import {
-  Container,
-  Box,
-  Typography,
-  IconButton,
-  Modal,
-  TextField,
-  Button,
-  Card,
-  CardContent,
-  Icon,
-  InputAdornment,
+  Container, Box, Typography, IconButton, Modal, TextField, Button, Card, CardContent, Icon, InputAdornment, Avatar, AvatarGroup
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,12 +21,13 @@ import DialogDelete from './DialogDelete.tsx'; // Importar o DialogDeleteColumn
 import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o modal de edição
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import TaskEditModal from './components-kanban/TaskEditModal.jsx';
 interface Task {
   id: number;
   title: string;
   description: string;
   status: 'pending' | 'completed'; // Status limitado a 'pending' ou 'completed'
-  users?: number[];
+  users: number[];
   due_date?: string;
   project?: number;
   column: number;
@@ -49,7 +40,14 @@ interface Column {
   tasks: Task[];
   project: Project;
 }
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  profileImageUrl: string;
 
+}
 
 // Definindo o estado inicial para o Kanban
 const initialData: Record<string, Column> = {};
@@ -71,6 +69,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [columnToDelete, setColumnToDelete] = React.useState(null);
   const [taskToDelete, setTaskToDelete] = React.useState<Task | null>(null);
   const [openDeleteTaskDialog, setOpenDeleteTaskDialog] = React.useState(false);
+  const [tasks, setTasks] = React.useState<Record<number, Task>>({});
   interface UserPayload {
     sub: number;
     email: string;
@@ -103,6 +102,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         const decoded: UserPayload = jwtDecode(token);
         const userId = decoded.sub;
 
+        // Buscar dados do projeto
         const response = await api.get(`/projects/${id}`);
         const projectData = response.data;
 
@@ -112,21 +112,35 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
           return;
         }
 
-        // Fetch columns with tasks associated with the project
+        // Buscar colunas associadas ao projeto
         const columnsResponse = await api.get('/columns');
         const allColumns = columnsResponse.data;
 
-        // Filter columns by project ID
+        // Filtrar colunas pelo ID do projeto
         const projectColumns = allColumns.filter((column: any) => column.project.id === projectData.id);
 
-        // Format columns data to use column ID as the key
+        // Buscar tarefas associadas ao projeto
+        const tasksResponse = await api.get('/tasks'); // Ajuste para o endpoint correto se necessário
+        const allTasks = tasksResponse.data;
+
+        // Filtrar tarefas pelo ID do projeto
+        const projectTasks = allTasks.filter((task: any) => projectColumns.some((column: any) => column.id === task.column.id));
+
+        // Criar um mapeamento de tarefas para acessar rapidamente por ID
+        const tasksMap: Record<number, Task> = {};
+        projectTasks.forEach((task: Task) => {
+          tasksMap[task.id] = task;
+        });
+
+        // Formatar os dados das colunas para usar o ID da coluna como chave
         const formattedData: Record<string, Column> = {};
         projectColumns.forEach((column: Column) => {
-          formattedData[column.id] = column; // Use column ID as the key
+          formattedData[column.id] = column; // Usa o ID da coluna como chave
         });
 
         setData(formattedData);
         setProject(projectData);
+        setTasks(tasksMap); // Armazena as tarefas no estado
 
       } catch (error) {
         navigate('/dashboard/projects', { state: { error: 'Erro ao buscar dados do projeto.' } });
@@ -137,70 +151,79 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   }, [id, navigate, data]);// Dependência específica: estado data
 
   const onDragEnd = async (result: DropResult) => {
-    const { source, destination, draggableId } = result;
+    const { source, destination, draggableId, type } = result;
 
     if (!destination) {
       return; // Se a tarefa não for colocada em um destino válido, não faz nada
     }
 
-    const sourceColumnId = source.droppableId;
-    const destColumnId = destination.droppableId;
+    if (type === 'COLUMN') {
+      const reorderedColumns = Array.from(Object.values(data));
+      const [movedColumn] = reorderedColumns.splice(source.index, 1);
+      reorderedColumns.splice(destination.index, 0, movedColumn);
 
-    if (sourceColumnId === destColumnId && source.index === destination.index) {
-      return; // Se a posição não mudou dentro da mesma coluna, não faz nada
-    }
+      try {
+        for (let i = 0; i < reorderedColumns.length; i++) {
+          const column = reorderedColumns[i];
+          await api.put(`/columns/${column.id}`, { order: i + 1 });
+          column.order = i + 1;
+        }
 
-    const sourceColumn = data[sourceColumnId];
-    const destColumn = data[destColumnId];
+        const newData: Record<string, Column> = {};
+        reorderedColumns.forEach((column) => {
+          newData[column.id] = column;
+        });
 
-    const item = sourceColumn.tasks[source.index];
+        setData(newData);
+      } catch (error) {
+        console.error('Erro ao atualizar a ordem das colunas:', error);
+      }
+    } else {
+      const sourceColumnId = source.droppableId;
+      const destColumnId = destination.droppableId;
 
-    // Atualiza o estado local removendo a tarefa da coluna de origem
-    const updatedSourceItems = Array.from(sourceColumn.tasks);
-    updatedSourceItems.splice(source.index, 1);
+      if (sourceColumnId === destColumnId && source.index === destination.index) {
+        return; // Se a posição não mudou dentro da mesma coluna, não faz nada
+      }
 
-    // Atualiza o estado local adicionando a tarefa à coluna de destino
-    const updatedDestItems = Array.from(destColumn.tasks);
-    updatedDestItems.splice(destination.index, 0, item);
+      const sourceColumn = data[sourceColumnId];
+      const destColumn = data[destColumnId];
 
-    // Converte destColumnId para número
-    const columnId = Number(destColumnId);
+      const item = sourceColumn.tasks[source.index];
 
-    console.log('Task ID (draggableId):', draggableId);
-    console.log('Destination Column ID:', columnId);
+      const updatedSourceItems = Array.from(sourceColumn.tasks);
+      updatedSourceItems.splice(source.index, 1);
 
-    // Atualiza o status da tarefa no backend
-    try {
-      const token = localStorage.getItem('token');
+      const updatedDestItems = Array.from(destColumn.tasks);
+      updatedDestItems.splice(destination.index, 0, item);
 
-      console.log('Enviando requisição PUT para /tasks:', `/tasks/${draggableId}`);
-      console.log('Dados sendo enviados:', { column: columnId });
+      const columnId = Number(destColumnId);
 
-      await api.put(`/tasks/${draggableId}`, { column: columnId }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        const token = localStorage.getItem('token');
 
-      setData((prevData) => ({
-        ...prevData,
-        [sourceColumnId]: {
-          ...sourceColumn,
-          tasks: updatedSourceItems,
-        },
-        [destColumnId]: {
-          ...destColumn,
-          tasks: updatedDestItems,
-        },
-      }));
-    } catch (error) {
-      console.error('Erro ao mover tarefa:', error);
-      console.error('Dados:', columnId);
+        await api.put(`/tasks/${draggableId}`, { column: columnId }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setData((prevData) => ({
+          ...prevData,
+          [sourceColumnId]: {
+            ...sourceColumn,
+            tasks: updatedSourceItems,
+          },
+          [destColumnId]: {
+            ...destColumn,
+            tasks: updatedDestItems,
+          },
+        }));
+      } catch (error) {
+        console.error('Erro ao mover tarefa:', error);
+      }
     }
   };
-
-
-
 
 
   const handleEditTask = (task: Task) => {
@@ -248,13 +271,13 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     setCurrentTask(null);
   };
   const handleTaskUpdate = async () => {
-    if (currentTask && currentTask.status) {
+    if (currentTask) {
       try {
-
         await api.put(`/tasks/${currentTask.id}`, {
           title: currentTask.title,
           description: currentTask.description,
           due_date: currentTask.due_date,
+          users: currentTask.users, // Inclua os usuários selecionados
         });
 
         setData((prevData) => {
@@ -281,7 +304,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         console.error('Erro ao atualizar tarefa:', error);
       }
     } else {
-      console.error('A tarefa ou o status da tarefa não está definido.');
+      console.error('A tarefa não está definida.');
     }
   };
 
@@ -292,23 +315,25 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       return;
     }
 
-    const decoded: UserPayload = jwtDecode(token);
-    const userId = decoded.sub;
-
-    const newTask: Omit<Task, 'id'> = {
-      title: newTaskTitles[columnId],
-      description: newTaskDescriptions[columnId],
-      status: 'pending',
-      due_date: newTaskDueDates[columnId] || '',
-      project: project?.id, // ID do projeto ao qual a tarefa pertence
-      users: [userId], // ID do usuário responsável
-      column: data[columnId].id, // Passa o ID da coluna como número
-    };
-
-    console.log('Nova tarefa:', newTask);
-
     try {
-      const response = await api.post('/tasks', newTask); // O backend deve gerar o ID
+      const decoded: UserPayload = jwtDecode(token);
+      const userId = decoded.sub;
+
+      console.log('User ID from JWT:', userId); // Adicione este log para verificar o ID
+
+      const newTask: Omit<Task, 'id'> = {
+        title: newTaskTitles[columnId],
+        description: newTaskDescriptions[columnId],
+        status: 'pending',
+        due_date: newTaskDueDates[columnId] || '',
+        project: project?.id,
+        users: [userId] || [],
+        column: data[columnId].id,
+      };
+
+      console.log('Nova tarefa:', newTask);
+
+      const response = await api.post('/tasks', newTask);
       const addedTask = response.data;
 
       console.log('Resposta do backend:', response);
@@ -317,7 +342,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         ...prevData,
         [columnId]: {
           ...prevData[columnId],
-          tasks: [...prevData[columnId].tasks, addedTask], // Adiciona a tarefa com o ID gerado
+          tasks: [...prevData[columnId].tasks, addedTask],
         },
       }));
 
@@ -378,10 +403,6 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       console.error('Erro ao atualizar status da tarefa:', error);
     }
   };
-
-
-
-
   const handleAddColumn = async () => {
     if (!newColumnName || !project?.id) return; // Verifique se o ID do projeto está disponível
 
@@ -483,6 +504,13 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     }
   };
 
+  const getAvatarUrls = (users: User[]) => {
+    return users.map(user => ({
+      src: user.profileImageUrl, // Assume que `profileImageUrl` é uma propriedade obrigatória
+      alt: `Avatar ${user.username}`,
+    }));
+  };
+
   return (
     < Container maxWidth={false} >
       <Box display="flex" alignItems="center" mb={2}>
@@ -500,13 +528,10 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
           </Button>
         </Box>
       </Box>
-
-      <Box position="relative" ref={containerRef} display="flex" py={2}>
-
-
+      <Box position="relative" ref={containerRef} display="flex" py={2} style={{ overflowX: 'scroll' }} >
         <DragDropContext onDragEnd={onDragEnd}>
           {Object.entries(data).map(([columnId, column]) => (
-            <Droppable droppableId={columnId} key={columnId}>
+            <Droppable droppableId={columnId} key={columnId} direction="horizontal">
               {(provided) => (
                 <Box
                   ref={provided.innerRef}
@@ -539,14 +564,17 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                       </IconButton>
                     </Box>
                   </Box>
-
                   {column && column.tasks && column.tasks.map((task, index) => (
                     task && task.id && task.status && (
                       <Draggable draggableId={task.id.toString()} index={index} key={task.id}>
                         {(provided) => {
                           // Define a cor de fundo com base no status da tarefa
                           const backgroundColor = task.status === 'completed' ? '#d4edda' : '#f8d7da'; // Verde claro para completado, vermelho claro para pendente
-
+                          // Definir avatares e contagem restante
+                          console.log(tasks.id)
+                          const users = task.users || []; // Usa um array vazio se task.users for undefined
+                          const avatars = getAvatarUrls(project?.users || []); // Pega as URLs dos avatares
+                          const remainingCount = users.length - avatars.length;
                           return (
                             <Box
                               ref={provided.innerRef}
@@ -582,6 +610,18 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                                     })}
                                   </Typography>
                                 </Box>
+                                <Box display="flex" flexDirection="row" alignItems="center" mb={1}>
+                                  <AvatarGroup max={3}>
+                                    {avatars.map((avatar, index) => (
+                                      <Avatar key={index} src={avatar.src} alt={avatar.alt} />
+                                    ))}
+                                    {remainingCount > 0 && (
+                                      <Avatar>
+                                        +{remainingCount}
+                                      </Avatar>
+                                    )}
+                                  </AvatarGroup>
+                                </Box>
                               </Box>
                               <Box display="flex" alignItems="center">
                                 <IconButton
@@ -612,6 +652,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                     )
                   ))}
                   {provided.placeholder}
+
 
                   <Card>
                     <CardContent>
@@ -708,99 +749,14 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         )
       }
       {/* Modal para edição de tarefas */}
-      <Modal open={isModalOpen} onClose={handleModalClose}>
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          bgcolor="#f7f7f7"
-          borderRadius={2}
-          boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
-          p={4}
-          style={{ transform: 'translate(-50%, -50%)' }}
-        >
-          <Typography variant="h4" gutterBottom>
-            <FontAwesomeIcon icon={faEdit} /> Edição de Tarefa
-          </Typography>
-          {currentTask && (
-            <>
-              <TextField
-                fullWidth
-                label="Titulo Tarefa"
-                value={currentTask.title}
-                onChange={(e) =>
-                  setCurrentTask({ ...currentTask, title: e.target.value })
-                }
-                margin="normal"
-                variant="outlined"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FontAwesomeIcon icon={faHeading} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Descrição"
-                value={currentTask.description}
-                onChange={(e) =>
-                  setCurrentTask({ ...currentTask, description: e.target.value })
-                }
-                margin="normal"
-                variant="outlined"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FontAwesomeIcon icon={faAlignLeft} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Data de vencimento"
-                type="date"
-                value={moment(currentTask.due_date).format('YYYY-MM-DD')}
-                onChange={(e) =>
-                  setCurrentTask({ ...currentTask, due_date: e.target.value })
-                }
-                margin="normal"
-                variant="outlined"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <FontAwesomeIcon icon={faCalendar} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <Box mt={2}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleTaskUpdate}
-                  style={{ marginRight: 8 }}
-                >
-                  <FontAwesomeIcon icon={faSave} size="lg"
-                    style={{ marginRight: 4 }} />                <Typography variant="button" component="span" mt={0.2} ml={1}>
-                    Salvar
-                  </Typography>
-                </Button>
-                <Button variant="outlined" onClick={handleModalClose}>
-                  <FontAwesomeIcon icon={faTimes} size="lg"
-                    style={{ marginRight: 4 }} />
-                  <Typography variant="button" component="span" mt={0.2} ml={1}>
-                    Cancelar
-                  </Typography>
-                </Button>
-              </Box>
-            </>
-          )}
-        </Box>
-      </Modal>
-
+      <TaskEditModal
+        isModalOpen={isModalOpen}
+        handleModalClose={handleModalClose}
+        currentTask={currentTask}
+        setCurrentTask={setCurrentTask}
+        projectId={project?.id}
+        handleTaskUpdate={handleTaskUpdate}
+      />
       {/* Modal para edição de colunas */}
       <ModalColumn
         isColumnModalOpen={isColumnModalOpen}

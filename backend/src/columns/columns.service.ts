@@ -43,17 +43,29 @@ export class ColumnsService {
     return this.columnsRepository.find({ relations: ['tasks', 'project'] });
   }
 
-  async update(id: number, title: string): Promise<Column> {
+  async update(id: number, title: string, order: number | null): Promise<Column> {
+    // Encontra a coluna pelo ID
     const column = await this.columnsRepository.findOneBy({ id });
-
+  
     if (!column) {
       throw new Error('Coluna não encontrada');
     }
-
-    column.title = title;
+  
+    // Atualiza o título se houver mudança
+    if (column.title !== title) {
+      column.title = title;
+    }
+  
+    // Atualiza a ordem se houver uma mudança e o novo valor não for nulo
+    if (order !== null && column.order !== order) {
+      column.order = order;
+    }
+  
+    // Salva a coluna atualizada
     return this.columnsRepository.save(column);
   }
-
+  
+  
   async remove(columnId: number): Promise<void> {
     try {
       const column = await this.columnsRepository.findOne({
