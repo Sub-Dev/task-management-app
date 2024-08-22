@@ -70,6 +70,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [taskToDelete, setTaskToDelete] = React.useState<Task | null>(null);
   const [openDeleteTaskDialog, setOpenDeleteTaskDialog] = React.useState(false);
   const [tasks, setTasks] = React.useState<Record<number, Task>>({});
+  const [avatarData, setAvatarData] = React.useState<Record<number, string[]>>({});
   interface UserPayload {
     sub: number;
     email: string;
@@ -120,7 +121,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         const projectColumns = allColumns.filter((column: any) => column.project.id === projectData.id);
 
         // Buscar tarefas associadas ao projeto
-        const tasksResponse = await api.get('/tasks'); // Ajuste para o endpoint correto se necessário
+        const tasksResponse = await api.get('/tasks');
         const allTasks = tasksResponse.data;
 
         // Filtrar tarefas pelo ID do projeto
@@ -128,19 +129,25 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
         // Criar um mapeamento de tarefas para acessar rapidamente por ID
         const tasksMap: Record<number, Task> = {};
-        projectTasks.forEach((task: Task) => {
+        const avatarsMap: Record<number, string[]> = {}; // Mapeamento para armazenar os avatares por ID de tarefa
+
+        // Percorrer cada tarefa e buscar detalhes dos avatares
+        for (const task of projectTasks) {
           tasksMap[task.id] = task;
-        });
+          const avatarUrls = await fetchTaskDetails(task.id); // Buscar os URLs dos avatares para essa tarefa
+          avatarsMap[task.id] = avatarUrls;
+        }
 
         // Formatar os dados das colunas para usar o ID da coluna como chave
         const formattedData: Record<string, Column> = {};
         projectColumns.forEach((column: Column) => {
-          formattedData[column.id] = column; // Usa o ID da coluna como chave
+          formattedData[column.id] = column;
         });
 
         setData(formattedData);
         setProject(projectData);
-        setTasks(tasksMap); // Armazena as tarefas no estado
+        setTasks(tasksMap);
+        setAvatarData(avatarsMap); // Armazenar os URLs dos avatares no estado
 
       } catch (error) {
         navigate('/dashboard/projects', { state: { error: 'Erro ao buscar dados do projeto.' } });
@@ -511,6 +518,32 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     }));
   };
 
+  const fetchTaskDetails = async (taskId: number) => {
+    try {
+      const response = await api.get(`/tasks/${taskId}`);
+      const taskData = response.data;
+
+      // Extrair os URLs das imagens de perfil dos usuários associados à tarefa
+      const avatarUrls = taskData.users.map((user: User) => user.profileImageUrl);
+
+      return avatarUrls;
+    } catch (error) {
+      console.error(`Erro ao buscar detalhes da tarefa com ID ${taskId}:`, error);
+      return [];
+    }
+  };
+  // const renderTaskCard = (task: Task) => {
+  //   const [avatarUrls, setAvatarUrls] = React.useState<string[]>([]);
+
+  //   React.useEffect(() => {
+  //     const fetchAvatars = async () => {
+  //       const urls = await fetchTaskDetails(task.id);
+  //       setAvatarUrls(urls);
+  //     };
+
+  //     fetchAvatars();
+  //   }, [task.id]);
+
   return (
     < Container maxWidth={false} >
       <Box display="flex" alignItems="center" mb={2}>
@@ -570,11 +603,9 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                         {(provided) => {
                           // Define a cor de fundo com base no status da tarefa
                           const backgroundColor = task.status === 'completed' ? '#d4edda' : '#f8d7da'; // Verde claro para completado, vermelho claro para pendente
-                          // Definir avatares e contagem restante
-                          console.log(tasks.id)
-                          const users = task.users || []; // Usa um array vazio se task.users for undefined
-                          const avatars = getAvatarUrls(project?.users || []); // Pega as URLs dos avatares
-                          const remainingCount = users.length - avatars.length;
+
+                          const taskId = task.id; // Substitua isso pelo ID da tarefa relevante
+                          const avatarUrls = avatarData[taskId] || [];
                           return (
                             <Box
                               ref={provided.innerRef}
@@ -612,14 +643,9 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                                 </Box>
                                 <Box display="flex" flexDirection="row" alignItems="center" mb={1}>
                                   <AvatarGroup max={3}>
-                                    {avatars.map((avatar, index) => (
-                                      <Avatar key={index} src={avatar.src} alt={avatar.alt} />
+                                    {avatarUrls.map((url, index) => (
+                                      <Avatar key={index} src={url} />
                                     ))}
-                                    {remainingCount > 0 && (
-                                      <Avatar>
-                                        +{remainingCount}
-                                      </Avatar>
-                                    )}
                                   </AvatarGroup>
                                 </Box>
                               </Box>

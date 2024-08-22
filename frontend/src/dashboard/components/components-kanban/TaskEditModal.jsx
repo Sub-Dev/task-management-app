@@ -35,19 +35,23 @@ const TaskEditModal = ({
 
   // Carrega os usuários do projeto ao abrir o modal
   useEffect(() => {
-    if (isModalOpen) {
-      const fetchUsers = async () => {
+    if (isModalOpen && currentTask) {
+      const fetchTaskDetails = async () => {
         try {
-          const response = await api.get(`/projects/${projectId}`);
-          setUsers(response.data.users); // Supondo que os usuários estão em response.data.users
+          // Supondo que a API retorne os dados completos da tarefa, incluindo os usuários
+          const response = await api.get(`/tasks/${currentTask.id}`);
+          const taskData = response.data;
+
+          // Atualiza `currentTask` com os detalhes completos, incluindo os usuários
+          setCurrentTask(taskData);
         } catch (error) {
-          console.error("Erro ao carregar usuários:", error);
+          console.error("Erro ao carregar os detalhes da tarefa:", error);
         }
       };
 
-      fetchUsers();
+      fetchTaskDetails();
     }
-  }, [isModalOpen, projectId]);
+  }, [isModalOpen, currentTask]);
 
   // Função para atualizar a seleção de usuários
   const handleUserChange = (event) => {
