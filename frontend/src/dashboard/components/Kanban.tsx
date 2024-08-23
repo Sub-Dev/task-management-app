@@ -1,6 +1,8 @@
 import React from 'react';
 import {
-  Container, Box, Typography, IconButton, Modal, TextField, Button, Card, CardContent, Icon, InputAdornment, Avatar, AvatarGroup
+  Container, Box, Typography, IconButton, Modal,
+  TextField, Button, Card, CardContent, Icon, InputAdornment,
+  Avatar, AvatarGroup, Select, MenuItem, FormControl, InputLabel, Tooltip
 } from '@mui/material';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import EditIcon from '@mui/icons-material/Edit';
@@ -71,6 +73,8 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [openDeleteTaskDialog, setOpenDeleteTaskDialog] = React.useState(false);
   const [tasks, setTasks] = React.useState<Record<number, Task>>({});
   const [avatarData, setAvatarData] = React.useState<Record<number, string[]>>({});
+  const [columnOrder, setColumnOrder] = React.useState({});
+  const [loading, setLoading] = React.useState(false);
   interface UserPayload {
     sub: number;
     email: string;
@@ -117,8 +121,10 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         const columnsResponse = await api.get('/columns');
         const allColumns = columnsResponse.data;
 
-        // Filtrar colunas pelo ID do projeto
-        const projectColumns = allColumns.filter((column: any) => column.project.id === projectData.id);
+        // Filtrar colunas pelo ID do projeto e ordenar por 'order'
+        const projectColumns = allColumns
+          .filter((column: any) => column.project.id === projectData.id)
+          .sort((a: any, b: any) => a.order - b.order); // Ordena as colunas pela propriedade 'order'
 
         // Buscar tarefas associadas ao projeto
         const tasksResponse = await api.get('/tasks');
@@ -160,9 +166,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId, type } = result;
 
-    if (!destination) {
-      return; // Se a tarefa não for colocada em um destino válido, não faz nada
-    }
+    if (!destination) return;
 
     if (type === 'COLUMN') {
       const reorderedColumns = Array.from(Object.values(data));
@@ -170,16 +174,17 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       reorderedColumns.splice(destination.index, 0, movedColumn);
 
       try {
+        // Atualize a ordem das colunas no backend
         for (let i = 0; i < reorderedColumns.length; i++) {
           const column = reorderedColumns[i];
           await api.put(`/columns/${column.id}`, { order: i + 1 });
           column.order = i + 1;
         }
 
-        const newData: Record<string, Column> = {};
-        reorderedColumns.forEach((column) => {
-          newData[column.id] = column;
-        });
+        const newData = reorderedColumns.reduce((acc: Record<string, Column>, column) => {
+          acc[column.id] = column;
+          return acc;
+        }, {});
 
         setData(newData);
       } catch (error) {
@@ -411,18 +416,18 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     }
   };
   const handleAddColumn = async () => {
-    if (!newColumnName || !project?.id) return; // Verifique se o ID do projeto está disponível
+    if (!newColumnName || !project?.id) return;
 
     try {
       const response = await api.post('/columns', { title: newColumnName, projectId: project.id });
       const addedColumn = response.data;
-      console.log('Coluna adicionada:', addedColumn);
 
-      setData((prevData) => ({
-        ...prevData,
-        [addedColumn.id]: addedColumn, // Use o ID da coluna como chave
-      }));
-
+      // Atualize a ordem das colunas
+      const updatedData = {
+        ...data,
+        [addedColumn.id]: { ...addedColumn, order: Object.keys(data).length + 1 }, // Adiciona na última posição
+      };
+      setData(updatedData);
       setNewColumnName('');
     } catch (error) {
       console.error('Erro ao adicionar coluna:', error);
@@ -430,6 +435,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
     setIsColumnModalOpen(false);
   };
+
   // Função para excluir uma coluna
   const handleDeleteColumn = async (columnId: string) => {
     setColumnToDelete(columnId);
@@ -532,18 +538,53 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       return [];
     }
   };
-  // const renderTaskCard = (task: Task) => {
-  //   const [avatarUrls, setAvatarUrls] = React.useState<string[]>([]);
+  // Atualiza a ordem das colunas no backend
+  // Atualiza a ordem das colunas no backend
+  const updateColumnOrder = async (newColumnOrder) => {
+    try {
+      setLoading(true);
+      await Promise.all(
+        Object.entries(newColumnOrder).map(([columnId, order]) =>
+          api.put(`/columns/${columnId}`, { order })
+        )
+      );
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      console.error('Erro ao atualizar a ordem das colunas:', error);
+    }
+  };
 
-  //   React.useEffect(() => {
-  //     const fetchAvatars = async () => {
-  //       const urls = await fetchTaskDetails(task.id);
-  //       setAvatarUrls(urls);
-  //     };
+  // Manipula a mudança no select da ordem
+  const handleOrderChange = async (columnId, event) => {
+    const newOrder = event.target.value;
 
-  //     fetchAvatars();
-  //   }, [task.id]);
+    // Encontra a coluna que já possui o novo valor de ordem
+    const existingColumnId = Object.keys(columnOrder).find(id => columnOrder[id] === newOrder);
 
+    const newColumnOrder = { ...columnOrder };
+
+    if (existingColumnId) {
+      // Troca os valores de ordem entre as colunas
+      newColumnOrder[existingColumnId] = columnOrder[columnId];
+    }
+
+    // Atualiza a ordem da coluna atual
+    newColumnOrder[columnId] = newOrder;
+
+    // Reordenar as colunas localmente
+    const sortedColumns = Object.entries(data)
+      .map(([id, column]) => ({
+        id,
+        order: newColumnOrder[id] !== undefined ? newColumnOrder[id] : column.order
+      }))
+      .sort((a, b) => a.order - b.order);
+
+    // Atualizar o estado e o backend
+    const updatedOrder = sortedColumns.reduce((acc, { id, order }) => ({ ...acc, [id]: order }), {});
+    setColumnOrder(updatedOrder);
+    await updateColumnOrder(updatedOrder);
+  };
   return (
     < Container maxWidth={false} >
       <Box display="flex" alignItems="center" mb={2}>
@@ -563,7 +604,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       </Box>
       <Box position="relative" ref={containerRef} display="flex" py={2} style={{ overflowX: 'scroll' }} >
         <DragDropContext onDragEnd={onDragEnd}>
-          {Object.entries(data).map(([columnId, column]) => (
+          {Object.entries(data).sort(([, aColumn], [, bColumn]) => aColumn.order - bColumn.order).map(([columnId, column]) => (
             <Droppable droppableId={columnId} key={columnId} direction="horizontal">
               {(provided) => (
                 <Box
@@ -585,16 +626,36 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                       </Typography>
                     )}
                     <Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleEditColumn(column)}
-                        style={{ marginRight: 8 }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton size="small" onClick={() => handleDeleteColumn(column.id)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
+                      <FormControl size="small" style={{ marginRight: 8 }}>
+                        <InputLabel>Ordem</InputLabel>
+                        <Tooltip title="Selecione a ordem das colunas" placement="top">
+                          <Select
+                            value={columnOrder[columnId] !== undefined ? columnOrder[columnId] : column.order}
+                            onChange={(e) => handleOrderChange(columnId, e)}
+                            disabled={loading}
+                          >
+                            {[...Array(Object.keys(data).length).keys()].map(order => (
+                              <MenuItem key={order} value={order}>
+                                {order}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </Tooltip>
+                      </FormControl>
+                      <Tooltip title="Editar Coluna" placement="top">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleEditColumn(column)}
+                          style={{ marginRight: 8 }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Deletar Coluna" placement="top">
+                        <IconButton size="small" onClick={() => handleDeleteColumn(column.id)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </Box>
                   </Box>
                   {column && column.tasks && column.tasks.map((task, index) => (
