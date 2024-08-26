@@ -15,9 +15,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import api from '../../axiosInstance';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faSave, faTimes, faHeading, faAlignLeft, faCalendar } from '@fortawesome/free-solid-svg-icons';
-import moment from 'moment';
 import { Project } from '../../interface/project.interface.ts';
 import DialogDelete from './DialogDelete.tsx'; // Importar o DialogDeleteColumn
 import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o modal de edição
@@ -425,7 +422,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       // Atualize a ordem das colunas
       const updatedData = {
         ...data,
-        [addedColumn.id]: { ...addedColumn, order: Object.keys(data).length + 1 }, // Adiciona na última posição
+        [addedColumn.id]: { ...addedColumn, order: Object.keys(data).length }, // Adiciona na última posição
       };
       setData(updatedData);
       setNewColumnName('');
