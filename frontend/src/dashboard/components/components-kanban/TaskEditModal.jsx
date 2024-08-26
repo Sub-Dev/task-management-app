@@ -33,33 +33,47 @@ const TaskEditModal = ({
 }) => {
   const [users, setUsers] = useState([]);
 
-  // Carrega os usuários do projeto ao abrir o modal
+  // Estado para armazenar os usuários do projeto
+  const [projectUsers, setProjectUsers] = useState([]);
+
   useEffect(() => {
     if (isModalOpen && currentTask) {
       const fetchTaskDetails = async () => {
         try {
-          // Supondo que a API retorne os dados completos da tarefa, incluindo os usuários
-          const response = await api.get(`/tasks/${currentTask.id}`);
-          const taskData = response.data;
+          const taskResponse = await api.get(`/tasks/${currentTask.id}`);
+          const taskData = taskResponse.data;
 
-          // Atualiza `currentTask` com os detalhes completos, incluindo os usuários
-          setCurrentTask(taskData);
+          setCurrentTask((prevTask) => ({
+            ...prevTask,
+            ...taskData,
+          }));
+
+          const projectId = taskData.project.id;
+          const projectResponse = await api.get(`/projects/${projectId}`);
+          const projectData = projectResponse.data;
+
+          setProjectUsers(projectData.users);
         } catch (error) {
-          console.error("Erro ao carregar os detalhes da tarefa:", error);
+          console.error(
+            "Erro ao carregar os detalhes da tarefa ou usuários do projeto:",
+            error
+          );
         }
       };
 
       fetchTaskDetails();
     }
-  }, [isModalOpen, currentTask]);
+  }, [isModalOpen, currentTask, setCurrentTask]);
 
   // Função para atualizar a seleção de usuários
   const handleUserChange = (event) => {
     const selectedUserIds = event.target.value;
+    console.log("Selected User IDs:", selectedUserIds); // Log para verificar os IDs dos usuários selecionados
+
     setCurrentTask({
       ...currentTask,
       users: selectedUserIds.map((userId) =>
-        users.find((user) => user.id === userId)
+        projectUsers.find((user) => user.id === userId)
       ),
     });
   };
@@ -133,25 +147,34 @@ const TaskEditModal = ({
                 ),
               }}
             />
+
             <Box mt={2}>
               <Typography variant="h6">Participantes</Typography>
               <Select
                 multiple
                 value={
                   currentTask?.users
-                    ? currentTask.users.map((user) => user.id)
+                    ? currentTask.users
+                        .map((user) => user.id)
+                        .filter((id) =>
+                          projectUsers.some((user) => user.id === id)
+                        ) // Filtra valores inválidos
                     : []
                 }
                 onChange={handleUserChange}
                 renderValue={(selected) =>
                   selected
-                    .map((id) => users.find((user) => user.id === id)?.username)
+                    .map(
+                      (id) =>
+                        projectUsers.find((user) => user.id === id)?.username
+                    )
                     .join(", ")
                 }
-                margin="normal"
+                margin="none"
                 variant="outlined"
+                defaultValue=""
               >
-                {users.map((user) => (
+                {projectUsers.map((user) => (
                   <MenuItem key={user.id} value={user.id}>
                     <Checkbox
                       checked={
