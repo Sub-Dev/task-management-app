@@ -60,7 +60,6 @@ export default function SignIn() {
     const savedEmail = localStorage.getItem('rememberedEmail');
     const savedPassword = localStorage.getItem('rememberedPassword');
     if (savedEmail && savedPassword) {
-      console.log('Dados salvos encontrados:', { savedEmail, savedPassword });
       setEmail(savedEmail);
       setPassword(savedPassword);
       setRememberMe(true);
@@ -69,31 +68,24 @@ export default function SignIn() {
 
   React.useEffect(() => {
     if (!loading && user) {
-      console.log('Usuário logado, redirecionando para /dashboard:', user);
       navigate('/dashboard');
-    } else {
-      console.log('Nenhum usuário logado ou ainda carregando:', { user, loading });
     }
   }, [user, loading, navigate]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Tentativa de login com:', { email, password });
 
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { access_token } = response.data;
 
       if (access_token) {
-        console.log('Login bem-sucedido, token recebido:', access_token);
         localStorage.setItem('token', access_token);
 
         if (rememberMe) {
-          console.log('Salvando dados de login no localStorage');
           localStorage.setItem('rememberedEmail', email);
           localStorage.setItem('rememberedPassword', password);
         } else {
-          console.log('Removendo dados de login do localStorage');
           localStorage.removeItem('rememberedEmail');
           localStorage.removeItem('rememberedPassword');
         }
@@ -104,7 +96,12 @@ export default function SignIn() {
       }
     } catch (error) {
       console.error('Erro ao tentar fazer login:', error);
-      showSnackbar('Erro ao fazer login. Verifique suas credenciais e tente novamente.', 'error');
+
+      // Capturar a mensagem de erro específica
+      const errorMessage = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais e tente novamente.';
+
+      // Mostrar a mensagem no Snackbar
+      showSnackbar(errorMessage, 'error');
     }
   };
 
