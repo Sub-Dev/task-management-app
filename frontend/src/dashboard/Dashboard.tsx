@@ -155,10 +155,24 @@ export default function Dashboard() {
   const handleNavigateToProfile = () => {
     navigate('/dashboard/profile'); // Redireciona para a rota de perfil
   };
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+
+    // Chama a API de logout no backend para invalidar o token
+    await fetch('http://localhost:4000/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
     // Remove o token do localStorage
     localStorage.removeItem('token');
+
+    // Recarrega a página para garantir que qualquer estado armazenado no aplicativo seja redefinido
     window.location.reload();
+
     // Redireciona o usuário para a página de login
     navigate('/signin');
   };

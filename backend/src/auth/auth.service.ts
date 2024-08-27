@@ -6,13 +6,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../user/user.entity';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
+  private redisClient: Redis;
+
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    this.redisClient = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT) || 6379,
+      password: process.env.REDIS_PASSWORD || undefined,
+    });
+  }
 
 
 
@@ -58,23 +67,33 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
   
-    // Verificar se o ID do usuário está definido
-    if (!user.id) {
-      throw new UnauthorizedException('ID do usuário não está definido.');
+    // Verificar se já existe uma sessão ativa
+    if (user.currentSessionToken) {
+      throw new UnauthorizedException('Usuário já está logado em outro dispositivo.');
     }
     
     // Definir o payload do token JWT
     const payload = { email: user.email, sub: user.id };
-    console.log('Payload for JWT:', payload);
     
     // Gerar o token JWT
     const token = this.jwtService.sign(payload);
-    console.log('Generated Token:', token);
+    
+    // Atualizar o token de sessão do usuário no banco de dados
+    user.currentSessionToken = token;
+    await this.userRepository.save(user);
     
     // Retornar o token
     return {
       access_token: token,
     };
+  }
+  async logout(token: string) {
+    // Adiciona o token a uma blacklist no Redis com o tempo de expiração do token
+    const expiration = this.jwtService.decode(token)?.exp;
+    if (expiration) {
+      const timeToLive = expiration - Math.floor(Date.now() / 1000);
+      await this.redisClient.set(`blacklist:${token}`, 'true', 'EX', timeToLive);
+    }
   }
   async validateUser(email: string, password: string): Promise<any> {
     // Busca o usuário pelo email
@@ -95,7 +114,6 @@ export class AuthService {
     }
     return null;
   }
-
 
   async register(userData: any) {
     const { username, email, password, profileImageUrl } = userData;
