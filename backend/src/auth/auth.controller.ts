@@ -24,6 +24,16 @@ export class AuthController {
     console.log('Dados recebidos:', createUserDto);
     return this.authService.register(createUserDto);
   }
+  @Post('logout')
+  async logout(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    await this.authService.logout(token);
+    return { message: 'Logout successful' };
+  }
 
   // Rota para validar o token
   @Post('validate-token')

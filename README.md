@@ -18,12 +18,18 @@
 
 ## 💻 Descrição
 
-Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do meu progresso na aplicação de tecnologias modernas de desenvolvimento web. No desenvolvimento deste projeto, estou explorando e aprimorando minhas habilidades nas seguintes áreas:
+Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do meu progresso na aplicação de tecnologias modernas de desenvolvimento web. No desenvolvimento deste projeto, estou explorando e aprimorando minhas habilidades nas seguintes áreas se utilizando das seguintes tecnologias para o desenvolver da aplicação:
 
 - React.js: Utilizado para criar uma interface de usuário dinâmica e responsiva, com o objetivo de melhorar a experiência do usuário e a interação com a aplicação.
 - NestJS: Implementado para construir uma API de back-end robusta e escalável, proporcionando uma base sólida para a manipulação de dados e lógica de negócios.
 - PostgreSQL: Escolhido para o armazenamento de dados, com o intuito de garantir eficiência e confiabilidade no gerenciamento e recuperação de informações.
 - Docker: Utilizado para conteinerização, facilitando a implantação contínua e a gestão de ambientes de desenvolvimento e produção.
+- Redis: Integrado para cache e gerenciamento de sessões, melhorando a performance do aplicativo e a eficiência no armazenamento temporário de dados.
+- React-beautiful-dnd: Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
+- React-chartjs-2: Implementado para criar gráficos e visualizações de dados, permitindo a apresentação visual de métricas e estatísticas relacionadas ao gerenciamento de tarefas.
+- Axios: Utilizado para fazer requisições HTTP à API, facilitando a comunicação entre o frontend e o backend.
+- Jwt-decode: Usado para decodificar tokens JWT e extrair informações, como o ID do usuário, para gerenciar autenticação e autorização.
+- JWT (JSON Web Token): Implementado para autenticação segura e gerenciamento de sessões de usuário, garantindo que os usuários estejam autenticados e autorizados a acessar recursos protegidos.
 
 Estou constantemente aprendendo e aplicando novas técnicas e boas práticas para otimizar a performance e a escalabilidade do aplicativo. Este projeto não apenas me permite explorar novas tecnologias, mas também me desafia a resolver problemas complexos e a melhorar minhas habilidades de desenvolvimento.
 
@@ -202,8 +208,7 @@ http://localhost:3000
   <img alt="Interface Dashboard" src=".github/frontend-dashboard-v3.png" width="100%">
   <img alt="Interface Projetos" src=".github/frontend-projects-v2.png" width="100%">
   <img alt="Interface Kanban" src=".github/frontend-kanban-v3.png" width="100%">
-  
-  frontend-kanban-v3.png
+  <img alt="Interface Kanban" src=".github/loading-page.png" width="100%">
 </p>
 
 ## Licença

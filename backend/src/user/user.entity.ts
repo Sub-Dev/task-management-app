@@ -27,6 +27,9 @@ export class User extends BaseEntity {
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
+  @Column({ nullable: true })
+  currentSessionToken: string | null;
+  
   @ManyToMany(() => Project, project => project.users)
   @JoinTable({
     name: 'user_projects_project',
