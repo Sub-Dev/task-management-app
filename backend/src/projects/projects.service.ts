@@ -121,4 +121,12 @@ export class ProjectsService {
       throw new NotFoundException('Projeto não encontrado');
     }
   }
+  async searchProjects(name: string, userId: number): Promise<Project[]> {
+    return this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.users', 'user')
+      .where('project.name = :name', { name })
+      .andWhere('user.id = :userId', { userId})
+      .getMany();
+  }
 }
