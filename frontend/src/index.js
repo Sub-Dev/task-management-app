@@ -13,8 +13,8 @@ import { SnackbarProvider } from './context/SnackbarContext.tsx';
 const App = () => {
   return (
     <Router>
-      <AuthProvider>
-        <SnackbarProvider>
+      <SnackbarProvider>
+        <AuthProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/signin" element={<SignIn />} />
@@ -22,8 +22,8 @@ const App = () => {
             <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </SnackbarProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </SnackbarProvider>
     </Router>
   );
 };

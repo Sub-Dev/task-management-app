@@ -79,6 +79,7 @@ export default function Projects() {
     users: '',
   });
   const [currentProject, setCurrentProject] = useState<ProjectData | null>(null);
+  const [nameError, setNameError] = useState(false);
   const navigate = useNavigate();
 
   const fetchProjects = async () => {
@@ -171,19 +172,59 @@ export default function Projects() {
       const decoded = jwtDecode<UserPayload>(token);
       const userId = decoded.sub;
 
-      const usernames = newProject.users.split(',').map(user => user.trim());
+      if (!newProject.name.trim()) {
+        setSnackbarMessage('O nome do projeto é obrigatório.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        setNameError(true);  // Destaca o campo de nome do projeto com erro
+        return;
+      }
 
-      const usersResponse = await axios.get('http://localhost:4000/users/search', {
-        params: { username: usernames.join(',') },
+      setNameError(false);  // Remove o destaque de erro caso o nome esteja preenchido
+
+      // Verifica se já existe um projeto com o mesmo nome
+      const existingProjectResponse = await axios.get('http://localhost:4000/projects/search', {
+        params: { name: newProject.name.trim(), userId },
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      const userIds = Array.from(new Set([
-        ...usersResponse.data.map((user: any) => user.id),
-        userId,
-      ]));
+      if (existingProjectResponse.data && existingProjectResponse.data.length > 0) {
+        setSnackbarMessage('Já existe um projeto com este nome.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        setNameError(true);  // Destaca o campo de nome do projeto com erro
+        return;
+      }
+
+      setNameError(false);  // Remove o destaque de erro caso o nome esteja válido
+
+      const usernames = newProject.users.split(',').map(user => user.trim()).filter(Boolean);
+
+      let userIds: number[] = [];
+
+      if (usernames.length > 0) {
+        const usersResponse = await axios.get('http://localhost:4000/users/search', {
+          params: { username: usernames.join(',') },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        userIds = Array.from(new Set([
+          ...usersResponse.data.map((user: any) => user.id),
+          userId,
+        ]));
+      } else {
+        userIds = [userId]; // Apenas o usuário logado
+      }
+
+      // Remover o próprio usuário se ele estiver na lista de usernames digitados
+      const userIndex = userIds.indexOf(userId);
+      if (userIndex !== -1) {
+        userIds.splice(userIndex, 1);
+      }
 
       const url = currentProject ? `http://localhost:4000/projects/${currentProject.id}` : 'http://localhost:4000/projects';
       const method = currentProject ? 'put' : 'post';
@@ -194,27 +235,34 @@ export default function Projects() {
         data: {
           name: newProject.name,
           description: newProject.description,
-          users: userIds,
+          users: [userId, ...userIds], // Certifique-se de que o usuário logado sempre esteja presente
         },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      setSnackbarMessage(currentProject ? 'Projeto atualizado com sucesso!' : 'Projeto criado com sucesso!');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+
       fetchProjects();
       handleCloseModal();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Erro ao salvar o projeto:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-        });
+        setSnackbarMessage('Erro ao salvar o projeto: ' + error.message);
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       } else {
-        console.error('Erro inesperado:', error);
+        setSnackbarMessage('Erro inesperado ao salvar o projeto.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     }
   };
+
+
+
 
   const handleEdit = (project: ProjectData) => {
     setCurrentProject(project);
@@ -351,12 +399,17 @@ export default function Projects() {
             autoFocus
             margin="dense"
             name="name"
-            label="Nome do Projeto"
+            label="Nome do Projeto *"
             type="text"
             fullWidth
             variant="standard"
             value={newProject.name}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              setNameError(false); // Limpa o erro quando o usuário começa a digitar
+            }}
+            error={nameError} // Define se o campo deve ser destacado como erro
+            helperText={nameError ? 'O nome do projeto é obrigatório.' : ''} // Mensagem de erro opcional
           />
           <TextField
             margin="dense"
