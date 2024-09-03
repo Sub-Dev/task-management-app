@@ -1,4 +1,3 @@
-// src/context/SnackbarContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -17,11 +16,16 @@ export const SnackbarProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('info');
+  const [prevMessage, setPrevMessage] = useState('');
 
-  const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
-    setMessage(message);
-    setSeverity(severity);
-    setOpen(true);
+  const showSnackbar = (newMessage: string, severity: 'success' | 'error' | 'info' | 'warning') => {
+    // Só mostra o Snackbar se a nova mensagem for diferente da mensagem anterior
+    if (newMessage !== prevMessage) {
+      setMessage(newMessage);
+      setSeverity(severity);
+      setOpen(true);
+      setPrevMessage(newMessage); // Atualiza a mensagem anterior
+    }
   };
 
   const handleClose = () => {
@@ -35,10 +39,11 @@ export const SnackbarProvider: React.FC<{ children: ReactNode }> = ({ children }
         open={open}
         autoHideDuration={6000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Posiciona o Snackbar no canto superior direito
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        // Adicionando evento para fechar ao clicar
         sx={{
           '& .MuiSnackbarContent-root': {
-            backgroundColor: (theme) => theme.palette[severity].main // Define a cor do Snackbar com base na severidade
+            backgroundColor: (theme) => theme.palette[severity].main,
           }
         }}
       >
