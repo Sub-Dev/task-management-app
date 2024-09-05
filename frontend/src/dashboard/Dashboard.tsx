@@ -136,12 +136,21 @@ export default function Dashboard() {
   };
 
   const getTitle = () => {
-    const path = location.pathname.split('/').pop();
-    if (path) {
-      return path.charAt(0).toUpperCase() + path.slice(1);
+    const pathArray = location.pathname.split('/');
+    let path = pathArray.pop();
+
+    // Verifica se o último item é um número (ID do projeto) e ajusta
+    if (path && !isNaN(Number(path))) {
+      path = pathArray.pop(); // Pega a penúltima parte da URL (por exemplo, "kanban")
     }
+
+    if (path) {
+      return path.charAt(0).toUpperCase() + path.slice(1); // Capitaliza a primeira letra
+    }
+
     return 'Dashboard';
   };
+
 
   // Define a função de navegação para a página de perfil
   const navigate = useNavigate();
