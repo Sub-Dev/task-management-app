@@ -163,12 +163,20 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId, type } = result;
 
+    // Se não houver um destino, simplesmente retorna
     if (!destination) return;
 
     if (type === 'COLUMN') {
       const reorderedColumns = Array.from(Object.values(data));
       const [movedColumn] = reorderedColumns.splice(source.index, 1);
       reorderedColumns.splice(destination.index, 0, movedColumn);
+
+      // Atualiza o frontend imediatamente (otimização otimista)
+      const newData = reorderedColumns.reduce((acc: Record<string, Column>, column) => {
+        acc[column.id] = column;
+        return acc;
+      }, {});
+      setData(newData);
 
       try {
         // Atualize a ordem das colunas no backend
@@ -177,13 +185,6 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
           await api.put(`/columns/${column.id}`, { order: i + 1 });
           column.order = i + 1;
         }
-
-        const newData = reorderedColumns.reduce((acc: Record<string, Column>, column) => {
-          acc[column.id] = column;
-          return acc;
-        }, {});
-
-        setData(newData);
       } catch (error) {
         console.error('Erro ao atualizar a ordem das colunas:', error);
       }
@@ -191,48 +192,62 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       const sourceColumnId = source.droppableId;
       const destColumnId = destination.droppableId;
 
+      // Se o card foi solto na mesma coluna na mesma posição, não faz nada
       if (sourceColumnId === destColumnId && source.index === destination.index) {
-        return; // Se a posição não mudou dentro da mesma coluna, não faz nada
+        return;
       }
 
       const sourceColumn = data[sourceColumnId];
       const destColumn = data[destColumnId];
 
-      const item = sourceColumn.tasks[source.index];
+      const movedTask = sourceColumn.tasks[source.index];
 
       const updatedSourceItems = Array.from(sourceColumn.tasks);
-      updatedSourceItems.splice(source.index, 1);
+      updatedSourceItems.splice(source.index, 1); // Remove a tarefa da coluna de origem
 
       const updatedDestItems = Array.from(destColumn.tasks);
-      updatedDestItems.splice(destination.index, 0, item);
+      updatedDestItems.splice(destination.index, 0, movedTask); // Adiciona a tarefa à coluna de destino
 
-      const columnId = Number(destColumnId);
+      // Atualiza o frontend imediatamente (otimização otimista)
+      setData((prevData) => ({
+        ...prevData,
+        [sourceColumnId]: {
+          ...sourceColumn,
+          tasks: updatedSourceItems,
+        },
+        [destColumnId]: {
+          ...destColumn,
+          tasks: updatedDestItems,
+        },
+      }));
 
       try {
         const token = localStorage.getItem('token');
-
-        await api.put(`/tasks/${draggableId}`, { column: columnId }, {
+        // Atualiza a coluna da tarefa no backend
+        await api.put(`/tasks/${draggableId}`, { column: Number(destColumnId) }, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+      } catch (error) {
+        console.error('Erro ao mover tarefa:', error);
+        // Opcional: reverter a movimentação em caso de erro
         setData((prevData) => ({
           ...prevData,
           [sourceColumnId]: {
             ...sourceColumn,
-            tasks: updatedSourceItems,
+            tasks: [...updatedSourceItems, movedTask], // Reverte a movimentação
           },
           [destColumnId]: {
             ...destColumn,
-            tasks: updatedDestItems,
+            tasks: updatedDestItems.filter(task => task.id !== draggableId), // Remove do destino
           },
         }));
-      } catch (error) {
-        console.error('Erro ao mover tarefa:', error);
       }
     }
   };
+
+
 
 
   const handleEditTask = (task: Task) => {
@@ -381,37 +396,62 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     // Define o novo status com base no status atual
     const newStatus: 'pending' | 'completed' = task.status === 'pending' ? 'completed' : 'pending';
 
-    try {
-      // Atualiza o status da tarefa no backend
-      await api.put(`/tasks/${task.id}`, { status: newStatus });
+    // Atualização otimista: modifica a interface imediatamente
+    setData((prevData) => {
+      // Localiza a coluna que contém a tarefa
+      const updatedColumn = prevData[task.columnId];
 
-      // Atualiza a coluna original com as novas informações
-      setData((prevData) => {
-        const updatedColumn = prevData[task.status];
-        const updatedTask = { ...task, status: newStatus };
-
-        if (updatedColumn && Array.isArray(updatedColumn.tasks)) {
-          updatedColumn.tasks = updatedColumn.tasks.map((t) =>
-            t.id === task.id ? updatedTask : t
-          );
-        }
-
-        // Atualiza a coluna destino com as novas informações
-        const destinationColumn = prevData[newStatus];
-        if (destinationColumn && Array.isArray(destinationColumn.tasks)) {
-          destinationColumn.tasks = [...destinationColumn.tasks, updatedTask];
-        }
+      // Atualiza o status da tarefa nessa coluna de forma otimista
+      if (updatedColumn && Array.isArray(updatedColumn.tasks)) {
+        const updatedTasks = updatedColumn.tasks.map((t) =>
+          t.id === task.id ? { ...t, status: newStatus } : t
+        );
 
         return {
           ...prevData,
-          [task.status]: updatedColumn,
-          [newStatus]: destinationColumn,
+          [task.columnId]: {
+            ...updatedColumn,
+            tasks: updatedTasks,
+          },
         };
-      });
+      }
+
+      return prevData;
+    });
+
+    try {
+      // Atualiza o status da tarefa no backend
+      await api.put(`/tasks/${task.id}`, { status: newStatus });
     } catch (error) {
       console.error('Erro ao atualizar status da tarefa:', error);
+
+      // Reverter a mudança no frontend se houver erro
+      setData((prevData) => {
+        // Localiza a coluna que contém a tarefa
+        const updatedColumn = prevData[task.columnId];
+
+        // Reverte o status da tarefa na mesma coluna
+        if (updatedColumn && Array.isArray(updatedColumn.tasks)) {
+          const revertedTasks = updatedColumn.tasks.map((t) =>
+            t.id === task.id ? { ...t, status: task.status } : t
+          );
+
+          return {
+            ...prevData,
+            [task.columnId]: {
+              ...updatedColumn,
+              tasks: revertedTasks,
+            },
+          };
+        }
+
+        return prevData;
+      });
     }
   };
+
+
+
   const handleAddColumn = async () => {
     if (!newColumnName || !project?.id) return;
 
@@ -516,7 +556,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
   const getAvatarUrls = (users: User[]) => {
     return users.map(user => ({
-      src: user.profileImageUrl, // Assume que `profileImageUrl` é uma propriedade obrigatória
+      src: user.profileImageUrl,
       alt: `Avatar ${user.username}`,
     }));
   };
