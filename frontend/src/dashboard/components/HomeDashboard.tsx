@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from '../../context/SnackbarContext.tsx';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Register Chart.js components
+// Registrar os componentes do Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const HomeDashboard = () => {
@@ -97,7 +97,7 @@ const HomeDashboard = () => {
     {
       title: 'Total de Tarefas',
       value: totalTasks,
-      icon: <HourglassEmpty sx={{ fontSize: 0, color: '#f44336' }} />,
+      icon: <HourglassEmpty sx={{ fontSize: 30, color: '#f44336' }} />,
       color: '#ffebee',
     },
   ];
@@ -136,21 +136,27 @@ const HomeDashboard = () => {
           </Grid>
         ))}
       </Grid>
-      <Box sx={{ marginTop: 4, height: 300 }}>
-        <Typography variant="h6" sx={{ marginBottom: 2 }}>
-          Distribuição das Tarefas
-        </Typography>
-        <Bar
-          data={chartData}
-          options={{
-            responsive: true,
-            plugins: {
-              legend: { position: 'top' },
-              tooltip: { callbacks: { label: (tooltipItem) => `Número de Tarefas: ${tooltipItem.raw}` } },
-            },
-            maintainAspectRatio: false,
-          }}
-        />
+      <Box sx={{ marginTop: 4 }}>
+        <Card sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
+          <CardContent>
+            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+              Distribuição das Tarefas
+            </Typography>
+            <Box sx={{ height: 300 }}>
+              <Bar
+                data={chartData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { callbacks: { label: (tooltipItem) => `Número de Tarefas: ${tooltipItem.raw}` } },
+                  },
+                  maintainAspectRatio: false,
+                }}
+              />
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
     </Box>
   );
