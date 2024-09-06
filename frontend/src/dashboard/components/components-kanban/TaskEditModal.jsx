@@ -32,13 +32,19 @@ const TaskEditModal = ({
   handleTaskUpdate,
 }) => {
   const [users, setUsers] = useState([]);
-
-  // Estado para armazenar os usuários do projeto
   const [projectUsers, setProjectUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({
+    title: "",
+    description: "",
+    due_date: "",
+  });
 
   useEffect(() => {
-    if (isModalOpen && currentTask) {
-      const fetchTaskDetails = async () => {
+    const fetchTaskDetails = async () => {
+      if (isModalOpen && currentTask) {
+        setLoading(true);
         try {
           const taskResponse = await api.get(`/tasks/${currentTask.id}`);
           const taskData = taskResponse.data;
@@ -54,32 +60,69 @@ const TaskEditModal = ({
 
           setProjectUsers(projectData.users);
         } catch (error) {
+          setError(
+            "Erro ao carregar os detalhes da tarefa ou usuários do projeto."
+          );
           console.error(
             "Erro ao carregar os detalhes da tarefa ou usuários do projeto:",
             error
           );
+        } finally {
+          setLoading(false);
         }
-      };
+      }
+    };
 
-      fetchTaskDetails();
-    }
-  }, [isModalOpen, currentTask, setCurrentTask]);
+    fetchTaskDetails();
+  }, [isModalOpen, currentTask?.id]);
 
-  // Função para atualizar a seleção de usuários
   const handleUserChange = (event) => {
     const selectedUserIds = event.target.value;
-    console.log("Selected User IDs:", selectedUserIds); // Log para verificar os IDs dos usuários selecionados
+    setCurrentTask((prevTask) => ({
+      ...prevTask,
+      users: projectUsers.filter((user) => selectedUserIds.includes(user.id)),
+    }));
+  };
 
-    setCurrentTask({
-      ...currentTask,
-      users: selectedUserIds.map((userId) =>
-        projectUsers.find((user) => user.id === userId)
-      ),
-    });
+  const handleModalCloseInternal = () => {
+    setCurrentTask(null); // Limpa o estado ao fechar o modal
+    handleModalClose(); // Chama a função de fechamento do modal
+  };
+
+  const validateForm = () => {
+    const errors = {
+      title: "",
+      description: "",
+      due_date: "",
+    };
+    let isValid = true;
+
+    if (!currentTask.title) {
+      errors.title = "Título é obrigatório.";
+      isValid = false;
+    }
+    if (!currentTask.description) {
+      errors.description = "Descrição é obrigatória.";
+      isValid = false;
+    }
+    if (!currentTask.due_date) {
+      errors.due_date = "Data de vencimento é obrigatória.";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  const handleSave = () => {
+    if (validateForm()) {
+      handleTaskUpdate();
+      handleModalCloseInternal();
+    }
   };
 
   return (
-    <Modal open={isModalOpen} onClose={handleModalClose}>
+    <Modal open={isModalOpen} onClose={handleModalCloseInternal}>
       <Box
         position="absolute"
         top="50%"
@@ -93,6 +136,8 @@ const TaskEditModal = ({
         <Typography variant="h4" gutterBottom>
           <FontAwesomeIcon icon={faEdit} /> Edição de Tarefa
         </Typography>
+        {loading && <Typography>Carregando...</Typography>}
+        {error && <Typography color="error">{error}</Typography>}
         {currentTask && (
           <>
             <TextField
@@ -111,6 +156,10 @@ const TaskEditModal = ({
                   </InputAdornment>
                 ),
               }}
+              error={!!formErrors.title}
+              helperText={formErrors.title}
+              sx={{ mb: 2 }}
+              style={{ borderColor: formErrors.title ? "red" : "inherit" }}
             />
             <TextField
               fullWidth
@@ -127,6 +176,12 @@ const TaskEditModal = ({
                     <FontAwesomeIcon icon={faAlignLeft} />
                   </InputAdornment>
                 ),
+              }}
+              error={!!formErrors.description}
+              helperText={formErrors.description}
+              sx={{ mb: 2 }}
+              style={{
+                borderColor: formErrors.description ? "red" : "inherit",
               }}
             />
             <TextField
@@ -146,6 +201,10 @@ const TaskEditModal = ({
                   </InputAdornment>
                 ),
               }}
+              error={!!formErrors.due_date}
+              helperText={formErrors.due_date}
+              sx={{ mb: 2 }}
+              style={{ borderColor: formErrors.due_date ? "red" : "inherit" }}
             />
 
             <Box mt={2}>
@@ -158,7 +217,7 @@ const TaskEditModal = ({
                         .map((user) => user.id)
                         .filter((id) =>
                           projectUsers.some((user) => user.id === id)
-                        ) // Filtra valores inválidos
+                        )
                     : []
                 }
                 onChange={handleUserChange}
@@ -172,7 +231,6 @@ const TaskEditModal = ({
                 }
                 margin="none"
                 variant="outlined"
-                defaultValue=""
               >
                 {projectUsers.map((user) => (
                   <MenuItem key={user.id} value={user.id}>
@@ -192,7 +250,7 @@ const TaskEditModal = ({
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleTaskUpdate}
+                onClick={handleSave}
                 style={{ marginRight: 8 }}
               >
                 <FontAwesomeIcon
@@ -204,7 +262,7 @@ const TaskEditModal = ({
                   Salvar
                 </Typography>
               </Button>
-              <Button variant="outlined" onClick={handleModalClose}>
+              <Button variant="outlined" onClick={handleModalCloseInternal}>
                 <FontAwesomeIcon
                   icon={faTimes}
                   size="lg"

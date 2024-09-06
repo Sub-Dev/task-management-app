@@ -21,6 +21,7 @@ import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o moda
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import TaskEditModal from './components-kanban/TaskEditModal.jsx';
+
 interface Task {
   id: number;
   title: string;
@@ -624,7 +625,19 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   };
   return (
     < Container maxWidth={false} >
-      <Box display="flex" alignItems="center" mb={2}>
+      <Box
+        display="flex"
+        alignItems="center"
+        mb={2}
+        sx={{
+          backgroundColor: 'rgba(255, 255, 255, 0.4)',
+          padding: 2,
+          borderRadius: 1,
+          backdropFilter: 'blur(5px)',
+
+        }}
+
+      >
         <Typography variant="h4" component="h1">
           {project ? project.name : 'Kanban Board'}
         </Typography>
@@ -748,25 +761,31 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                                 </Box>
                               </Box>
                               <Box display="flex" alignItems="center">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleEditTask(task)}
-                                  style={{ marginRight: 8 }}
-                                >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton size="small" onClick={() => handleDeleteTask(task)}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                                <Tooltip title="Editar Tarefa" placement="top">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleEditTask(task)}
+                                    style={{ marginRight: 8 }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Deletar Tarefa" placement="top">
+                                  <IconButton size="small" onClick={() => handleDeleteTask(task)}>
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
                                 <IconButton
                                   size="small"
                                   onClick={() => handleToggleTaskStatus(task)}
                                 >
-                                  {task.status === 'completed' ? (
-                                    <CheckCircleOutlineIcon color="primary" fontSize="small" />
-                                  ) : (
-                                    <CancelOutlinedIcon color="error" fontSize="small" />
-                                  )}
+                                  <Tooltip title={task.status === 'completed' ? 'Marcar como pendente' : 'Marcar como concluída'} placement="top">
+                                    {task.status === 'completed' ? (
+                                      <CheckCircleOutlineIcon color="primary" fontSize="small" />
+                                    ) : (
+                                      <CancelOutlinedIcon color="error" fontSize="small" />
+                                    )}
+                                  </Tooltip>
                                 </IconButton>
                               </Box>
                             </Box>

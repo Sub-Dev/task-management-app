@@ -31,6 +31,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import HomeDashboard from './components/HomeDashboard.tsx';
+import backgroundImage from '../img/background-image.jpg';
 
 const drawerWidth: number = 240;
 
@@ -328,10 +329,10 @@ export default function Dashboard() {
         <Box
           component="main"
           sx={{
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.grey[100]
-                : theme.palette.grey[900],
+            backgroundImage: `url(${backgroundImage})`, // Adiciona a imagem de fundo
+            backgroundSize: 'cover', // Faz a imagem cobrir toda a área
+            backgroundPosition: 'center', // Centraliza a imagem
+            backgroundRepeat: 'no-repeat', // Evita a repetição da imagem
             flexGrow: 1,
             height: '90vh',
             overflow: 'auto',
