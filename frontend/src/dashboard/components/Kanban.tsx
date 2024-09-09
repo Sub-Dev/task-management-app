@@ -910,6 +910,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         newColumnName={newColumnName}
         setNewColumnName={setNewColumnName}
         handleAddColumn={handleAddColumn}
+        projectColumns={Object.values(data)}
       />
       <DialogDelete
         open={openDeleteColumnDialog}
