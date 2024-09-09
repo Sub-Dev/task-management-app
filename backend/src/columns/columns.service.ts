@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository,  Not  } from 'typeorm';
 import { Column } from './column.entity';
 import { Project } from '../projects/project.entity';
 
@@ -12,13 +12,25 @@ export class ColumnsService {
 
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
-  ) { }
+  ) {}
 
   async create(title: string, projectId: number): Promise<Column> {
     const project = await this.projectsRepository.findOneBy({ id: projectId });
 
     if (!project) {
-      throw new Error('Projeto não encontrado');
+      throw new NotFoundException('Projeto não encontrado');
+    }
+
+    // Verificar se já existe uma coluna com o mesmo título no projeto
+    const existingColumn = await this.columnsRepository.findOne({
+      where: {
+        title: title,
+        project: { id: projectId },
+      },
+    });
+
+    if (existingColumn) {
+      throw new ConflictException('Já existe uma coluna com esse nome neste projeto');
     }
 
     // Encontrar o maior valor de order atual para o projeto
@@ -39,32 +51,44 @@ export class ColumnsService {
     return this.columnsRepository.save(column);
   }
 
-  async findAll(): Promise<Column[]> {
-    return this.columnsRepository.find({ relations: ['tasks', 'project'] });
-  }
-
   async update(id: number, title: string, order: number | null): Promise<Column> {
-    // Encontra a coluna pelo ID
-    const column = await this.columnsRepository.findOneBy({ id });
-  
-    if (!column) {
-      throw new Error('Coluna não encontrada');
+    if (!id) {
+      throw new BadRequestException('ID inválido');
     }
-  
-    // Atualiza o título se houver mudança
-    if (column.title !== title) {
+
+    const column = await this.columnsRepository.findOne({ where: { id } });
+
+    if (!column) {
+      throw new NotFoundException(`Coluna com ID ${id} não encontrada`);
+    }
+
+    // Verifica se o título foi alterado e se já existe outra coluna com o mesmo título no projeto
+    if (title && column.title !== title) {
+      const existingColumn = await this.columnsRepository.findOne({
+        where: {
+          title,
+          project: column.project,
+          id: Not(id) // Exclui a coluna atual da verificação
+        }
+      });
+
+      if (existingColumn) {
+        throw new BadRequestException('Já existe uma coluna com esse nome neste projeto');
+      }
+
       column.title = title;
     }
-  
-    // Atualiza a ordem se houver uma mudança e o novo valor não for nulo
+
+    // Atualiza a ordem se necessário
     if (order !== null && column.order !== order) {
       column.order = order;
     }
-  
-    // Salva a coluna atualizada
+
     return this.columnsRepository.save(column);
   }
-  
+  async findAll(): Promise<Column[]> {
+    return this.columnsRepository.find({ relations: ['tasks', 'project'] });
+  }
   
   async remove(columnId: number): Promise<void> {
     try {
@@ -73,11 +97,11 @@ export class ColumnsService {
       });
 
       if (!column) {
-        throw new NotFoundException(`Column with ID ${columnId} not found`);
+        throw new NotFoundException(`Coluna com ID ${columnId} não encontrada`);
       }
 
       await this.columnsRepository.remove(column);
-      console.log(`Column with ID ${columnId} removed successfully.`);
+      console.log(`Coluna com ID ${columnId} removida com sucesso.`);
     } catch (error) {
       console.error('Erro ao remover coluna:', error);
       throw new InternalServerErrorException('Erro ao remover a coluna');
