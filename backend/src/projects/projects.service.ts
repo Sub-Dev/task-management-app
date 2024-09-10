@@ -50,7 +50,7 @@ export class ProjectsService {
     const columns = defaultColumns.map((title, index) => {
       const column = new Column();
       column.title = title;
-      column.order = index; // Define a ordem das colunas
+      column.order = index + 1; // Define a ordem das colunas
       column.project = savedProject; // Associa a coluna ao projeto recém-criado
       return column;
     });
