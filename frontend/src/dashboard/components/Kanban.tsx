@@ -15,39 +15,13 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import api from '../../axiosInstance';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { Project } from '../../interface/project.interface.ts';
+import { Column, Task, UserPayload, User, Project } from '../components/components-kanban/Interfaces.tsx'
 import DialogDelete from './DialogDelete.tsx'; // Importar o DialogDeleteColumn
 import ModalColumn from './components-kanban/ModalColumn.jsx'; // Importe o modal de edição
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import TaskEditModal from './components-kanban/TaskEditModal.jsx';
 
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  status: 'pending' | 'completed'; // Status limitado a 'pending' ou 'completed'
-  users: number[];
-  due_date?: string;
-  project?: number;
-  column: number;
-}
-// Definindo a interface para Column
-interface Column {
-  id: number;
-  title: string;
-  order: number;
-  tasks: Task[];
-  project: Project;
-}
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-  profileImageUrl: string;
-
-}
 
 // Definindo o estado inicial para o Kanban
 const initialData: Record<string, Column> = {};
@@ -73,10 +47,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
   const [avatarData, setAvatarData] = React.useState<Record<number, string[]>>({});
   const [columnOrder, setColumnOrder] = React.useState({});
   const [loading, setLoading] = React.useState(false);
-  interface UserPayload {
-    sub: number;
-    email: string;
-  }
+
   React.useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -577,7 +548,6 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     }
   };
   // Atualiza a ordem das colunas no backend
-  // Atualiza a ordem das colunas no backend
   const updateColumnOrder = async (newColumnOrder) => {
     try {
       setLoading(true);
@@ -595,34 +565,51 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
 
   // Manipula a mudança no select da ordem
   const handleOrderChange = async (columnId, event) => {
-    const newOrder = event.target.value;
+    const newOrder = parseInt(event.target.value, 10);
 
-    // Encontra a coluna que já possui o novo valor de ordem
-    const existingColumnId = Object.keys(columnOrder).find(id => columnOrder[id] === newOrder);
-
+    // Faz uma cópia do estado atual de `columnOrder` ou inicializa a ordem com base nos dados atuais
     const newColumnOrder = { ...columnOrder };
 
-    if (existingColumnId) {
-      // Troca os valores de ordem entre as colunas
-      newColumnOrder[existingColumnId] = columnOrder[columnId];
+    // Se `columnOrder` estiver vazio, inicialize com as ordens atuais das colunas
+    if (Object.keys(newColumnOrder).length === 0) {
+      Object.entries(data).forEach(([id, column]) => {
+        newColumnOrder[id] = column.order;
+      });
     }
 
-    // Atualiza a ordem da coluna atual
+    // Encontra a coluna que já possui o novo valor de ordem
+    const existingColumnId = Object.keys(newColumnOrder).find(id => newColumnOrder[id] === newOrder);
+
+    // Se já existir uma coluna com a ordem `newOrder`, faça a troca
+    if (existingColumnId) {
+      newColumnOrder[existingColumnId] = newColumnOrder[columnId]; // Coloca a ordem antiga da coluna atual na coluna existente
+    }
+
+    // Atualiza a ordem da coluna atual para o novo valor
     newColumnOrder[columnId] = newOrder;
 
-    // Reordenar as colunas localmente
+    // Reordena as colunas localmente para refletir as mudanças
     const sortedColumns = Object.entries(data)
       .map(([id, column]) => ({
         id,
-        order: newColumnOrder[id] !== undefined ? newColumnOrder[id] : column.order
+        order: newColumnOrder[id] !== undefined ? newColumnOrder[id] : column.order, // Usa a nova ordem, se disponível
       }))
       .sort((a, b) => a.order - b.order);
 
-    // Atualizar o estado e o backend
+    // Atualiza o estado local com a nova ordem
     const updatedOrder = sortedColumns.reduce((acc, { id, order }) => ({ ...acc, [id]: order }), {});
+
+    // Atualiza o estado local para refletir as mudanças imediatamente
     setColumnOrder(updatedOrder);
+
+    // Chama o backend para salvar as mudanças de ordem
     await updateColumnOrder(updatedOrder);
   };
+
+
+
+
+
   return (
     < Container maxWidth={false} >
       <Box
@@ -685,8 +672,8 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                             disabled={loading}
                           >
                             {[...Array(Object.keys(data).length).keys()].map(order => (
-                              <MenuItem key={order} value={order}>
-                                {order}
+                              <MenuItem key={order} value={order + 1}> {/* Adiciona +1 ao valor de `order` */}
+                                {order + 1} {/* Exibe valores de 1 a n */}
                               </MenuItem>
                             ))}
                           </Select>
