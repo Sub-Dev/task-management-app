@@ -4,11 +4,15 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
 import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
+import CloseIcon from '@mui/icons-material/Close';
 import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
 import DashboardImagem from '../../img/dashboard.png';
@@ -41,19 +45,43 @@ const items = [
 
 export default function Features() {
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
+  const [openModal, setOpenModal] = React.useState(false);
 
   const handleItemClick = (index: number) => {
     setSelectedItemIndex(index);
   };
 
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   const selectedFeature = items[selectedItemIndex];
 
   return (
-    <Container id="features" sx={{ py: { xs: 8, sm: 16 } }}>
-      <Grid container spacing={6}>
+    <Container
+      id="features"
+      sx={{
+        py: { xs: 8, sm: 16 },
+        display: 'flex',           // Flexbox para centralizar
+        justifyContent: 'center',  // Centraliza horizontalmente
+        alignItems: 'center',      // Centraliza verticalmente
+        minHeight: '100vh',        // Altura mínima de 100% da viewport
+      }}
+    >
+      <Grid
+        container
+        spacing={6}
+        justifyContent="center" // Centraliza o grid horizontalmente
+        alignItems="center"     // Centraliza o conteúdo do grid verticalmente
+        sx={{ textAlign: 'center' }}
+      >
         <Grid item xs={12} md={6}>
           <div>
-            <Typography component="h2" variant="h4" color="text.primary">
+            <Typography component="h2" variant="h4" color="text.primary" >
               Funcionalidades do Projeto
             </Typography>
             <Typography
@@ -61,7 +89,7 @@ export default function Features() {
               color="text.secondary"
               sx={{ mb: { xs: 2, sm: 4 } }}
             >
-              Aqui você pode fornecer uma visão geral das principais funcionalidades do produto. Liste o número de funcionalidades, os tipos de funcionalidades, complementos ou os benefícios das funcionalidades.
+              Aqui você pode ver uma visão geral das principais funcionalidades do projeto.
             </Typography>
           </div>
           <Grid container item gap={1} sx={{ display: { xs: 'auto', sm: 'none' } }}>
@@ -71,18 +99,6 @@ export default function Features() {
                 label={title}
                 onClick={() => handleItemClick(index)}
                 sx={{
-                  borderColor: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index ? 'primary.light' : '';
-                    }
-                    return selectedItemIndex === index ? 'primary.light' : '';
-                  },
-                  background: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index ? 'none' : '';
-                    }
-                    return selectedItemIndex === index ? 'none' : '';
-                  },
                   backgroundColor: selectedItemIndex === index ? 'primary.main' : '',
                   '& .MuiChip-label': {
                     color: selectedItemIndex === index ? '#fff' : '',
@@ -94,8 +110,9 @@ export default function Features() {
           <Box
             component={Card}
             variant="outlined"
+            onClick={handleOpenModal}
             sx={{
-              display: { xs: 'auto', sm: 'none' },
+              display: { xs: 'auto', sm: 'auto' },
               mt: 4,
               position: 'relative',
               overflow: 'hidden',
@@ -105,9 +122,20 @@ export default function Features() {
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               backgroundColor: 'transparent',
+              cursor: 'pointer',
             }}
           >
-            <Box sx={{ px: 2, pb: 2, position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: 'rgba(255, 255, 255, 0.8)' }}>
+            <Box
+              sx={{
+                px: 2,
+                pb: 2,
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              }}
+            >
               <Typography color="text.primary" variant="body2" fontWeight="bold">
                 {selectedFeature.title}
               </Typography>
@@ -149,47 +177,13 @@ export default function Features() {
                 onClick={() => handleItemClick(index)}
                 sx={{
                   p: 3,
-                  height: 'fit-content',
                   width: '100%',
-                  background: 'none',
                   backgroundColor:
                     selectedItemIndex === index ? 'action.selected' : undefined,
-                  borderColor: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index
-                        ? 'primary.light'
-                        : 'grey.200';
-                    }
-                    return selectedItemIndex === index ? 'primary.dark' : 'grey.800';
-                  },
                 }}
               >
-                <Box
-                  sx={{
-                    width: '100%',
-                    display: 'flex',
-                    textAlign: 'left',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    alignItems: { md: 'center' },
-                    gap: 2.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      color: (theme) => {
-                        if (theme.palette.mode === 'light') {
-                          return selectedItemIndex === index
-                            ? 'primary.main'
-                            : 'grey.300';
-                        }
-                        return selectedItemIndex === index
-                          ? 'primary.main'
-                          : 'grey.700';
-                      },
-                    }}
-                  >
-                    {icon}
-                  </Box>
+                <Box sx={{ display: 'flex', textAlign: 'left', gap: 2.5 }}>
+                  <Box>{icon}</Box>
                   <Box sx={{ textTransform: 'none' }}>
                     <Typography
                       color="text.primary"
@@ -198,67 +192,38 @@ export default function Features() {
                     >
                       {title}
                     </Typography>
-                    <Typography
-                      color="text.secondary"
-                      variant="body2"
-                      sx={{ my: 0.5 }}
-                    >
+                    <Typography color="text.secondary" variant="body2" sx={{ my: 0.5 }}>
                       {description}
                     </Typography>
-                    <Link
-                      color="primary"
-                      variant="body2"
-                      fontWeight="bold"
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        '& > svg': { transition: '0.2s' },
-                        '&:hover > svg': { transform: 'translateX(2px)' },
-                      }}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                      }}
-                    >
-                      <span>Saiba mais</span>
-                      <ChevronRightRoundedIcon
-                        fontSize="small"
-                        sx={{ mt: '1px', ml: '2px' }}
-                      />
-                    </Link>
                   </Box>
                 </Box>
               </Card>
             ))}
           </Stack>
         </Grid>
-        <Grid
-          item
-          xs={12}
-          md={6}
-          sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}
-        >
-          <Card
-            variant="outlined"
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: { xs: 'none', sm: 'flex' },
-              pointerEvents: 'none',
-            }}
-          >
-            <Box
+
+        {/* Modal Image Preview */}
+        <Dialog open={openModal} onClose={handleCloseModal} maxWidth="md" fullWidth>
+          <DialogContent sx={{ position: 'relative', padding: 0 }}>
+            <IconButton
+              onClick={handleCloseModal}
               sx={{
-                m: 'auto',
-                width: 420,
-                height: 500,
-                backgroundSize: 'contain',
-                backgroundImage: `url(${selectedFeature.image})`,
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
               }}
+            >
+              <CloseIcon />
+            </IconButton>
+            <Box
+              component="img"
+              src={selectedFeature.image}
+              alt={selectedFeature.title}
+              sx={{ width: '100%', height: 'auto' }}
             />
-          </Card>
-        </Grid>
+          </DialogContent>
+        </Dialog>
       </Grid>
     </Container>
   );
