@@ -139,11 +139,11 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
     if (!destination) return;
 
     if (type === 'COLUMN') {
+      // Lógica de reorganização das colunas
       const reorderedColumns = Array.from(Object.values(data));
       const [movedColumn] = reorderedColumns.splice(source.index, 1);
       reorderedColumns.splice(destination.index, 0, movedColumn);
 
-      // Atualiza o frontend imediatamente (otimização otimista)
       const newData = reorderedColumns.reduce((acc: Record<string, Column>, column) => {
         acc[column.id] = column;
         return acc;
@@ -151,7 +151,6 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       setData(newData);
 
       try {
-        // Atualize a ordem das colunas no backend
         for (let i = 0; i < reorderedColumns.length; i++) {
           const column = reorderedColumns[i];
           await api.put(`/columns/${column.id}`, { order: i + 1 });
@@ -164,32 +163,34 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       const sourceColumnId = source.droppableId;
       const destColumnId = destination.droppableId;
 
-      // Se o card foi solto na mesma coluna na mesma posição, não faz nada
-      if (sourceColumnId === destColumnId && source.index === destination.index) {
+      // Bloqueia a movimentação se for na mesma coluna
+      if (sourceColumnId === destColumnId) {
         return;
       }
 
       const sourceColumn = data[sourceColumnId];
       const destColumn = data[destColumnId];
 
-      const movedTask = sourceColumn.tasks[source.index];
+      // Faz uma cópia das tarefas da coluna de origem e destino para evitar mutações diretas
+      const updatedSourceItems = [...sourceColumn.tasks];
+      const updatedDestItems = [...destColumn.tasks];
 
-      const updatedSourceItems = Array.from(sourceColumn.tasks);
-      updatedSourceItems.splice(source.index, 1); // Remove a tarefa da coluna de origem
+      // Remove a tarefa da coluna de origem
+      const [movedTask] = updatedSourceItems.splice(source.index, 1);
 
-      const updatedDestItems = Array.from(destColumn.tasks);
-      updatedDestItems.splice(destination.index, 0, movedTask); // Adiciona a tarefa à coluna de destino
+      // Adiciona a tarefa na nova posição na coluna de destino
+      updatedDestItems.splice(destination.index, 0, movedTask);
 
       // Atualiza o frontend imediatamente (otimização otimista)
       setData((prevData) => ({
         ...prevData,
         [sourceColumnId]: {
           ...sourceColumn,
-          tasks: updatedSourceItems,
+          tasks: updatedSourceItems, // Atualiza a coluna de origem
         },
         [destColumnId]: {
           ...destColumn,
-          tasks: updatedDestItems,
+          tasks: updatedDestItems, // Atualiza a coluna de destino
         },
       }));
 
@@ -203,12 +204,12 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
         });
       } catch (error) {
         console.error('Erro ao mover tarefa:', error);
-        // Opcional: reverter a movimentação em caso de erro
+        // Reverter a movimentação em caso de erro
         setData((prevData) => ({
           ...prevData,
           [sourceColumnId]: {
             ...sourceColumn,
-            tasks: [...updatedSourceItems, movedTask], // Reverte a movimentação
+            tasks: [...updatedSourceItems.slice(0, source.index), movedTask, ...updatedSourceItems.slice(source.index)], // Reverte a movimentação
           },
           [destColumnId]: {
             ...destColumn,
@@ -218,6 +219,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
       }
     }
   };
+
 
 
 
