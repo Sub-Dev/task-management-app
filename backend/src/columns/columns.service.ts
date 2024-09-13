@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, InternalServerErrorException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository,  Not  } from 'typeorm';
+import { Repository,  Not, MoreThan  } from 'typeorm';
 import { Column } from './column.entity';
 import { Project } from '../projects/project.entity';
 
@@ -92,19 +92,38 @@ export class ColumnsService {
   
   async remove(columnId: number): Promise<void> {
     try {
-      const column = await this.columnsRepository.findOne({
+      // Busca a coluna que será deletada
+      const columnToDelete = await this.columnsRepository.findOne({
         where: { id: columnId },
       });
-
-      if (!column) {
+  
+      if (!columnToDelete) {
         throw new NotFoundException(`Coluna com ID ${columnId} não encontrada`);
       }
-
-      await this.columnsRepository.remove(column);
+  
+      // Remove a coluna
+      await this.columnsRepository.remove(columnToDelete);
       console.log(`Coluna com ID ${columnId} removida com sucesso.`);
+  
+      // Busca todas as colunas do mesmo projeto que possuem uma ordem maior que a da coluna deletada
+      const columnsToUpdate = await this.columnsRepository.find({
+        where: {
+          project: columnToDelete.project, // Filtra pelo mesmo projeto
+          order: MoreThan(columnToDelete.order), // Encontra colunas com ordem maior
+        },
+      });
+  
+      // Diminui o valor da ordem de cada coluna em 1
+      for (const column of columnsToUpdate) {
+        column.order -= 1;
+        await this.columnsRepository.save(column);
+      }
+  
+      console.log('Ordem das colunas atualizada com sucesso após a exclusão.');
     } catch (error) {
       console.error('Erro ao remover coluna:', error);
       throw new InternalServerErrorException('Erro ao remover a coluna');
     }
   }
+  
 }
