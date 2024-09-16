@@ -15,7 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { MainListItems, SecondaryListItems } from './components/listItems.tsx';
+import { MainListItems, SecondaryListItems } from './components/ListItems.tsx';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Orders from './components/Projects.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';

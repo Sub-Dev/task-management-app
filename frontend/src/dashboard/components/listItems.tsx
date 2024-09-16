@@ -38,12 +38,6 @@ export function MainListItems() {
         </ListItemIcon>
         <ListItemText primary="Projetos" />
       </ListItemButton>
-      {/* <ListItemButton onClick={() => navigate('/')}> 
-        <ListItemIcon>
-          <FormatListNumberedIcon />
-        </ListItemIcon>
-        <ListItemText primary="Tarefas" />
-      </ListItemButton> */}
     </React.Fragment>
   );
 }
