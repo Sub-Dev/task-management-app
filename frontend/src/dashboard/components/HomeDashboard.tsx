@@ -125,7 +125,7 @@ const HomeDashboard = () => {
                 <Box sx={{ display: 'flex', alignItems: 'center', height: '100%' }}>
                   <Box sx={{ marginRight: 2 }}>{item.icon}</Box>
                   <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2C3E50' }}>
                       {item.title}
                     </Typography>
                     <Typography variant="h4">{item.value}</Typography>
@@ -137,9 +137,9 @@ const HomeDashboard = () => {
         ))}
       </Grid>
       <Box sx={{ marginTop: 4 }}>
-        <Card sx={{ backgroundColor: '#fff', boxShadow: 3 }}>
+        <Card sx={{ backgroundColor: '#ECF0F1', boxShadow: 3 }}>
           <CardContent>
-            <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            <Typography variant="h6" sx={{ marginBottom: 2, color: '#2C3E50' }}>
               Distribuição das Tarefas
             </Typography>
             <Box sx={{ height: 300 }}>
@@ -148,7 +148,7 @@ const HomeDashboard = () => {
                 options={{
                   responsive: true,
                   plugins: {
-                    legend: { position: 'top' },
+                    legend: { position: 'top', labels: { color: '#2C3E50' } },
                     tooltip: { callbacks: { label: (tooltipItem) => `Número de Tarefas: ${tooltipItem.raw}` } },
                   },
                   maintainAspectRatio: false,

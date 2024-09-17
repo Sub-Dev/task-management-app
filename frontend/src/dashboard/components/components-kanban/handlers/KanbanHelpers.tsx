@@ -1,6 +1,6 @@
 
-import api from "../../../axiosInstance";
-import { User, Column } from './Interfaces.tsx';
+import api from "../../../../axiosInstance.js";
+import { User, Column } from '../interface/Interfaces.tsx';
 import { Dispatch, SetStateAction } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 

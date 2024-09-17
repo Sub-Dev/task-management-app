@@ -3,7 +3,7 @@ import {
   Container, Box, Typography, IconButton, Icon,
   Avatar, AvatarGroup, Select, MenuItem, FormControl, InputLabel, Tooltip, SelectChangeEvent
 } from '@mui/material';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -11,19 +11,19 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import api from '../../axiosInstance';
 import DescriptionIcon from '@mui/icons-material/Description';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { Column, Task, UserPayload, User, Project } from '../components/components-kanban/Interfaces.tsx'
+import { Column, Task, UserPayload, Project } from './components-kanban/interface/Interfaces.tsx'
 import DialogDelete from './components-kanban/DialogDelete.tsx';
-import ModalColumn from './components-kanban/ModalColumn.jsx';
+import ModalColumn from './components-kanban/forms/ModalColumn.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import TaskEditModal from './components-kanban/TaskEditModal.jsx';
+import TaskEditModal from './components-kanban/forms/TaskEditModal.jsx';
 import KanbanHeader from '../components/components-kanban/KanbanHeader.tsx';
-import TaskForm from '../components/components-kanban/TaskForm.tsx';
+import TaskForm from './components-kanban/forms/TaskForm.tsx';
 import ScrollArrows from '../components/components-kanban/ScrollArrows.tsx';
-import { fetchTaskDetails, handleOrderChange, updateColumnOrder } from './components-kanban/KanbanHelpers.tsx';
-import { onDragEnd } from './components-kanban/DragAndDropHandlers.tsx';
-import { handleAddTask, handleToggleTaskStatus, handleDeleteTaskConfirm, handleTaskUpdate } from './components-kanban/TaskHandlers.tsx';
-import { handleAddColumn, handleDeleteColumnConfirm, handleUpdateColumn } from './components-kanban/ColumnHandlers.tsx';
+import { fetchTaskDetails, handleOrderChange, updateColumnOrder } from './components-kanban/handlers/KanbanHelpers.tsx';
+import { onDragEnd } from './components-kanban/handlers/DragAndDropHandlers.tsx';
+import { handleAddTask, handleToggleTaskStatus, handleDeleteTaskConfirm, handleTaskUpdate } from './components-kanban/handlers/TaskHandlers.tsx';
+import { handleAddColumn, handleDeleteColumnConfirm, handleUpdateColumn } from './components-kanban/handlers/ColumnHandlers.tsx';
 const initialData: Record<string, Column> = {};
 
 const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
@@ -269,16 +269,17 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                   {...provided.droppableProps}
                   width={300}
                   minHeight={500}
-                  bgcolor="#f5f5f5"
+                  bgcolor="#ECF0F1"
                   borderRadius={2}
                   p={1}
                   m={1}
                   boxShadow={1}
                   flexShrink={0}
+                  border={`1px solid #BDC3C7`}
                 >
                   <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                     {column && (
-                      <Typography variant="h6" component="h2">
+                      <Typography variant="h6" component="h2" color='#2C3E50' sx={{ fontWeight: 'bold' }}>
                         {column.title}
                       </Typography>
                     )}
@@ -320,7 +321,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                       <Draggable draggableId={task.id.toString()} index={index} key={task.id}>
                         {(provided) => {
 
-                          const backgroundColor = task.status === 'completed' ? '#d4edda' : '#f8d7da';
+                          const backgroundColor = task.status === 'completed' ? ' #98FB98' : '#FF7673 ';
 
                           const taskId = task.id;
                           const avatarUrls = avatarData[taskId] || [];
@@ -336,7 +337,7 @@ const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {
                               boxShadow="0 2px 4px rgba(0, 0, 0, 0.1)"
                             >
                               <Box display="flex" flexDirection="column" alignItems="flex-start" mb={2}>
-                                <Typography variant="h6" component="h3" gutterBottom>
+                                <Typography variant="h6" component="h3" gutterBottom color='#2C3E50'>
                                   {task.title}
                                 </Typography>
                                 <Box display="flex" flexDirection="row" alignItems="center" mb={1}>

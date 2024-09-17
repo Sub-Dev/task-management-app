@@ -5,6 +5,7 @@ import axios from 'axios';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import Box from '@mui/material/Box';
+import { Typography } from '@mui/material';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
@@ -310,39 +311,67 @@ export default function Projects() {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              Projetos
+            <Paper
+              sx={{
+                p: 2,
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: '#ECF0F1', // Fundo alterado para #ECF0F1
+                borderRadius: 2,
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{
+                  color: '#2C3E50', // Texto alterado para #2C3E50
+                  mb: 2,
+                  fontWeight: 'bold',
+                }}
+              >
+                Projetos
+              </Typography>
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ mb: 2 }}
+                sx={{
+                  mb: 3,
+                  borderRadius: 2,
+                }}
                 onClick={handleAddProject}
               >
                 Adicionar Projeto
               </Button>
               {rows.length === 0 ? (
-                <p>Você ainda não tem projetos. Crie um novo projeto para começar.</p>
+                <Typography
+                  sx={{
+                    color: '#2C3E50', // Texto alterado para #2C3E50
+                    textAlign: 'center',
+                    mt: 2,
+                  }}
+                >
+                  Você ainda não tem projetos. Crie um novo projeto para começar.
+                </Typography>
               ) : (
                 <>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Data</TableCell>
-                        <TableCell>Nome</TableCell>
-                        <TableCell>Descrição</TableCell>
-                        <TableCell>Participantes</TableCell>
-                        <TableCell align="right">Número de Tarefas</TableCell>
-                        <TableCell>Ações</TableCell>
+                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Data</TableCell>
+                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Nome</TableCell>
+                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Descrição</TableCell>
+                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Participantes</TableCell>
+                        <TableCell align="right" sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Número de Tarefas</TableCell>
+                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Ações</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                        <TableRow key={row.id}>
-                          <TableCell>{row.created_at}</TableCell>
-                          <TableCell>{row.name}</TableCell>
-                          <TableCell>{row.description}</TableCell>
-                          <TableCell>{row.users}</TableCell>
-                          <TableCell align="right">{row.tasksCount}</TableCell>
+                        <TableRow key={row.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' } }}>
+                          <TableCell sx={{ color: '#2C3E50' }}>{row.created_at}</TableCell>
+                          <TableCell sx={{ color: '#2C3E50' }}>{row.name}</TableCell>
+                          <TableCell sx={{ color: '#2C3E50' }}>{row.description}</TableCell>
+                          <TableCell sx={{ color: '#2C3E50' }}>{row.users}</TableCell>
+                          <TableCell align="right" sx={{ color: '#2C3E50' }}>{row.tasksCount}</TableCell>
                           <TableCell>
                             <Box display="flex" alignItems="center">
                               <Tooltip title="Editar">
@@ -383,6 +412,15 @@ export default function Projects() {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={{
+                      '& .MuiTablePagination-selectLabel': { color: '#2C3E50' },
+                      '& .MuiTablePagination-select': { color: '#2C3E50' },
+                      '& .MuiTablePagination-displayedRows': { color: '#2C3E50' },
+                      '& .MuiTablePagination-selectIcon': { color: '#2C3E50' },
+                      '& .MuiPaginationItem-root': { color: '#2C3E50' },
+                      '& .MuiPaginationItem-icon': { color: '#3498DB' },
+                      backgroundColor: '#ECF0F1'
+                    }}
                   />
                 </>
               )}
@@ -390,6 +428,7 @@ export default function Projects() {
           </Grid>
         </Grid>
       </Container>
+
 
       {/* Modal de Adicionar/Editar Projeto */}
       <Dialog open={openModal || editModalOpen} onClose={handleCloseModal}>

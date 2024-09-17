@@ -16,25 +16,25 @@ const items = [
     icon: <CodeRoundedIcon />,
     title: 'Desenvolvimento Frontend',
     description:
-      'Utilizamos React.js para criar uma interface de usuário dinâmica e responsiva, visando uma experiência de usuário fluida e interativa.',
+      'Utilizei React.js para criar uma interface de usuário dinâmica e responsiva, visando uma experiência de usuário fluida e interativa.',
   },
   {
     icon: <WebRoundedIcon />,
     title: 'Desenvolvimento Backend',
     description:
-      'Implementamos NestJS para construir uma API robusta e escalável, garantindo uma base sólida para a lógica de negócios e manipulação de dados.',
+      'Implementei NestJS para construir uma API robusta e escalável, garantindo uma base sólida para a lógica de negócios e manipulação de dados.',
   },
   {
     icon: <DataObjectRoundedIcon />,
     title: 'Armazenamento de Dados',
     description:
-      'Escolhemos PostgreSQL para armazenamento eficiente e confiável de dados, assegurando uma gestão eficaz e recuperação de informações.',
+      'Escolhi PostgreSQL para armazenamento eficiente e confiável de dados, assegurando uma gestão eficaz e recuperação de informações.',
   },
   {
     icon: <DeveloperModeRoundedIcon />,
     title: 'Conteinerização com Docker',
     description:
-      'Utilizamos Docker para facilitar a implantação contínua e a gestão de ambientes de desenvolvimento e produção, otimizando o fluxo de trabalho.',
+      'Utilizei Docker para facilitar a implantação contínua e a gestão de ambientes de desenvolvimento e produção, otimizando o fluxo de trabalho.',
   },
 ];
 

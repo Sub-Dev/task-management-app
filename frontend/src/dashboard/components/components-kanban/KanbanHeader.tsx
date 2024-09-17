@@ -11,13 +11,13 @@ const KanbanHeader = ({ project, setIsColumnModalOpen }) => {
       alignItems="center"
       mb={2}
       sx={{
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
+        backgroundColor: '#ECF0F1',
         padding: 2,
         borderRadius: 1,
         backdropFilter: 'blur(5px)',
       }}
     >
-      <Typography variant="h4" component="h1">
+      <Typography variant="h4" component="h1" color='#2C3E50'>
         {project ? project.name : 'Kanban Board'}
       </Typography>
       <Box ml="auto">

@@ -21,7 +21,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
-import api from "../../../axiosInstance";
+import api from "../../../../axiosInstance";
 
 const TaskEditModal = ({
   isModalOpen,
