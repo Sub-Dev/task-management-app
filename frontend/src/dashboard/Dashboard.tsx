@@ -15,7 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { MainListItems, SecondaryListItems } from './components/ListItems.tsx';
+import { MainListItems, SecondaryListItems } from './components/ListItemsDashboard.tsx';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Orders from './components/Projects.tsx';
 import LogoNoBackground from '../img/logo-no-background.png';
@@ -68,23 +68,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
         duration: theme.transitions.duration.enteringScreen,
       }),
       boxSizing: 'border-box',
+      overflowX: 'hidden',
       ...(open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
         width: drawerWidth,
         [theme.breakpoints.up('sm')]: {
           width: drawerWidth,
         },
       }),
       ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
         width: theme.spacing(7),
         [theme.breakpoints.up('sm')]: {
           width: theme.spacing(9),
@@ -106,22 +97,20 @@ export default function Dashboard() {
   React.useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Decodifica o token JWT para obter o ID do usuário
       const decodedToken: any = jwtDecode(token);
-      const userId = decodedToken.sub; // Pega o ID do usuário do campo 'sub'
+      const userId = decodedToken.sub;
 
-      // Faz uma requisição para buscar os dados do usuário, incluindo o token no cabeçalho
       fetch(`http://localhost:4000/users/${userId}`, {
         headers: {
-          'Authorization': `Bearer ${token}` // Envia o token no cabeçalho de autorização
+          'Authorization': `Bearer ${token}`
         }
       })
         .then(response => response.json())
         .then(data => {
-          // Define o estado com o nome e avatar do usuário
+
           setUser({
             name: data.username,
-            avatar: data.profileImageUrl, // Assumindo que 'avatarPath' é o caminho do avatar na resposta da API
+            avatar: data.profileImageUrl,
           });
 
         })
@@ -140,20 +129,19 @@ export default function Dashboard() {
     const pathArray = location.pathname.split('/');
     let path = pathArray.pop();
 
-    // Verifica se o último item é um número (ID do projeto) e ajusta
     if (path && !isNaN(Number(path))) {
-      path = pathArray.pop(); // Pega a penúltima parte da URL (por exemplo, "kanban")
+      path = pathArray.pop();
     }
 
     if (path) {
-      return path.charAt(0).toUpperCase() + path.slice(1); // Capitaliza a primeira letra
+      return path.charAt(0).toUpperCase() + path.slice(1);
     }
 
     return 'Dashboard';
   };
 
 
-  // Define a função de navegação para a página de perfil
+
   const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -163,12 +151,12 @@ export default function Dashboard() {
     setAnchorEl(null);
   };
   const handleNavigateToProfile = () => {
-    navigate('/dashboard/profile'); // Redireciona para a rota de perfil
+    navigate('/dashboard/profile');
   };
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
 
-    // Chama a API de logout no backend para invalidar o token
+
     await fetch('http://localhost:4000/auth/logout', {
       method: 'POST',
       headers: {
@@ -176,21 +164,17 @@ export default function Dashboard() {
         'Content-Type': 'application/json',
       },
     });
-
-    // Remove o token do localStorage
     localStorage.removeItem('token');
 
-    // Recarrega a página para garantir que qualquer estado armazenado no aplicativo seja redefinido
     window.location.reload();
 
-    // Redireciona o usuário para a página de login
     navigate('/signin');
   };
   return (
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open} sx={{ backgroundColor: '#1b222a', color: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+        <AppBar position="absolute" open={open} sx={{ backgroundColor: '#2C3E50', color: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
           <Toolbar sx={{ pr: '24px' }}>
             <IconButton
               edge="start"
@@ -225,6 +209,9 @@ export default function Dashboard() {
                   overflow: 'visible',
                   filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
                   mt: 1.5,
+                  ml: 0,  // Remover a margem lateral se houver
+                  mr: 0,  // Remover a margem lateral se houver
+                  px: 0,  // Remover o padding se houver
                   '& .MuiAvatar-root': {
                     width: 32,
                     height: 32,
@@ -261,16 +248,20 @@ export default function Dashboard() {
                 Sair
               </MenuItem>
             </Menu>
+
           </Toolbar>
         </AppBar>
-        <Drawer variant="permanent" open={open}>
+        <Drawer
+          variant="permanent"
+          open={open}
+        >
           <Toolbar
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               px: 2,
-              backgroundColor: '#1b222a',
+              backgroundColor: '#2C3E50',
               borderBottom: 'none',
             }}
           >
@@ -286,16 +277,19 @@ export default function Dashboard() {
                   '&:hover': { transform: 'scale(1.1)' },
                 }}
               />
-              <Typography variant="h6" color="white" sx={{ fontWeight: 'bold' }}>TaskMaster</Typography>
+              <Typography variant="h6" color="white" sx={{ fontWeight: 'bold' }}>
+                TaskMaster
+              </Typography>
             </Box>
             <IconButton onClick={toggleDrawer} sx={{ color: 'white' }}>
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar>
+
           <Divider sx={{ height: '1px', backgroundColor: '#335' }} />
-          {/* Conditional rendering of the avatar and user info */}
+
           {open && (
-            <Box sx={{ p: 2, color: '#707070', textAlign: 'center' }}>
+            <Box sx={{ p: 2, color: '#707070', textAlign: 'center', backgroundColor: '#2C3E50' }}>
               <Avatar
                 alt={user.name}
                 src={user.avatar || Avatar1}
@@ -307,36 +301,52 @@ export default function Dashboard() {
                   border: `2px solid ${colors.grey[500]}`,
                 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{user.name}</Typography>
+              <Typography variant="h6" color="white" sx={{ fontWeight: 'bold' }}>
+                {user.name}
+              </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                <IconButton sx={{ color: colors.grey[400] }} onClick={handleNavigateToProfile}>
+                <IconButton sx={{ color: '#3498DB' }} onClick={handleNavigateToProfile}>
                   <SettingsIcon />
                 </IconButton>
-                <IconButton sx={{ color: colors.grey[400] }} onClick={handleLogout}>
+                <IconButton sx={{ color: '#3498DB' }} onClick={handleLogout}>
                   <LogoutIcon />
                 </IconButton>
               </Box>
             </Box>
           )}
-          <Divider />
-          <List component="nav">
-            {MainListItems()}
-            <Divider sx={{ my: 1 }} />
-            {SecondaryListItems()}
+
+          <Divider sx={{ height: '1px', backgroundColor: '#335' }} />
+
+          <List component="nav" sx={{ backgroundColor: '#2C3E50', flexGrow: 1, overflow: 'auto' }}>
+            <MainListItems open={open} />
+            <SecondaryListItems open={open} />
           </List>
         </Drawer>
 
         <Box
           component="main"
           sx={{
-            backgroundImage: `url(${backgroundImage})`, // Adiciona a imagem de fundo
-            backgroundSize: 'cover', // Faz a imagem cobrir toda a área
-            backgroundPosition: 'center', // Centraliza a imagem
-            backgroundRepeat: 'no-repeat', // Evita a repetição da imagem
+            position: 'relative',
+            minHeight: '100vh',
             flexGrow: 1,
-            height: '90vh',
             overflow: 'auto',
             p: 3,
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              opacity: 0.5,
+              zIndex: -1,
+              width: '100%',
+              height: '100%',
+            },
           }}
         >
           <Toolbar />
@@ -344,7 +354,7 @@ export default function Dashboard() {
             <Route path="/" element={<HomeDashboard />} />
             <Route path="/projects" element={<Orders />} />
             <Route path="/kanban/:id" element={<Kanban sidebarOpen={open} />} />
-            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/profile" element={<UserProfile open={open} />} />
           </Routes>
         </Box>
       </Box>

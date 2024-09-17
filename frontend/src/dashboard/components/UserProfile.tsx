@@ -25,8 +25,12 @@ interface UserPayload {
   sub: number;
   email: string;
 }
+interface UserProfileProps {
+  open: boolean;
+}
 
-const UserProfile = () => {
+const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
+
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -39,8 +43,27 @@ const UserProfile = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    };
+
+    handleResize(); // Verifica no carregamento inicial
+    window.addEventListener('resize', handleResize); // Adiciona o listener para redimensionamento da tela
+
+    return () => {
+      window.removeEventListener('resize', handleResize); // Limpa o listener ao desmontar
+    };
+  }, []);
+
   useEffect(() => {
     const fetchUserData = async () => {
+      if (isMobile && open) {
+        return;
+      }
+
       try {
         const token = localStorage.getItem('token');
         if (token) {
@@ -75,7 +98,7 @@ const UserProfile = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [open]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -140,20 +163,34 @@ const UserProfile = () => {
       setSnackbarOpen(true);
     }
   };
-
+  if (isMobile && open) {
+    return null;
+  }
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12} md={8} lg={6}>
-          <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column' }}>
-            <Typography variant="h5" gutterBottom>
+          <Paper
+            sx={{
+              p: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              backgroundColor: '#ECF0F1',
+              borderRadius: 2,
+            }}
+          >
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{ color: '#2C3E50', mb: 2 }}
+            >
               Editar Perfil
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} display="flex" justifyContent="center">
                 <Avatar
                   sx={{ width: 100, height: 100 }}
-                  src={user.profileImage || defaultAvatar} // Usa a imagem padrão importada
+                  src={user.profileImage || defaultAvatar}
                 />
               </Grid>
               <Grid item xs={12} display="flex" justifyContent="center">
@@ -178,6 +215,13 @@ const UserProfile = () => {
                   value={user.name}
                   onChange={handleInputChange}
                   required
+                  sx={{
+                    input: { color: '#2C3E50' },
+                    label: { color: '#2C3E50' },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: '#2C3E50' },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -190,6 +234,13 @@ const UserProfile = () => {
                   value={user.email}
                   onChange={handleInputChange}
                   required
+                  sx={{
+                    input: { color: '#2C3E50' },
+                    label: { color: '#2C3E50' },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: '#2C3E50' },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -201,6 +252,13 @@ const UserProfile = () => {
                   variant="outlined"
                   value={user.password}
                   onChange={handleInputChange}
+                  sx={{
+                    input: { color: '#2C3E50' },
+                    label: { color: '#2C3E50' },
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': { borderColor: '#2C3E50' },
+                    },
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -221,14 +279,16 @@ const UserProfile = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }} // Reposiciona o Snackbar
-        sx={{ width: '100%' }} // Torna o Snackbar um pouco maior
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ width: '100%' }}
       >
         <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
     </Container>
+
+
   );
 };
 
