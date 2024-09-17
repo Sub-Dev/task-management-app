@@ -9,22 +9,26 @@ import AuthenticatedRoute from './components/AuthenticatedRoute';
 import { AuthProvider } from './context/AuthContext'; // Importa o AuthProvider
 import NotFound from './components/NotFound.tsx';
 import { SnackbarProvider } from './context/SnackbarContext.tsx';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './fonts/Theme.tsx';
 
 const App = () => {
   return (
-    <Router>
-      <SnackbarProvider>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </SnackbarProvider>
-    </Router>
+    <ThemeProvider theme={theme}> {/* Envolva toda a aplicação com o ThemeProvider */}
+      <Router>
+        <SnackbarProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </SnackbarProvider>
+      </Router>
+    </ThemeProvider>
   );
 };
 

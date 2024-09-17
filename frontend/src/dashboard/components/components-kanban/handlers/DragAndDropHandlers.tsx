@@ -1,6 +1,6 @@
 import { DropResult } from 'react-beautiful-dnd';
-import api from "../../../axiosInstance";
-import { Column } from './Interfaces.tsx'; // Ajuste os caminhos conforme necessário
+import api from "../../../../axiosInstance.js";
+import { Column } from '../interface/Interfaces.tsx'; // Ajuste os caminhos conforme necessário
 
 export const onDragEnd = async (
   result: DropResult,

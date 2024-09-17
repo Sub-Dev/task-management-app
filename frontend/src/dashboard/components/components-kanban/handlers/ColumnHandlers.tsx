@@ -1,5 +1,5 @@
-import api from "../../../axiosInstance";
-import { Column } from './Interfaces.tsx';
+import api from "../../../../axiosInstance.js";
+import { Column } from '../interface/Interfaces.tsx';
 import { Dispatch, SetStateAction } from 'react';
 
 interface HandleAddColumnParams {

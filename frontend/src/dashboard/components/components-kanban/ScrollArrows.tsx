@@ -12,8 +12,8 @@ const ScrollArrows = ({ showArrows, scrollLeft, scrollRight, sidebarOpen }) => {
         onClick={scrollLeft}
         sx={{
           position: 'absolute',
-          left: sidebarOpen ? 240 : 80,
-          top: '50%',
+          left: sidebarOpen ? 5 : 5,
+          top: '35%',
           transform: 'translateY(-20%)',
           zIndex: 1,
           backgroundColor: '#1976d2',
@@ -29,8 +29,8 @@ const ScrollArrows = ({ showArrows, scrollLeft, scrollRight, sidebarOpen }) => {
         onClick={scrollRight}
         sx={{
           position: 'absolute',
-          right: sidebarOpen ? 20 : 20,
-          top: '50%',
+          right: sidebarOpen ? 10 : 10,
+          top: '35%',
           transform: 'translateY(-20%)',
           zIndex: 1,
           backgroundColor: '#1976d2',
