@@ -85,8 +85,8 @@ const TaskEditModal = ({
   };
 
   const handleModalCloseInternal = () => {
-    setCurrentTask(null); // Limpa o estado ao fechar o modal
-    handleModalClose(); // Chama a função de fechamento do modal
+    setCurrentTask(null);
+    handleModalClose();
   };
 
   const validateForm = () => {
@@ -127,11 +127,16 @@ const TaskEditModal = ({
         position="absolute"
         top="50%"
         left="50%"
-        bgcolor="#f7f7f7"
+        bgcolor="#F8F9F9"
         borderRadius={2}
-        boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+        boxShadow="0px 4px 20px rgba(0, 0, 0, 0.2)"
         p={4}
-        style={{ transform: "translate(-50%, -50%)" }}
+        style={{
+          transform: "translate(-50%, -50%)",
+          width: "100%",
+          maxWidth: "400px",
+          minWidth: "300px",
+        }}
       >
         <Typography variant="h4" gutterBottom>
           <FontAwesomeIcon icon={faEdit} /> Edição de Tarefa

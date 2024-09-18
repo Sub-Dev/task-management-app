@@ -32,6 +32,7 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import HomeDashboard from './components/HomeDashboard.tsx';
 import backgroundImage from '../img/background-image.jpg';
+import { useUser } from '../context/UserContext.tsx';
 
 const drawerWidth: number = 240;
 
@@ -89,11 +90,11 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
-  const [user, setUser] = React.useState({ name: '', avatar: '' });
+  const { user, setUser } = useUser();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const location = useLocation();
-
+  const navigate = useNavigate();
   React.useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -107,19 +108,18 @@ export default function Dashboard() {
       })
         .then(response => response.json())
         .then(data => {
-
           setUser({
             name: data.username,
-            avatar: data.profileImageUrl,
+            email: data.email, // Ajuste conforme necessário
+            password: '', // Não inclua a senha aqui por questões de segurança
+            profileImage: data.profileImageUrl,
           });
-
         })
-
         .catch(error => {
           console.error('Erro ao buscar os dados do usuário:', error);
         });
     }
-  }, []);
+  }, [setUser]);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -140,9 +140,11 @@ export default function Dashboard() {
     return 'Dashboard';
   };
 
+  if (!user) {
+    return <p>Carregando...</p>; // Ou um componente de carregamento
+  }
 
 
-  const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -196,7 +198,7 @@ export default function Dashboard() {
               aria-haspopup="true"
               aria-expanded={openMenu ? 'true' : undefined}
             >
-              <Avatar alt={user.name} src={user.avatar || Avatar1} />
+              <Avatar alt={user.name} src={user.profileImage || Avatar1} />
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -292,7 +294,7 @@ export default function Dashboard() {
             <Box sx={{ p: 2, color: '#707070', textAlign: 'center', backgroundColor: '#2C3E50' }}>
               <Avatar
                 alt={user.name}
-                src={user.avatar || Avatar1}
+                src={user.profileImage || Avatar1}
                 sx={{
                   width: 80,
                   height: 80,
