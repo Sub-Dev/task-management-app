@@ -6,9 +6,9 @@
 </h3>
 
 <p align="center">
-  <img alt="Interface da aplicação" src=".github/frontend-dashboard-v3.png" width="100%">
-  <img alt="Interface Projetos" src=".github/frontend-projects-v2.png" width="100%">
-  <img alt="Interface Kanban" src=".github/frontend-kanban-v3.png" width="100%">
+  <img alt="Interface da aplicação" src=".github/frontend-dashboard-v4.png" width="100%">
+  <img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%">
+  <img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%">
   <h3 align = "center" fontSize="60px">
   Versão Previa(Em desenvolvimento)
   </h3>
@@ -28,7 +28,7 @@ Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do m
 - React-beautiful-dnd: Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
 - React-chartjs-2: Implementado para criar gráficos e visualizações de dados, permitindo a apresentação visual de métricas e estatísticas relacionadas ao gerenciamento de tarefas.
 - Axios: Utilizado para fazer requisições HTTP à API, facilitando a comunicação entre o frontend e o backend.
-- Jwt-decode: Usado para decodificar tokens JWT e extrair informações, como o ID do usuário, para gerenciar autenticação e autorização.
+- Jwt-decode: Usado para decodificar tokens JWT e extrair informações, como para gerenciar autenticação e autorização.
 - JWT (JSON Web Token): Implementado para autenticação segura e gerenciamento de sessões de usuário, garantindo que os usuários estejam autenticados e autorizados a acessar recursos protegidos.
 
 Estou constantemente aprendendo e aplicando novas técnicas e boas práticas para otimizar a performance e a escalabilidade do aplicativo. Este projeto não apenas me permite explorar novas tecnologias, mas também me desafia a resolver problemas complexos e a melhorar minhas habilidades de desenvolvimento.
@@ -131,7 +131,7 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 
 ## Funcionalidades
 
-- [ ] Autenticação e autorização de usuários na manipulação das tarefas de projetos
+- [x] Autenticação e autorização de usuários na manipulação das tarefas de projetos
 - [x] CRUD de tarefas
 - [x] Gestão de projetos
 
@@ -153,6 +153,10 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 ```bash
 git clone https://github.com/Sub-Dev/task-management-app.git
 cd task-management-app
+cd frontend
+npm install
+cd backend
+npm install
 ```
 
 ### Instruções para Executar com Docker
@@ -205,10 +209,23 @@ http://localhost:3000
 <p align="center">
   <img alt="Interface Signin" src=".github/frontend-signin-v1.png" width="100%">  
   <img alt="Interface Signup" src=".github/frontend-signup-v1.png" width="100%">
-  <img alt="Interface Dashboard" src=".github/frontend-dashboard-v3.png" width="100%">
-  <img alt="Interface Projetos" src=".github/frontend-projects-v2.png" width="100%">
-  <img alt="Interface Kanban" src=".github/frontend-kanban-v3.png" width="100%">
-  <img alt="Interface Kanban" src=".github/loading-page.png" width="100%">
+  <img alt="Interface Perfil" src=".github/frontend-perfil-v2.png" width="100%">
+  <img alt="Interface Dashboard" src=".github/frontend-dashboard-v4.png" width="100%">
+  <img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%">
+  <img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%">
+  <img alt="Loading" src=".github/loading-page.png" width="100%">
+
+</p>
+
+## Mais Imagens do Projeto Tela Home Page
+
+<p align="center">
+  <img alt="Interface Home Page 1" src=".github/frontend-homepage-v2-1.png" width="100%">
+  <img alt="Interface Home Page 2" src=".github/frontend-homepage-v2-2.png" width="100%">
+  <img alt="Interface Home Page 3" src=".github/frontend-homepage-v2-3.png" width="100%">
+  <img alt="Interface Home Page 4" src=".github/frontend-homepage-v2-4.png" width="100%">
+  <img alt="Interface Home Page 5" src=".github/frontend-homepage-v2-5.png" width="100%">
+  
 </p>
 
 ## Licença

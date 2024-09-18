@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   TextField,
@@ -11,11 +11,13 @@ import {
   Snackbar,
   Alert
 } from '@mui/material';
-import { PhotoCamera } from '@mui/icons-material';
+import { Password, PhotoCamera } from '@mui/icons-material';
 import { styled } from '@mui/system';
 import axios from '../../axiosInstance';
 import { jwtDecode } from 'jwt-decode'; // Correção da importação
 import defaultAvatar from '../../img/avatar/1.png'; // Imagem padrão importada
+import { useUser } from '../../context/UserContext.tsx'; // Importar o contexto
+import { useSnackbar } from '../../context/SnackbarContext.tsx';
 
 const Input = styled('input')({
   display: 'none',
@@ -25,24 +27,17 @@ interface UserPayload {
   sub: number;
   email: string;
 }
+
 interface UserProfileProps {
   open: boolean;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
-
-  const [user, setUser] = useState({
-    name: '',
-    email: '',
-    password: '', // Mantido como 'password' internamente
-    profileImage: ''
-  });
-
+  const { user, setUser } = useUser(); // Usar o contexto
   const [userId, setUserId] = useState<number | null>(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-
+  const { showSnackbar } = useSnackbar();
+  const [tempProfileImage, setTempProfileImage] = useState<string | null>(null);
+  const [tempName, setTempName] = useState<string>('');
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -72,7 +67,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
 
           if (userId) {
             setUserId(userId);
-
             const response = await axios.get(`/users/${userId}`, {
               headers: {
                 'Authorization': `Bearer ${token}`
@@ -80,12 +74,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
             });
 
             const { username, email, profileImageUrl } = response.data;
-            setUser({
+            const fetchedUser = {
+              id: userId,
               name: username || '',
               email: email || '',
-              profileImage: profileImageUrl || '',
-              password: '' // Inicializa o campo de senha como vazio
-            });
+              password: '',
+              profileImage: profileImageUrl || ''
+            };
+
+            setUser(fetchedUser); // Atualizar o contexto com os dados do usuário
+            setTempProfileImage(profileImageUrl || ''); // Inicializa a imagem temporária
+            setTempName(username || ''); // Inicializa o nome temporário
           } else {
             console.error('User ID is undefined');
           }
@@ -98,25 +97,27 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
     };
 
     fetchUserData();
-  }, [open]);
+  }, [open, isMobile, setUser]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUser(prevUser => ({ ...prevUser, [name]: value }));
+    if (name === 'name') {
+      setTempName(value); // Atualiza o nome temporário
+    } else {
+      setUser(prevUser => ({ ...prevUser, [name]: value }));
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       if (file.size > 5 * 1024 * 1024) { // Verifica se o arquivo é maior que 5MB
-        setSnackbarMessage('Arquivo de imagem deve ter no máximo 5MB');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        showSnackbar('Arquivo de imagem deve ter no máximo 5MB', 'error');
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setUser(prevUser => ({ ...prevUser, profileImage: reader.result as string }));
+        setTempProfileImage(reader.result as string); // Atualiza a imagem temporária
       };
       reader.readAsDataURL(file);
     }
@@ -125,18 +126,18 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
   const handleSave = async () => {
     try {
       const formData = new FormData();
-      formData.append('username', user.name);
-      formData.append('email', user.email);
-      if (user.password) {
+      formData.append('username', tempName); // Usa o nome temporário
+      formData.append('email', user?.email || '');
+      if (user?.password) {
         formData.append('password', user.password); // Envia o campo 'password'
       }
 
-      if (user.profileImage && user.profileImage.startsWith('data:')) {
-        const response = await fetch(user.profileImage);
+      if (tempProfileImage && tempProfileImage.startsWith('data:')) {
+        const response = await fetch(tempProfileImage);
         const blob = await response.blob();
         formData.append('profileImage', blob, 'profile.jpg');
-      } else if (user.profileImage) {
-        formData.append('profileImageUrl', user.profileImage);
+      } else if (tempProfileImage) {
+        formData.append('profileImageUrl', tempProfileImage);
       }
 
       const token = localStorage.getItem('token');
@@ -149,23 +150,28 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
           }
         });
 
-        setSnackbarMessage('Dados do usuário salvos com sucesso!');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
+        // Atualizar o contexto imediatamente
+        setUser(prevUser => ({
+          ...prevUser,
+          name: tempName, // Atualiza o nome no contexto
+          profileImage: tempProfileImage || defaultAvatar
+        }));
+
+        showSnackbar('Dados do usuário salvos com sucesso!', 'success');
         console.log('User data saved');
       } else {
         console.error('User ID is not available');
       }
     } catch (error) {
       console.error('Failed to save user data:', error);
-      setSnackbarMessage('Erro ao salvar dados do usuário');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      showSnackbar('Erro ao salvar dados do usuário', 'error');
     }
   };
+
   if (isMobile && open) {
     return null;
   }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3} justifyContent="center">
@@ -190,7 +196,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
               <Grid item xs={12} display="flex" justifyContent="center">
                 <Avatar
                   sx={{ width: 100, height: 100 }}
-                  src={user.profileImage || defaultAvatar}
+                  src={tempProfileImage || defaultAvatar} // Usa a imagem temporária
                 />
               </Grid>
               <Grid item xs={12} display="flex" justifyContent="center">
@@ -212,7 +218,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
                   name="name"
                   fullWidth
                   variant="outlined"
-                  value={user.name}
+                  value={tempName}
                   onChange={handleInputChange}
                   required
                   sx={{
@@ -231,7 +237,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
                   type="email"
                   fullWidth
                   variant="outlined"
-                  value={user.email}
+                  value={user?.email || ''}
                   onChange={handleInputChange}
                   required
                   sx={{
@@ -250,7 +256,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
                   type="password"
                   fullWidth
                   variant="outlined"
-                  value={user.password}
                   onChange={handleInputChange}
                   sx={{
                     input: { color: '#2C3E50' },
@@ -265,30 +270,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleSave}
                   fullWidth
+                  onClick={handleSave}
                 >
-                  Salvar Alterações
+                  Salvar
                 </Button>
               </Grid>
             </Grid>
           </Paper>
         </Grid>
       </Grid>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ width: '100%' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Container>
-
-
   );
 };
 

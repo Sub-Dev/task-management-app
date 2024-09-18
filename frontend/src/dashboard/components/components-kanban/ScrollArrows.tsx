@@ -29,7 +29,7 @@ const ScrollArrows = ({ showArrows, scrollLeft, scrollRight, sidebarOpen }) => {
         onClick={scrollRight}
         sx={{
           position: 'absolute',
-          right: sidebarOpen ? 10 : 10,
+          right: sidebarOpen ? 5 : 5,
           top: '35%',
           transform: 'translateY(-20%)',
           zIndex: 1,

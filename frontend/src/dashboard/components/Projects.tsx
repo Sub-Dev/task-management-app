@@ -27,8 +27,7 @@ import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+import { useSnackbar } from '../../context/SnackbarContext.tsx';
 
 interface ProjectData {
   id: number;
@@ -71,9 +70,6 @@ export default function Projects() {
   const [openModal, setOpenModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const location = useLocation();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('error');
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -82,6 +78,7 @@ export default function Projects() {
   const [currentProject, setCurrentProject] = useState<ProjectData | null>(null);
   const [nameError, setNameError] = useState(false);
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
 
   const fetchProjects = async () => {
     try {
@@ -134,14 +131,10 @@ export default function Projects() {
   }, []);
   useEffect(() => {
     if (location.state?.error) {
-      setSnackbarMessage(location.state.error);
-      setSnackbarOpen(true);
+      showSnackbar(location.state.error, 'error');
     }
   }, [location.state]);
 
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
   };
@@ -173,94 +166,147 @@ export default function Projects() {
       const decoded = jwtDecode<UserPayload>(token);
       const userId = decoded.sub;
 
-      if (!newProject.name.trim()) {
-        setSnackbarMessage('O nome do projeto é obrigatório.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-        setNameError(true);  // Destaca o campo de nome do projeto com erro
-        return;
-      }
+      // Verifique se algo foi alterado no projeto
+      let hasChanges = false;
+      const updatedFields: any = {};
 
-      setNameError(false);  // Remove o destaque de erro caso o nome esteja preenchido
-
-      // Verifica se já existe um projeto com o mesmo nome
-      const existingProjectResponse = await axios.get('http://localhost:4000/projects/search', {
-        params: { name: newProject.name.trim(), userId },
-        headers: {
-          Authorization: `Bearer ${token}`
+      if (currentProject) {
+        // Verifica se o nome foi alterado
+        if (newProject.name.trim() !== currentProject.name.trim()) {
+          updatedFields.name = newProject.name.trim();
+          hasChanges = true;
         }
-      });
 
-      if (existingProjectResponse.data && existingProjectResponse.data.length > 0) {
-        setSnackbarMessage('Já existe um projeto com este nome.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-        setNameError(true);  // Destaca o campo de nome do projeto com erro
+        // Verifica se a descrição foi alterada
+        const currentDescription = currentProject.description || ''; // Garante que seja uma string
+        if (newProject.description.trim() !== currentDescription.trim()) {
+          updatedFields.description = newProject.description.trim();
+          hasChanges = true;
+        }
+
+        // Verifica se os usuários foram alterados
+        let currentUsers: string[] = [];
+
+        // Verifica se currentProject.users é uma string de nomes separados por vírgula ou um array de objetos
+        if (typeof currentProject.users === 'string') {
+          // Se for uma string, converta-a em um array de usuários
+          currentUsers = currentProject.users.split(',').map(user => user.trim()).sort();
+        } else if (Array.isArray(currentProject.users)) {
+          // Se for um array de objetos de usuário, ajuste para pegar os nomes ou IDs
+          currentUsers = currentProject.users.map(user => user.name?.trim() || '').sort();
+        }
+
+        const newUsers = newProject.users.split(',').map(user => user.trim()).filter(Boolean).sort();
+
+        if (JSON.stringify(currentUsers) !== JSON.stringify(newUsers)) {
+          const usernames = newUsers;
+          let userIds: number[] = [];
+
+          if (usernames.length > 0) {
+            const usersResponse = await axios.get('http://localhost:4000/users/search', {
+              params: { username: usernames.join(',') },
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+
+            userIds = Array.from(new Set([
+              ...usersResponse.data.map((user: any) => user.id),
+              userId,
+            ]));
+          } else {
+            userIds = [userId];
+          }
+
+          const userIndex = userIds.indexOf(userId);
+          if (userIndex !== -1) {
+            userIds.splice(userIndex, 1);
+          }
+
+          updatedFields.users = [userId, ...userIds];
+          hasChanges = true;
+        }
+      } else {
+        // Se for um novo projeto, validar todos os campos
+        updatedFields.name = newProject.name.trim();
+        updatedFields.description = newProject.description.trim();
+        hasChanges = true;
+
+        const usernames = newProject.users.split(',').map(user => user.trim()).filter(Boolean);
+        let userIds: number[] = [];
+
+        if (usernames.length > 0) {
+          const usersResponse = await axios.get('http://localhost:4000/users/search', {
+            params: { username: usernames.join(',') },
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+
+          userIds = Array.from(new Set([
+            ...usersResponse.data.map((user: any) => user.id),
+            userId,
+          ]));
+        } else {
+          userIds = [userId];
+        }
+
+        updatedFields.users = [userId, ...userIds];
+      }
+
+      // Se não houve mudanças, apenas feche o modal
+      if (!hasChanges) {
+        handleCloseModal();
         return;
       }
 
-      setNameError(false);  // Remove o destaque de erro caso o nome esteja válido
-
-      const usernames = newProject.users.split(',').map(user => user.trim()).filter(Boolean);
-
-      let userIds: number[] = [];
-
-      if (usernames.length > 0) {
-        const usersResponse = await axios.get('http://localhost:4000/users/search', {
-          params: { username: usernames.join(',') },
+      // Somente verificar a existência do nome se o nome foi alterado
+      if (updatedFields.name) {
+        const existingProjectResponse = await axios.get('http://localhost:4000/projects/search', {
+          params: { name: updatedFields.name, userId },
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
 
-        userIds = Array.from(new Set([
-          ...usersResponse.data.map((user: any) => user.id),
-          userId,
-        ]));
-      } else {
-        userIds = [userId]; // Apenas o usuário logado
+        if (existingProjectResponse.data && existingProjectResponse.data.length > 0) {
+          showSnackbar('Já existe um projeto com este nome.', 'error');
+          setNameError(true);
+          return;
+        }
+
+        setNameError(false);
       }
 
-      // Remover o próprio usuário se ele estiver na lista de usernames digitados
-      const userIndex = userIds.indexOf(userId);
-      if (userIndex !== -1) {
-        userIds.splice(userIndex, 1);
-      }
-
+      // Definir a URL e o método
       const url = currentProject ? `http://localhost:4000/projects/${currentProject.id}` : 'http://localhost:4000/projects';
       const method = currentProject ? 'put' : 'post';
 
+      // Enviar a requisição com os campos atualizados
       await axios({
         method,
         url,
-        data: {
-          name: newProject.name,
-          description: newProject.description,
-          users: [userId, ...userIds], // Certifique-se de que o usuário logado sempre esteja presente
-        },
+        data: updatedFields,
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      setSnackbarMessage(currentProject ? 'Projeto atualizado com sucesso!' : 'Projeto criado com sucesso!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      showSnackbar(currentProject ? 'Projeto atualizado com sucesso!' : 'Projeto criado com sucesso!', 'success');
 
       fetchProjects();
       handleCloseModal();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setSnackbarMessage('Erro ao salvar o projeto: ' + error.message);
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        showSnackbar('Erro ao salvar o projeto: ' + error.message, 'error');
       } else {
-        setSnackbarMessage('Erro inesperado ao salvar o projeto.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        showSnackbar('Erro inesperado ao salvar o projeto.', 'error');
       }
     }
   };
+
+
+
 
 
 
@@ -313,11 +359,12 @@ export default function Projects() {
           <Grid item xs={12}>
             <Paper
               sx={{
-                p: 2,
+                p: { xs: 2, sm: 3 }, // Adapta o padding para telas menores
                 display: 'flex',
                 flexDirection: 'column',
                 backgroundColor: '#ECF0F1', // Fundo alterado para #ECF0F1
                 borderRadius: 2,
+                overflow: 'auto', // Garante que o conteúdo não quebre
               }}
             >
               <Typography
@@ -326,6 +373,7 @@ export default function Projects() {
                   color: '#2C3E50', // Texto alterado para #2C3E50
                   mb: 2,
                   fontWeight: 'bold',
+                  fontSize: { xs: 'h6.fontSize', sm: 'h5.fontSize' }, // Ajusta o tamanho da fonte para diferentes telas
                 }}
               >
                 Projetos
@@ -336,6 +384,7 @@ export default function Projects() {
                 sx={{
                   mb: 3,
                   borderRadius: 2,
+                  fontSize: { xs: '0.75rem', sm: '1rem' }, // Ajusta o tamanho da fonte para diferentes telas
                 }}
                 onClick={handleAddProject}
               >
@@ -347,63 +396,69 @@ export default function Projects() {
                     color: '#2C3E50', // Texto alterado para #2C3E50
                     textAlign: 'center',
                     mt: 2,
+                    fontSize: { xs: 'body2.fontSize', sm: 'body1.fontSize' }, // Ajusta o tamanho da fonte para diferentes telas
                   }}
                 >
                   Você ainda não tem projetos. Crie um novo projeto para começar.
                 </Typography>
               ) : (
                 <>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Data</TableCell>
-                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Nome</TableCell>
-                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Descrição</TableCell>
-                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Participantes</TableCell>
-                        <TableCell align="right" sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Número de Tarefas</TableCell>
-                        <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50' }}>Ações</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                        <TableRow key={row.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' } }}>
-                          <TableCell sx={{ color: '#2C3E50' }}>{row.created_at}</TableCell>
-                          <TableCell sx={{ color: '#2C3E50' }}>{row.name}</TableCell>
-                          <TableCell sx={{ color: '#2C3E50' }}>{row.description}</TableCell>
-                          <TableCell sx={{ color: '#2C3E50' }}>{row.users}</TableCell>
-                          <TableCell align="right" sx={{ color: '#2C3E50' }}>{row.tasksCount}</TableCell>
-                          <TableCell>
-                            <Box display="flex" alignItems="center">
-                              <Tooltip title="Editar">
-                                <IconButton
-                                  color="primary"
-                                  onClick={() => handleEdit(row)}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Excluir">
-                                <IconButton
-                                  color="error"
-                                  onClick={() => handleDelete(row.id)}
-                                >
-                                  <DeleteIcon />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Ver Kanban">
-                                <IconButton
-                                  color="info"
-                                  onClick={() => handleKanban(row.id)}
-                                >
-                                  <ViewKanbanIcon />
-                                </IconButton>
-                              </Tooltip>
-                            </Box>
-                          </TableCell>
+                  <Box sx={{ overflowX: 'auto' }}> {/* Adiciona rolagem horizontal se necessário */}
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Data</TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Nome</TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Descrição</TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Participantes</TableCell>
+                          <TableCell align="right" sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Número de Tarefas</TableCell>
+                          <TableCell sx={{ borderBottom: '1px solid #BDC3C7', color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>Ações</TableCell>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHead>
+                      <TableBody>
+                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                          <TableRow key={row.id} sx={{ '&:nth-of-type(odd)': { backgroundColor: '#F5F5F5' } }}>
+                            <TableCell sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.created_at}</TableCell>
+                            <TableCell sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.name}</TableCell>
+                            <TableCell sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.description}</TableCell>
+                            <TableCell sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.users}</TableCell>
+                            <TableCell align="right" sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.tasksCount}</TableCell>
+                            <TableCell>
+                              <Box display="flex" alignItems="center" gap={1}> {/* Adicionado espaçamento entre ícones */}
+                                <Tooltip title="Editar">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() => handleEdit(row)}
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Excluir">
+                                  <IconButton
+                                    color="error"
+                                    onClick={() => handleDelete(row.id)}
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Ver Kanban">
+                                  <IconButton
+                                    color="info"
+                                    onClick={() => handleKanban(row.id)}
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                  >
+                                    <ViewKanbanIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Box>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
@@ -419,7 +474,8 @@ export default function Projects() {
                       '& .MuiTablePagination-selectIcon': { color: '#2C3E50' },
                       '& .MuiPaginationItem-root': { color: '#2C3E50' },
                       '& .MuiPaginationItem-icon': { color: '#3498DB' },
-                      backgroundColor: '#ECF0F1'
+                      backgroundColor: '#ECF0F1',
+                      fontSize: { xs: '0.75rem', sm: '1rem' } // Ajusta o tamanho da fonte para diferentes telas
                     }}
                   />
                 </>
@@ -428,8 +484,6 @@ export default function Projects() {
           </Grid>
         </Grid>
       </Container>
-
-
       {/* Modal de Adicionar/Editar Projeto */}
       <Dialog open={openModal || editModalOpen} onClose={handleCloseModal}>
         <DialogTitle>{currentProject ? 'Editar Projeto' : 'Adicionar Projeto'}</DialogTitle>
@@ -445,10 +499,13 @@ export default function Projects() {
             value={newProject.name}
             onChange={(e) => {
               handleChange(e);
-              setNameError(false); // Limpa o erro quando o usuário começa a digitar
+
+              if (e.target.name === 'name' && e.target.value.trim()) {
+                setNameError(false);
+              }
             }}
-            error={nameError} // Define se o campo deve ser destacado como erro
-            helperText={nameError ? 'O nome do projeto é obrigatório.' : ''} // Mensagem de erro opcional
+            error={nameError}
+            helperText={nameError ? 'O nome do projeto é obrigatório.' : ''}
           />
           <TextField
             margin="dense"
@@ -476,16 +533,6 @@ export default function Projects() {
           <Button onClick={handleSaveProject}>{currentProject ? 'Salvar' : 'Adicionar'}</Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </React.Fragment>
   );
 }
