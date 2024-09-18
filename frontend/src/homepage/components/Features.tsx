@@ -66,17 +66,17 @@ export default function Features() {
       id="features"
       sx={{
         py: { xs: 8, sm: 16 },
-        display: 'flex',           // Flexbox para centralizar
-        justifyContent: 'center',  // Centraliza horizontalmente
-        alignItems: 'center',      // Centraliza verticalmente
-        minHeight: '100vh',        // Altura mínima de 100% da viewport
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
       }}
     >
       <Grid
         container
         spacing={6}
-        justifyContent="center" // Centraliza o grid horizontalmente
-        alignItems="center"     // Centraliza o conteúdo do grid verticalmente
+        justifyContent="center"
+        alignItems="center"
         sx={{ textAlign: 'center' }}
       >
         <Grid item xs={12} md={6}>

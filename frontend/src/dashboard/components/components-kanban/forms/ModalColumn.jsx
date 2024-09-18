@@ -24,27 +24,24 @@ const ModalColumn = ({
   newColumnName,
   setNewColumnName,
   handleAddColumn,
-  projectColumns, // Recebe as colunas do projeto como prop
+  projectColumns,
 }) => {
-  const [hasError, setHasError] = useState(false); // Estado para controlar o erro de campo vazio
-  const [errorMessage, setErrorMessage] = useState(""); // Mensagem de erro personalizada
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Determina se o modal está em modo de edição ou adição
   const isEditing = Boolean(currentColumn);
 
-  // Função para lidar com o fechamento do modal
   const onClose = () => {
     handleModalColumnClose();
     if (isEditing) {
-      setCurrentColumn(null); // Limpa o estado da coluna atual após a edição
+      setCurrentColumn(null);
     } else {
-      setNewColumnName(""); // Limpa o nome da nova coluna após adicionar
+      setNewColumnName("");
     }
-    setHasError(false); // Reseta o estado de erro
-    setErrorMessage(""); // Reseta a mensagem de erro
+    setHasError(false);
+    setErrorMessage("");
   };
 
-  // Função para lidar com o envio do formulário
   const onSubmit = (e) => {
     e.preventDefault();
 
@@ -52,21 +49,18 @@ const ModalColumn = ({
       ? currentColumn.title.trim()
       : newColumnName.trim();
 
-    // Verifica se o campo está vazio
     if (trimmedName === "") {
       setHasError(true);
       setErrorMessage("Este campo é obrigatório");
       return;
     }
 
-    // Verifica se projectColumns é um array e contém colunas
     if (!Array.isArray(projectColumns) || projectColumns.length === 0) {
       setHasError(true);
       setErrorMessage("Nenhuma coluna encontrada para o projeto.");
       return;
     }
 
-    // Verificação de duplicidade de nome de coluna
     const isDuplicate = projectColumns.some(
       (column) =>
         column.title.toLowerCase() === trimmedName.toLowerCase() &&
@@ -79,17 +73,16 @@ const ModalColumn = ({
       return;
     }
 
-    // Reseta o estado de erro após validação
     setHasError(false);
-    setErrorMessage(""); // Limpa a mensagem de erro
+    setErrorMessage("");
 
     if (isEditing) {
-      handleUpdateColumn(); // Chama a função de atualização da coluna
+      handleUpdateColumn();
     } else {
-      handleAddColumn(); // Chama a função de adicionar nova coluna
+      handleAddColumn();
     }
 
-    onClose(); // Fecha o modal após a ação
+    onClose();
   };
 
   return (
@@ -98,11 +91,16 @@ const ModalColumn = ({
         position="absolute"
         top="50%"
         left="50%"
-        bgcolor="#f7f7f7"
+        bgcolor="#F8F9F9"
         borderRadius={2}
-        boxShadow="0px 0px 10px rgba(0, 0, 0, 0.2)"
+        boxShadow="0px 4px 20px rgba(0, 0, 0, 0.2)"
         p={4}
-        style={{ transform: "translate(-50%, -50%)", width: "400px" }}
+        style={{
+          transform: "translate(-50%, -50%)",
+          width: "100%",
+          maxWidth: "400px",
+          minWidth: "300px",
+        }}
       >
         <Typography variant="h4" gutterBottom>
           <FontAwesomeIcon icon={faEdit} />{" "}
@@ -113,19 +111,18 @@ const ModalColumn = ({
             fullWidth
             label="Nome da Coluna"
             value={isEditing ? currentColumn.title : newColumnName}
-            onChange={
-              (e) =>
-                isEditing
-                  ? setCurrentColumn({
-                      ...currentColumn,
-                      title: e.target.value,
-                    })
-                  : setNewColumnName(e.target.value) // Atualiza o nome da nova coluna
+            onChange={(e) =>
+              isEditing
+                ? setCurrentColumn({
+                    ...currentColumn,
+                    title: e.target.value,
+                  })
+                : setNewColumnName(e.target.value)
             }
             margin="normal"
             variant="outlined"
-            error={hasError} // Define o estado de erro
-            helperText={hasError ? errorMessage : ""} // Mensagem de erro
+            error={hasError}
+            helperText={hasError ? errorMessage : ""}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
