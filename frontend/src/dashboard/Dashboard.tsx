@@ -110,8 +110,8 @@ export default function Dashboard() {
         .then(data => {
           setUser({
             name: data.username,
-            email: data.email, // Ajuste conforme necessário
-            password: '', // Não inclua a senha aqui por questões de segurança
+            email: data.email,
+            password: '',
             profileImage: data.profileImageUrl,
           });
         })
@@ -141,10 +141,8 @@ export default function Dashboard() {
   };
 
   if (!user) {
-    return <p>Carregando...</p>; // Ou um componente de carregamento
+    return <p>Carregando...</p>;
   }
-
-
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

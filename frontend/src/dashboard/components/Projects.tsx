@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useLocation } from 'react-router-dom';
 import { useSnackbar } from '../../context/SnackbarContext.tsx';
+import { useProjectContext } from '../../context/ProjectContext.tsx';
 
 interface ProjectData {
   id: number;
@@ -79,6 +80,7 @@ export default function Projects() {
   const [nameError, setNameError] = useState(false);
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
+  const { setSelectedProject } = useProjectContext();
 
   const fetchProjects = async () => {
     try {
@@ -166,33 +168,25 @@ export default function Projects() {
       const decoded = jwtDecode<UserPayload>(token);
       const userId = decoded.sub;
 
-      // Verifique se algo foi alterado no projeto
       let hasChanges = false;
       const updatedFields: any = {};
 
       if (currentProject) {
-        // Verifica se o nome foi alterado
         if (newProject.name.trim() !== currentProject.name.trim()) {
           updatedFields.name = newProject.name.trim();
           hasChanges = true;
         }
 
-        // Verifica se a descrição foi alterada
-        const currentDescription = currentProject.description || ''; // Garante que seja uma string
+        const currentDescription = currentProject.description || '';
         if (newProject.description.trim() !== currentDescription.trim()) {
           updatedFields.description = newProject.description.trim();
           hasChanges = true;
         }
 
-        // Verifica se os usuários foram alterados
         let currentUsers: string[] = [];
-
-        // Verifica se currentProject.users é uma string de nomes separados por vírgula ou um array de objetos
         if (typeof currentProject.users === 'string') {
-          // Se for uma string, converta-a em um array de usuários
           currentUsers = currentProject.users.split(',').map(user => user.trim()).sort();
         } else if (Array.isArray(currentProject.users)) {
-          // Se for um array de objetos de usuário, ajuste para pegar os nomes ou IDs
           currentUsers = currentProject.users.map(user => user.name?.trim() || '').sort();
         }
 
@@ -227,7 +221,6 @@ export default function Projects() {
           hasChanges = true;
         }
       } else {
-        // Se for um novo projeto, validar todos os campos
         updatedFields.name = newProject.name.trim();
         updatedFields.description = newProject.description.trim();
         hasChanges = true;
@@ -254,13 +247,11 @@ export default function Projects() {
         updatedFields.users = [userId, ...userIds];
       }
 
-      // Se não houve mudanças, apenas feche o modal
       if (!hasChanges) {
         handleCloseModal();
         return;
       }
 
-      // Somente verificar a existência do nome se o nome foi alterado
       if (updatedFields.name) {
         const existingProjectResponse = await axios.get('http://localhost:4000/projects/search', {
           params: { name: updatedFields.name, userId },
@@ -278,12 +269,10 @@ export default function Projects() {
         setNameError(false);
       }
 
-      // Definir a URL e o método
       const url = currentProject ? `http://localhost:4000/projects/${currentProject.id}` : 'http://localhost:4000/projects';
       const method = currentProject ? 'put' : 'post';
 
-      // Enviar a requisição com os campos atualizados
-      await axios({
+      const response = await axios({
         method,
         url,
         data: updatedFields,
@@ -296,6 +285,11 @@ export default function Projects() {
 
       fetchProjects();
       handleCloseModal();
+
+      // Atualizando o contexto com o novo nome e ID do projeto
+      const updatedProject = response.data; // A resposta da API contém o projeto atualizado
+      setSelectedProject({ id: updatedProject.id, name: updatedProject.name }); // Atualiza o contexto com o projeto atualizado
+
     } catch (error) {
       if (axios.isAxiosError(error)) {
         showSnackbar('Erro ao salvar o projeto: ' + error.message, 'error');
