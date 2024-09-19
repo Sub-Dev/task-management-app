@@ -12,6 +12,7 @@ import { SnackbarProvider } from './context/SnackbarContext.tsx';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './fonts/Theme.tsx';
 import { UserProvider } from './context/UserContext.tsx';
+import { ProjectProvider } from './context/ProjectContext.tsx';
 
 const App = () => {
   return (
@@ -20,13 +21,15 @@ const App = () => {
         <SnackbarProvider>
           <AuthProvider>
             <UserProvider>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <ProjectProvider>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/signin" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/dashboard/*" element={<AuthenticatedRoute element={Dashboard} />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </ProjectProvider>
             </UserProvider>
           </AuthProvider>
         </SnackbarProvider>

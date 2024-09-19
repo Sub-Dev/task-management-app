@@ -9,6 +9,7 @@ import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import Box from '@mui/material/Box';
+import { useProjectContext } from '../../context/ProjectContext.tsx';
 
 
 interface Project {
@@ -71,6 +72,7 @@ export function SecondaryListItems({ open }: ListItemsProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [error, setError] = useState<string | null>(null); // Estado para erros
   const navigate = useNavigate(); // useNavigate está correto aqui
+  const { selectedProject } = useProjectContext(); // Acesse o projeto selecionado do contexto
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -88,8 +90,8 @@ export function SecondaryListItems({ open }: ListItemsProps) {
 
         const response = await axios.get('http://localhost:4000/projects', {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const projectsData = response.data;
@@ -120,6 +122,21 @@ export function SecondaryListItems({ open }: ListItemsProps) {
     fetchProjects();
   }, [navigate]);
 
+  // useEffect para atualizar o nome do projeto quando o `selectedProject` for alterado
+  useEffect(() => {
+    if (selectedProject) {
+      // Cria uma nova lista de projetos atualizados
+      const updatedProjects = projects.map((project) => {
+        if (project.id === selectedProject.id) {
+          return { ...project, name: selectedProject.name }; // Substitui o nome do projeto
+        }
+        return project;
+      });
+
+      setProjects(updatedProjects);
+    }
+  }, [selectedProject, projects]);
+
   return (
     <React.Fragment>
       {open ? (
@@ -149,7 +166,12 @@ export function SecondaryListItems({ open }: ListItemsProps) {
             <ListItemIcon sx={{ color: '#3498DB', minWidth: 30 }} >
               <AssignmentIcon />
             </ListItemIcon>
-            {open && <ListItemText primary={project.name} primaryTypographyProps={{ sx: { color: 'white', fontSize: 13, marginLeft: '8px' } }} />}
+            {open && (
+              <ListItemText
+                primary={project.name}
+                primaryTypographyProps={{ sx: { color: 'white', fontSize: 13, marginLeft: '8px' } }}
+              />
+            )}
           </ListItemButton>
         </Tooltip>
       ))}
@@ -161,11 +183,11 @@ export function SecondaryListItems({ open }: ListItemsProps) {
         <ListItemButton
           sx={{
             color: '#3498DB',
-            marginTop: '16px'
+            marginTop: '16px',
           }}
           onClick={() => navigate('/dashboard/projects')}
         >
-          <ListItemIcon sx={{ minWidth: 30, color: '#3498DB', }}>
+          <ListItemIcon sx={{ minWidth: 30, color: '#3498DB' }}>
             <MoreHorizOutlinedIcon />
           </ListItemIcon>
           {open ? (
