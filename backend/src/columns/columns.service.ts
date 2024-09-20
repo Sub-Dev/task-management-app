@@ -21,7 +21,6 @@ export class ColumnsService {
       throw new NotFoundException('Projeto não encontrado');
     }
 
-    // Verificar se já existe uma coluna com o mesmo título no projeto
     const existingColumn = await this.columnsRepository.findOne({
       where: {
         title: title,
@@ -33,7 +32,6 @@ export class ColumnsService {
       throw new ConflictException('Já existe uma coluna com esse nome neste projeto');
     }
 
-    // Encontrar o maior valor de order atual para o projeto
     const maxOrderResult = await this.columnsRepository
       .createQueryBuilder('column')
       .select('MAX(column.order)', 'maxOrder')
@@ -46,7 +44,7 @@ export class ColumnsService {
     const column = new Column();
     column.title = title;
     column.project = project;
-    column.order = newOrder; // Definindo a ordem para o próximo valor disponível
+    column.order = newOrder; 
 
     return this.columnsRepository.save(column);
   }
@@ -62,13 +60,12 @@ export class ColumnsService {
       throw new NotFoundException(`Coluna com ID ${id} não encontrada`);
     }
 
-    // Verifica se o título foi alterado e se já existe outra coluna com o mesmo título no projeto
     if (title && column.title !== title) {
       const existingColumn = await this.columnsRepository.findOne({
         where: {
           title,
           project: column.project,
-          id: Not(id) // Exclui a coluna atual da verificação
+          id: Not(id) 
         }
       });
 
@@ -79,7 +76,6 @@ export class ColumnsService {
       column.title = title;
     }
 
-    // Atualiza a ordem se necessário
     if (order !== null && column.order !== order) {
       column.order = order;
     }
@@ -92,7 +88,6 @@ export class ColumnsService {
   
   async remove(columnId: number): Promise<void> {
     try {
-      // Busca a coluna que será deletada
       const columnToDelete = await this.columnsRepository.findOne({
         where: { id: columnId },
       });
@@ -101,19 +96,16 @@ export class ColumnsService {
         throw new NotFoundException(`Coluna com ID ${columnId} não encontrada`);
       }
   
-      // Remove a coluna
       await this.columnsRepository.remove(columnToDelete);
       console.log(`Coluna com ID ${columnId} removida com sucesso.`);
   
-      // Busca todas as colunas do mesmo projeto que possuem uma ordem maior que a da coluna deletada
       const columnsToUpdate = await this.columnsRepository.find({
         where: {
-          project: columnToDelete.project, // Filtra pelo mesmo projeto
-          order: MoreThan(columnToDelete.order), // Encontra colunas com ordem maior
+          project: columnToDelete.project, 
+          order: MoreThan(columnToDelete.order), 
         },
       });
   
-      // Diminui o valor da ordem de cada coluna em 1
       for (const column of columnsToUpdate) {
         column.order -= 1;
         await this.columnsRepository.save(column);

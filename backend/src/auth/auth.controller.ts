@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Headers, UnauthorizedException} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../user/user.dto'; // Ajuste o caminho conforme necessário
-import { ValidateTokenDto } from './validate-token.dto'; // Importa o DTO
+import { CreateUserDto } from '../user/user.dto'; 
+import { ValidateTokenDto } from './validate-token.dto'; 
 
 import { SetMetadata } from '@nestjs/common';
 
@@ -14,7 +14,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: { email: string; password: string }) {
-    console.log('Dados recebidos:', loginDto); // Adicione este log para verificar os dados recebidos
+    console.log('Dados recebidos:', loginDto); 
     const user = await this.authService.validateUser(loginDto.email, loginDto.password);
     return this.authService.login(loginDto);
   }

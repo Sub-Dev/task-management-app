@@ -9,7 +9,7 @@ export interface Task {
   id: number;
   title: string;
   description: string;
-  status: "pending" | "completed"; // Status limitado a 'pending' ou 'completed'
+  status: "pending" | "completed";
   users: number[];
   due_date?: string;
   project?: number;
@@ -30,12 +30,12 @@ export interface User {
   profileImageUrl: string;
 }
 export interface Project {
-  id: number;               // Identificador único do projeto
-  name: string;             // Nome do projeto
-  description?: string;     // Descrição opcional do projeto
-  users: User[];            // Usuários associados ao projeto
-  tasks: Task[];            // Tarefas associadas ao projeto
-  columns: Column[];        // Colunas Kanban associadas ao projeto
-  created_at: string;       // Data de criação do projeto
-  updated_at: string;       // Data de atualização do projeto
+  id: number;
+  name: string;
+  description?: string;
+  users: User[];
+  tasks: Task[];
+  columns: Column[];
+  created_at: string;
+  updated_at: string;
 }

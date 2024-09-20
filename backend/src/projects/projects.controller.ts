@@ -21,28 +21,28 @@ export class ProjectsController {
   ): Promise<Project[]> {
     return this.projectsService.searchProjects(name, userId);
   }
-  // Rota para criar um novo projeto
+ 
   @UseGuards(JwtAuthGuard)
   @Post()
   async createProject(@Body() createProjectDto: CreateProjectDto): Promise<Project> {
     return this.projectsService.createProject(createProjectDto);
   }
 
-  // Rota para buscar todos os projetos
+
   @UseGuards(JwtAuthGuard)
   @Get()
   async getAllProjects(): Promise<Project[]> {
     return this.projectsService.getAllProjects();
   }
 
-  // Rota para buscar projeto por ID
+ 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getProjectById(@Param('id', ParseIntPipe) id: number): Promise<Project> {
     return this.projectsService.getProjectById(id);
   }
 
-  // Rota para atualizar um projeto
+
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateProject(
@@ -52,7 +52,7 @@ export class ProjectsController {
     return this.projectsService.updateProject(id, updateProjectDto);
   }
 
-  // Rota para deletar um projeto
+
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteProject(@Param('id', ParseIntPipe) id: number): Promise<void> {

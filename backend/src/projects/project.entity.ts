@@ -21,11 +21,11 @@ export class Project extends BaseEntity {
   })
   users: User[];
 
-  @OneToMany(() => Task, task => task.project) // Relacionamento OneToMany com Task
+  @OneToMany(() => Task, task => task.project) 
   tasks: Task[];
 
-  @OneToMany(() => KanbanColumn, column => column.project)  // Relacionamento OneToMany com Column
-  columns: KanbanColumn[];  // Tipo KanbanColumn[]
+  @OneToMany(() => KanbanColumn, column => column.project)  
+  columns: KanbanColumn[]; 
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

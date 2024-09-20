@@ -4,28 +4,28 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config'; // Importa o módulo de configuração
-import { User } from '../user/user.entity'; // Importa a entidade User
-import { AuthService } from './auth.service'; // Importa o serviço de autenticação
-import { AuthController } from './auth.controller'; // Importa o controlador de autenticação
-import { JwtStrategy } from './jwt.strategy'; // Importa a estratégia JWT
-import { LocalStrategy } from './local.strategy'; // Importa a estratégia local
+import { ConfigModule, ConfigService } from '@nestjs/config'; 
+import { User } from '../user/user.entity';
+import { AuthService } from './auth.service'; 
+import { AuthController } from './auth.controller'; 
+import { JwtStrategy } from './jwt.strategy'; 
+import { LocalStrategy } from './local.strategy'; 
 
 @Module({
   imports: [
-    ConfigModule.forRoot(), // Carrega as variáveis de ambiente definidas no .env
-    PassportModule, // Importa o módulo Passport para suportar estratégias de autenticação
-    JwtModule.registerAsync({ // Configura o módulo JWT de forma assíncrona, permitindo o uso do ConfigService
-      imports: [ConfigModule], // Certifica-se de que o ConfigModule é importado
-      inject: [ConfigService], // Injeta o ConfigService para acessar variáveis de ambiente
-      useFactory: async (configService: ConfigService) => ({ // Usa uma função de fábrica para configurar o módulo
-        secret: configService.get<string>('JWT_SECRET'), // Recupera o segredo JWT das variáveis de ambiente
-        signOptions: { expiresIn: '60m' }, // Define as opções de assinatura, como tempo de expiração do token
+    ConfigModule.forRoot(), 
+    PassportModule, 
+    JwtModule.registerAsync({ 
+      imports: [ConfigModule], 
+      inject: [ConfigService], 
+      useFactory: async (configService: ConfigService) => ({ 
+        secret: configService.get<string>('JWT_SECRET'), 
+        signOptions: { expiresIn: '60m' }, 
       }),
     }),
-    TypeOrmModule.forFeature([User]), // Importa o repositório TypeORM da entidade User
+    TypeOrmModule.forFeature([User]), 
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy], // Declara os provedores necessários
-  controllers: [AuthController], // Declara os controladores
+  providers: [AuthService, JwtStrategy, LocalStrategy], 
+  controllers: [AuthController],
 })
-export class AuthModule { } // Exporta o módulo de autenticação
+export class AuthModule { } 

@@ -8,7 +8,7 @@ import { ProjectsModule } from '../projects/projects.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Column]),
-    forwardRef(() => ProjectsModule), // Resolva dependência circular com ProjectsModule
+    forwardRef(() => ProjectsModule),
   ],
   providers: [ColumnsService],
   controllers: [ColumnsController],

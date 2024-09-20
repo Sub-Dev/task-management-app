@@ -1,4 +1,4 @@
-// src/axiosInstance.js
+
 import axios from 'axios';
 
 const axiosInstance = axios.create({
@@ -7,7 +7,6 @@ const axiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
-// Adicionar um interceptor para incluir o token JWT
 axiosInstance.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {

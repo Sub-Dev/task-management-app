@@ -9,18 +9,17 @@ import { AuthService } from './auth.service';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly authService: AuthService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // Extrai o token JWT do cabeçalho
-      ignoreExpiration: false, // Configura para não ignorar a expiração do token
-      secretOrKey: process.env.JWT_SECRET || 'default_secret_key', // Usa o segredo do .env ou um padrão
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
+      ignoreExpiration: false, 
+      secretOrKey: process.env.JWT_SECRET || 'default_secret_key', 
     });
   }
 
   async validate(payload: any) {
-    // Recupera o usuário baseado no payload do token
     const user = await this.authService.validateUserById(payload.sub);
     if (!user) {
-      throw new UnauthorizedException('Invalid token'); // Lança exceção se o token for inválido
+      throw new UnauthorizedException('Invalid token'); 
     }
-    return user; // Retorna o usuário validado
+    return user; 
   }
 }

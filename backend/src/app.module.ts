@@ -25,17 +25,16 @@ import { join } from 'path';
       password: process.env.DATABASE_PASSWORD || 'postgres',
       database: process.env.DATABASE_NAME || 'task_management',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // somente em ambiente de desenvolvimento
+      synchronize: true, 
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // Mapeia a pasta uploads para servir as imagens
-      serveRoot: '/avatars', // O prefixo de URL
+      rootPath: join(__dirname, '..', 'uploads'), 
+      serveRoot: '/avatars', 
     }),
     UserModule,
     AuthModule,
     ColumnsModule,
     TasksModule,
-    // ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],
