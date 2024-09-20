@@ -299,12 +299,6 @@ export default function Projects() {
     }
   };
 
-
-
-
-
-
-
   const handleEdit = (project: ProjectData) => {
     setCurrentProject(project);
     setNewProject({
@@ -353,21 +347,21 @@ export default function Projects() {
           <Grid item xs={12}>
             <Paper
               sx={{
-                p: { xs: 2, sm: 3 }, // Adapta o padding para telas menores
+                p: { xs: 2, sm: 3 },
                 display: 'flex',
                 flexDirection: 'column',
-                backgroundColor: '#ECF0F1', // Fundo alterado para #ECF0F1
+                backgroundColor: '#ECF0F1',
                 borderRadius: 2,
-                overflow: 'auto', // Garante que o conteúdo não quebre
+                overflow: 'auto',
               }}
             >
               <Typography
                 variant="h5"
                 sx={{
-                  color: '#2C3E50', // Texto alterado para #2C3E50
+                  color: '#2C3E50',
                   mb: 2,
                   fontWeight: 'bold',
-                  fontSize: { xs: 'h6.fontSize', sm: 'h5.fontSize' }, // Ajusta o tamanho da fonte para diferentes telas
+                  fontSize: { xs: 'h6.fontSize', sm: 'h5.fontSize' },
                 }}
               >
                 Projetos
@@ -378,7 +372,7 @@ export default function Projects() {
                 sx={{
                   mb: 3,
                   borderRadius: 2,
-                  fontSize: { xs: '0.75rem', sm: '1rem' }, // Ajusta o tamanho da fonte para diferentes telas
+                  fontSize: { xs: '0.75rem', sm: '1rem' },
                 }}
                 onClick={handleAddProject}
               >
@@ -387,17 +381,17 @@ export default function Projects() {
               {rows.length === 0 ? (
                 <Typography
                   sx={{
-                    color: '#2C3E50', // Texto alterado para #2C3E50
+                    color: '#2C3E50',
                     textAlign: 'center',
                     mt: 2,
-                    fontSize: { xs: 'body2.fontSize', sm: 'body1.fontSize' }, // Ajusta o tamanho da fonte para diferentes telas
+                    fontSize: { xs: 'body2.fontSize', sm: 'body1.fontSize' },
                   }}
                 >
                   Você ainda não tem projetos. Crie um novo projeto para começar.
                 </Typography>
               ) : (
                 <>
-                  <Box sx={{ overflowX: 'auto' }}> {/* Adiciona rolagem horizontal se necessário */}
+                  <Box sx={{ overflowX: 'auto' }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
@@ -418,12 +412,12 @@ export default function Projects() {
                             <TableCell sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.users}</TableCell>
                             <TableCell align="right" sx={{ color: '#2C3E50', fontSize: { xs: '0.75rem', sm: '1rem' } }}>{row.tasksCount}</TableCell>
                             <TableCell>
-                              <Box display="flex" alignItems="center" gap={1}> {/* Adicionado espaçamento entre ícones */}
+                              <Box display="flex" alignItems="center" gap={1}>
                                 <Tooltip title="Editar">
                                   <IconButton
                                     color="primary"
                                     onClick={() => handleEdit(row)}
-                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
                                   >
                                     <EditIcon />
                                   </IconButton>
@@ -432,7 +426,7 @@ export default function Projects() {
                                   <IconButton
                                     color="error"
                                     onClick={() => handleDelete(row.id)}
-                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
                                   >
                                     <DeleteIcon />
                                   </IconButton>
@@ -441,7 +435,7 @@ export default function Projects() {
                                   <IconButton
                                     color="info"
                                     onClick={() => handleKanban(row.id)}
-                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }} // Ajusta o tamanho do ícone
+                                    sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}
                                   >
                                     <ViewKanbanIcon />
                                   </IconButton>
@@ -469,7 +463,7 @@ export default function Projects() {
                       '& .MuiPaginationItem-root': { color: '#2C3E50' },
                       '& .MuiPaginationItem-icon': { color: '#3498DB' },
                       backgroundColor: '#ECF0F1',
-                      fontSize: { xs: '0.75rem', sm: '1rem' } // Ajusta o tamanho da fonte para diferentes telas
+                      fontSize: { xs: '0.75rem', sm: '1rem' }
                     }}
                   />
                 </>
@@ -478,7 +472,6 @@ export default function Projects() {
           </Grid>
         </Grid>
       </Container>
-      {/* Modal de Adicionar/Editar Projeto */}
       <Dialog open={openModal || editModalOpen} onClose={handleCloseModal}>
         <DialogTitle>{currentProject ? 'Editar Projeto' : 'Adicionar Projeto'}</DialogTitle>
         <DialogContent>

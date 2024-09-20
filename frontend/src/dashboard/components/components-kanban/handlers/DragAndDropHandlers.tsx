@@ -1,6 +1,6 @@
 import { DropResult } from 'react-beautiful-dnd';
 import api from "../../../../axiosInstance.js";
-import { Column } from '../interface/Interfaces.tsx'; // Ajuste os caminhos conforme necessário
+import { Column } from '../interface/Interfaces.tsx';
 
 export const onDragEnd = async (
   result: DropResult,
@@ -12,7 +12,7 @@ export const onDragEnd = async (
   if (!destination) return;
 
   if (type === 'COLUMN') {
-    // Lógica de reorganização das colunas
+
     const reorderedColumns = Array.from(Object.values(data));
     const [movedColumn] = reorderedColumns.splice(source.index, 1);
     reorderedColumns.splice(destination.index, 0, movedColumn);

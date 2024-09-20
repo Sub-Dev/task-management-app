@@ -97,10 +97,8 @@ export default function SignIn() {
     } catch (error) {
       console.error('Erro ao tentar fazer login:', error);
 
-      // Capturar a mensagem de erro específica
       const errorMessage = error.response?.data?.message || 'Erro ao fazer login. Verifique suas credenciais e tente novamente.';
 
-      // Mostrar a mensagem no Snackbar
       showSnackbar(errorMessage, 'error');
     }
   };

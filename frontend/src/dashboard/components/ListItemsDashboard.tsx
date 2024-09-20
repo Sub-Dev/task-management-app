@@ -3,7 +3,7 @@ import ListSubheader from '@mui/material/ListSubheader';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { ListItemButton, ListItemIcon, ListItemText, Tooltip, Typography } from '@mui/material';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Certifique-se de usar `jwtDecode`
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -25,7 +25,7 @@ interface ListItemsProps {
   open: boolean;
 }
 export function MainListItems({ open }: ListItemsProps) {
-  const navigate = useNavigate(); // useNavigate está correto aqui
+  const navigate = useNavigate();
 
   return (
     <React.Fragment>
@@ -70,9 +70,9 @@ export function MainListItems({ open }: ListItemsProps) {
 
 export function SecondaryListItems({ open }: ListItemsProps) {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [error, setError] = useState<string | null>(null); // Estado para erros
-  const navigate = useNavigate(); // useNavigate está correto aqui
-  const { selectedProject } = useProjectContext(); // Acesse o projeto selecionado do contexto
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { selectedProject } = useProjectContext();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -96,17 +96,17 @@ export function SecondaryListItems({ open }: ListItemsProps) {
 
         const projectsData = response.data;
 
-        // Verificar se `projectsData` é um array e se contém os dados esperados
+
         if (!Array.isArray(projectsData)) {
           throw new Error('Dados de projetos inválidos.');
         }
 
-        // Filtrando apenas os projetos em que o usuário está presente
+
         const userProjects = projectsData.filter((project: any) =>
           project.users.some((user: any) => user.id === userId)
         );
 
-        // Limitando a exibição a 3 projetos
+
         const limitedProjects = userProjects.slice(0, 3);
 
         setProjects(limitedProjects);
@@ -122,20 +122,20 @@ export function SecondaryListItems({ open }: ListItemsProps) {
     fetchProjects();
   }, [navigate]);
 
-  // useEffect para atualizar o nome do projeto quando o `selectedProject` for alterado
+
   useEffect(() => {
     if (selectedProject) {
-      // Cria uma nova lista de projetos atualizados
+
       const updatedProjects = projects.map((project) => {
         if (project.id === selectedProject.id) {
-          return { ...project, name: selectedProject.name }; // Substitui o nome do projeto
+          return { ...project, name: selectedProject.name };
         }
         return project;
       });
 
       setProjects(updatedProjects);
     }
-  }, [selectedProject, projects]);
+  }, [selectedProject]);
 
   return (
     <React.Fragment>
@@ -153,7 +153,7 @@ export function SecondaryListItems({ open }: ListItemsProps) {
           Seus Projetos
         </ListSubheader>
       ) : (
-        <Box sx={{ height: 48 }} /> // Ajuste a altura conforme necessário
+        <Box sx={{ height: 48 }} />
       )}
       {error && (
         <div style={{ color: 'red', padding: '10px' }}>
@@ -176,7 +176,7 @@ export function SecondaryListItems({ open }: ListItemsProps) {
         </Tooltip>
       ))}
       <Tooltip
-        title={open ? 'Mais Projetos' : 'Mais Projetos'} // Exibir o tooltip somente quando o menu não estiver aberto
+        title={open ? 'Mais Projetos' : 'Mais Projetos'}
         placement={open ? 'bottom' : 'right'}
         disableInteractive
       >

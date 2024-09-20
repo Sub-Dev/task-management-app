@@ -98,7 +98,7 @@ export class UsersController {
       }
       callback(null, true);
     },
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    limits: { fileSize: 5 * 1024 * 1024 }, 
   }))
   async update(
     @Param('id') id: string,
@@ -111,7 +111,6 @@ export class UsersController {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // Atualiza a URL da imagem de perfil se um novo arquivo foi enviado
     if (file) {
       updateUserDto.profileImageUrl = `http://localhost:4000/users/avatars/${file.filename}`;
     }

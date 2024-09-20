@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles';
 
 export default function FAQ() {
   const [expanded, setExpanded] = React.useState<string | false>(false);
-  const theme = useTheme(); // Hook para acessar o tema atual
+  const theme = useTheme();
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -29,7 +29,7 @@ export default function FAQ() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: { xs: 3, sm: 6 },
-        bgcolor: theme.palette.mode === 'dark' ? '#1b222a' : '#f5f5f5', // Adapta a cor de fundo com base no tema
+        bgcolor: theme.palette.mode === 'dark' ? '#1b222a' : '#f5f5f5',
         color: theme.palette.text.primary,
       }}
     >
@@ -51,18 +51,18 @@ export default function FAQ() {
           onChange={handleChange('panel1')}
           sx={{
             borderRadius: '8px',
-            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
-            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0',
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
             mb: 1,
             '&:before': {
               display: 'none',
             },
             '& .MuiAccordionSummary-root': {
-              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
             '& .MuiAccordionDetails-root': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
           }}
         >
@@ -90,18 +90,18 @@ export default function FAQ() {
           onChange={handleChange('panel2')}
           sx={{
             borderRadius: '8px',
-            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
-            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0',
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
             mb: 1,
             '&:before': {
               display: 'none',
             },
             '& .MuiAccordionSummary-root': {
-              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
             '& .MuiAccordionDetails-root': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
           }}
         >
@@ -129,18 +129,18 @@ export default function FAQ() {
           onChange={handleChange('panel3')}
           sx={{
             borderRadius: '8px',
-            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
-            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0',
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
             mb: 1,
             '&:before': {
               display: 'none',
             },
             '& .MuiAccordionSummary-root': {
-              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
             '& .MuiAccordionDetails-root': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
           }}
         >
@@ -168,18 +168,18 @@ export default function FAQ() {
           onChange={handleChange('panel4')}
           sx={{
             borderRadius: '8px',
-            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0', // Adapta a cor de fundo com base no tema
-            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
+            backgroundColor: theme.palette.mode === 'dark' ? '#2c2f36' : '#e0e0e0',
+            border: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
             mb: 1,
             '&:before': {
               display: 'none',
             },
             '& .MuiAccordionSummary-root': {
-              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`, // Adapta a cor da borda com base no tema
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#444' : '#ccc'}`,
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
             '& .MuiAccordionDetails-root': {
-              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff', // Adapta a cor de fundo com base no tema
+              backgroundColor: theme.palette.mode === 'dark' ? '#1b222a' : '#ffffff',
             },
           }}
         >

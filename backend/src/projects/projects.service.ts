@@ -4,7 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Project } from './project.entity';
-import { User } from '../user/user.entity'; // Importe a entidade User
+import { User } from '../user/user.entity'; 
 import { CreateProjectDto } from './create-project.dto';
 import { UpdateProjectDto } from './update-project.dto';
 import { Column } from '../columns/column.entity';
@@ -15,68 +15,60 @@ export class ProjectsService {
     @InjectRepository(Project)
     private readonly projectRepository: Repository<Project>,
 
-    @InjectRepository(User) // Injetando o repositório de usuários
+    @InjectRepository(User) 
     private readonly userRepository: Repository<User>,
 
-    @InjectRepository(Column) // Injetando o repositório de colunas
-    private readonly columnRepository: Repository<Column>, // Adicione o repositório de colunas
+    @InjectRepository(Column) 
+    private readonly columnRepository: Repository<Column>,
   ) { }
 
-  // Criar um novo projeto
+
   async createProject(createProjectDto: CreateProjectDto): Promise<Project> {
     const { name, description, users: userIds } = createProjectDto;
 
-    // Obtenha as entidades User usando os IDs fornecidos
+  
     const users = await this.userRepository.findByIds(userIds || []);
 
-    // Validação de usuários
     const existingUsers = await this.userRepository.findByIds(users);
     if (existingUsers.length !== users.length) {
       throw new NotFoundException('Um ou mais usuários não foram encontrados');
     }
 
-    // Cria a entidade de projeto
     const project = this.projectRepository.create({
       name,
       description,
-      users, // Associa os usuários ao projeto
+      users, 
     });
 
-    // Salva o projeto para obter o ID
     const savedProject = await this.projectRepository.save(project);
 
-    // Cria as colunas padrão
     const defaultColumns = ['Backlog', 'Em Progresso', 'Finalizado'];
     const columns = defaultColumns.map((title, index) => {
       const column = new Column();
       column.title = title;
-      column.order = index + 1; // Define a ordem das colunas
-      column.project = savedProject; // Associa a coluna ao projeto recém-criado
+      column.order = index + 1; 
+      column.project = savedProject; 
       return column;
     });
 
-    // Salva as colunas
     await this.columnRepository.save(columns);
 
-    // Retorna o projeto com as colunas associadas
     return this.projectRepository.findOne({
       where: { id: savedProject.id },
-      relations: ['users', 'tasks', 'columns'], // Inclui relações
+      relations: ['users', 'tasks', 'columns'], 
     });
   }
 
-  // Buscar todos os projetos
   async getAllProjects(): Promise<Project[]> {
     return this.projectRepository.find({
-      relations: ['users', 'tasks', 'columns'], // Inclui relações
+      relations: ['users', 'tasks', 'columns'], 
     });
   }
 
-  // Buscar projeto por ID
   async getProjectById(id: number): Promise<Project> {
     const project = await this.projectRepository.findOne({
       where: { id },
-      relations: ['users', 'tasks', 'columns'], // Inclui relações
+      relations: ['users', 'tasks', 'columns'], 
     });
     if (!project) {
       throw new NotFoundException('Projeto não encontrado');
@@ -84,14 +76,11 @@ export class ProjectsService {
     return project;
   }
 
-  // Atualizar um projeto
   async updateProject(id: number, updateProjectDto: UpdateProjectDto): Promise<Project> {
     const { name, description, users } = updateProjectDto;
 
-    // Encontrar o projeto existente
     const project = await this.getProjectById(id);
 
-    // Atualizar os campos básicos
     if (name) {
       project.name = name;
     }
@@ -100,7 +89,6 @@ export class ProjectsService {
       project.description = description;
     }
 
-    // Atualizar a lista de usuários, se necessário
     if (users) {
       const existingUsers = await this.userRepository.findByIds(users);
 
@@ -114,7 +102,6 @@ export class ProjectsService {
     return this.projectRepository.save(project);
   }
 
-  // Deletar um projeto
   async deleteProject(id: number): Promise<void> {
     const result = await this.projectRepository.delete(id);
     if (result.affected === 0) {

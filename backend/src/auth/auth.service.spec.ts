@@ -17,7 +17,7 @@ describe('AuthService', () => {
         {
           provide: UsersService,
           useValue: {
-            findByEmail: jest.fn().mockResolvedValue(new User()), // Atualizado para findByEmail
+            findByEmail: jest.fn().mockResolvedValue(new User()), 
           },
         },
         JwtService,
@@ -34,13 +34,13 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return a user if valid', async () => {
-      const user = await authService.validateUser('test@example.com', 'password'); // Usando email
+      const user = await authService.validateUser('test@example.com', 'password'); 
       expect(user).toBeDefined();
     });
 
     it('should return null if invalid', async () => {
       jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
-      const user = await authService.validateUser('test@example.com', 'password'); // Usando email
+      const user = await authService.validateUser('test@example.com', 'password'); 
       expect(user).toBeNull();
     });
   });

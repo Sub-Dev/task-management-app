@@ -11,7 +11,7 @@ import {
   IconButton,
   InputAdornment,
   Snackbar,
-} from '@mui/material'; // Importação simplificada do MUI
+} from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LogoNoBackground from '../img/logo-no-background.png';
 import axiosInstance from '../axiosInstance';
@@ -118,10 +118,9 @@ export default function SignUp() {
       return;
     }
 
-    // Cria o username combinando firstName e lastName
     const username = `${formData.firstName} ${formData.lastName}`;
 
-    // Prepara o novo objeto de dados com username
+
     const dataToSend = {
       username,
       email: formData.email,
@@ -133,7 +132,7 @@ export default function SignUp() {
       setSnackbarMessage('Cadastro realizado com sucesso! Redirecionando para login...');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      setTimeout(() => navigate('/signin'), 2000); // Redireciona após 2 segundos
+      setTimeout(() => navigate('/signin'), 2000);
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
 
@@ -368,7 +367,6 @@ export default function SignUp() {
           <Copyright sx={{ color: theme.palette.text.primary }} />
         </Container>
       </Box>
-      {/* Snackbar Component */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

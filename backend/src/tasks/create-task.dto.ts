@@ -22,23 +22,23 @@ export class CreateTaskDto {
   @IsOptional()
   status?: string;
 
-  @IsDateString() // Validação de string de data
+  @IsDateString() 
   @IsOptional()
-  due_date?: string; // Use string para IsDateString
+  due_date?: string; 
 
   @IsNumber()
   @IsOptional()
-  project?: number; // ID do projeto
+  project?: number; 
 
   @IsArray()
   @IsOptional()
-  users?: number[]; // IDs dos usuários
+  users?: number[]; 
 
   @IsNumber()
   @IsOptional()
-  created_by?: number; // ID do usuário criador
+  created_by?: number; 
 
   @IsNumber()
   @IsNotEmpty()
-  column: number; // ID da coluna no Kanban
+  column: number; 
 }

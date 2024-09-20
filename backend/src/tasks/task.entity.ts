@@ -34,7 +34,7 @@ export class Task extends BaseEntity {
 
   @ManyToMany(() => User, user => user.tasks)
   @JoinTable({
-    name: 'user_tasks_task', // Nome da tabela de junção
+    name: 'user_tasks_task', 
     joinColumn: {
       name: 'taskId',
       referencedColumnName: 'id',
@@ -51,7 +51,7 @@ export class Task extends BaseEntity {
 
   @ManyToOne(() => KanbanColumn, column => column.tasks, {
 
-    onDelete: 'CASCADE', // Essa linha garante a exclusão em cascata
+    onDelete: 'CASCADE', 
   })
   column: KanbanColumn;
 
