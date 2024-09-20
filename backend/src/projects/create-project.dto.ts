@@ -5,7 +5,7 @@ import { IsNotEmpty, IsString, IsOptional, IsArray, ArrayNotEmpty, IsNumber } fr
 export class CreateProjectDto {
   @IsString()
   @IsNotEmpty()
-  name: string; // Alterado de title para name
+  name: string;
 
   @IsString()
   @IsOptional()
@@ -15,5 +15,5 @@ export class CreateProjectDto {
   @IsOptional()
   @ArrayNotEmpty()
   @IsNumber({}, { each: true })
-  users?: number[]; // IDs dos usuários associados
+  users?: number[]; 
 }

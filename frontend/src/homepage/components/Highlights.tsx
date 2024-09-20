@@ -124,7 +124,7 @@ function GridAnimation({ children }) {
       sx={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(50px)',
-        transition: 'opacity 1s ease, transform 1s ease', // Aumentando o tempo para 1s
+        transition: 'opacity 1s ease, transform 1s ease',
       }}
     >
       {children}

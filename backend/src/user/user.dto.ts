@@ -17,5 +17,5 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsUrl()
-  profileImageUrl?: string; // Torna o campo opcional
+  profileImageUrl?: string; 
 }

@@ -1,6 +1,6 @@
 import api from "../../../../axiosInstance.js";
 import { jwtDecode } from 'jwt-decode';
-import { Task, UserPayload } from '../interface/Interfaces.tsx'; // Ajuste o caminho conforme necessário
+import { Task, UserPayload } from '../interface/Interfaces.tsx';
 
 export const handleAddTask = async (
   columnId: number,

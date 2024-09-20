@@ -7,5 +7,5 @@ export class CreateColumnDto {
 
   @IsNumber()
   @IsNotEmpty()
-  project: number; // ID do projeto ao qual a coluna pertence
+  project: number; 
 }

@@ -24,6 +24,7 @@ import { fetchTaskDetails, handleOrderChange, updateColumnOrder } from './compon
 import { onDragEnd } from './components-kanban/handlers/DragAndDropHandlers.tsx';
 import { handleAddTask, handleToggleTaskStatus, handleDeleteTaskConfirm, handleTaskUpdate } from './components-kanban/handlers/TaskHandlers.tsx';
 import { handleAddColumn, handleDeleteColumnConfirm, handleUpdateColumn } from './components-kanban/handlers/ColumnHandlers.tsx';
+
 const initialData: Record<string, Column> = {};
 
 const Kanban = ({ sidebarOpen }: { sidebarOpen: boolean }) => {

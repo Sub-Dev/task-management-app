@@ -6,7 +6,7 @@ import SignIn from './sign-in/SignIn.tsx';
 import SignUp from './sign-up/SignUp.tsx';
 import Dashboard from './dashboard/Dashboard.tsx';
 import AuthenticatedRoute from './components/AuthenticatedRoute';
-import { AuthProvider } from './context/AuthContext'; // Importa o AuthProvider
+import { AuthProvider } from './context/AuthContext';
 import NotFound from './components/NotFound.tsx';
 import { SnackbarProvider } from './context/SnackbarContext.tsx';
 import { ThemeProvider } from '@mui/material/styles';
@@ -16,7 +16,7 @@ import { ProjectProvider } from './context/ProjectContext.tsx';
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}> {/* Envolva toda a aplicação com o ThemeProvider */}
+    <ThemeProvider theme={theme}>
       <Router>
         <SnackbarProvider>
           <AuthProvider>

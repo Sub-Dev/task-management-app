@@ -52,7 +52,6 @@ export const handleDeleteColumnConfirm = async ({
 }: HandleDeleteColumnParams) => {
   if (columnToDelete) {
     try {
-      // Converta columnToDelete para número se ele for string
       const columnId = typeof columnToDelete === 'string' ? parseInt(columnToDelete, 10) : columnToDelete;
 
       await api.delete(`/columns/${columnId}`);

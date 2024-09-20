@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from '../../context/SnackbarContext.tsx';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Registrar os componentes do Chart.js
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const HomeDashboard = () => {

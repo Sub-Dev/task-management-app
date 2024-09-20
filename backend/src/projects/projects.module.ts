@@ -10,8 +10,8 @@ import { ColumnsModule } from '../columns/columns.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Project, User]),
-    forwardRef(() => UserModule), // Resolva dependência circular com UserModule
-    forwardRef(() => ColumnsModule), // Resolva dependência circular com ColumnsModule
+    forwardRef(() => UserModule), 
+    forwardRef(() => ColumnsModule), 
   ],
   providers: [ProjectsService],
   controllers: [ProjectsController],

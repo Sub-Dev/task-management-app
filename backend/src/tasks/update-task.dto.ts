@@ -1,7 +1,7 @@
 // src/tasks/dto/update-task.dto.ts
 
 import { IsOptional, IsString, IsDateString, IsArray, IsNumber, IsEnum } from 'class-validator';
-import { TaskStatus } from './task.entity'; // Importa o enum do arquivo correto
+import { TaskStatus } from './task.entity'; 
 
 export class UpdateTaskDto {
   @IsString()
@@ -12,19 +12,19 @@ export class UpdateTaskDto {
   @IsOptional()
   description?: string;
 
-  @IsEnum(TaskStatus) // Corrigindo o uso do enum
+  @IsEnum(TaskStatus) 
   @IsOptional()
   status?: TaskStatus;
 
-  @IsDateString() // Validação para string de data
+  @IsDateString() 
   @IsOptional()
-  due_date?: string; // Data de vencimento opcional
+  due_date?: string;
 
   @IsArray()
   @IsOptional()
-  users?: number[]; // IDs dos usuários
+  users?: number[]; 
 
   @IsNumber()
   @IsOptional()
-  column?: number; // ID da coluna, tornando-o opcional
+  column?: number; 
 }
