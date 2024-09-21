@@ -9,7 +9,7 @@
   <h3 align = "center" fontSize="60px">
     Task Management App DEMO
   </h3>
-  <img alt="Interface da aplicação Homepage" src=".github/homepage.gif" width="100%">
+  <img alt="Interface da aplicação Homepage" src=".github/homepage2.gif" width="100%">
   <img alt="Interface da aplicação geral" src=".github/task-management.gif" width="100%">
 </p>
 
@@ -194,12 +194,19 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 Durante o desenvolvimento deste projeto, adquiri conhecimentos valiosos em diversas áreas:
 
 - **Dependência Circular**: Aprendi sobre a importância de evitar dependências circulares em estruturas de código, o que pode levar a problemas de manutenção e confusão no fluxo de dados.
+
 - **Análise de Banco de Dados**: Realizei uma análise mais profunda da modelagem de banco de dados, entendendo como projetar relações eficientes entre as entidades.
+
 - **Criptografia Simétrica**: Explorei o uso de identificadores aleatórios para mascarar IDs nas URLs dos Kanbans, melhorando a segurança e a privacidade.
+
 - **JWT (JSON Web Tokens)**: Identifiquei a importância de não armazenar tokens JWT no local storage por questões de segurança e de evitar passar dados sensíveis dentro do token.
+
 - **Planejamento de Arquitetura**: Compreendi a necessidade de um planejamento melhor para a arquitetura do aplicativo e uma análise mais abrangente da interface do usuário nas telas do frontend.
+
 - **Validação de Entrada de Dados**: Aprendi a implementar validações adequadas para evitar erros de entrada, garantindo que o sistema seja robusto e confiável.
+
 - **Performance de Aplicações**: Descobri técnicas para otimizar a performance do aplicativo, como o uso de cache e gerenciamento eficiente de sessões.
+
 - **Integração Contínua**: Ganhei experiência em configurar ambientes de desenvolvimento usando Docker, facilitando o trabalho em equipe e a entrega contínua de features.
 
 Estou continuamente aprendendo e adaptando as melhores práticas em cada etapa do desenvolvimento que tive no projeto.
