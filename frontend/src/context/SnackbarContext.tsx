@@ -19,12 +19,11 @@ export const SnackbarProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [prevMessage, setPrevMessage] = useState('');
 
   const showSnackbar = (newMessage: string, severity: 'success' | 'error' | 'info' | 'warning') => {
-    // Só mostra o Snackbar se a nova mensagem for diferente da mensagem anterior
     if (newMessage !== prevMessage) {
       setMessage(newMessage);
       setSeverity(severity);
       setOpen(true);
-      setPrevMessage(newMessage); // Atualiza a mensagem anterior
+      setPrevMessage(newMessage);
     }
   };
 
@@ -40,7 +39,6 @@ export const SnackbarProvider: React.FC<{ children: ReactNode }> = ({ children }
         autoHideDuration={6000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        // Adicionando evento para fechar ao clicar
         sx={{
           '& .MuiSnackbarContent-root': {
             backgroundColor: (theme) => theme.palette[severity].main,
