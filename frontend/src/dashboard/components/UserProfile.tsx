@@ -20,6 +20,7 @@ import { useUser } from '../../context/UserContext.tsx';
 import { useSnackbar } from '../../context/SnackbarContext.tsx';
 import { InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { calculateStrength, PasswordStrengthMeter } from '../../components/PasswordStrength.tsx';
 
 const Input = styled('input')({
   display: 'none',
@@ -182,40 +183,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ open }) => {
     }
   };
 
-
-
   if (isMobile && open) {
     return null;
   }
-
-  const calculateStrength = (password) => {
-    let strength = 0;
-    if (password.length >= 8) strength += 1;
-    if (/[A-Z]/.test(password)) strength += 1;
-    if (/[0-9]/.test(password)) strength += 1;
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-    return strength;
-  };
-
-  const PasswordStrengthMeter = ({ passwordStrength }) => {
-    const strengthLabel = ['Fraca', 'Média', 'Forte', 'Muito forte'][passwordStrength] || 'Muito fraca';
-    const progressColor = ['error', 'warning', 'info', 'success'][passwordStrength] || 'error';
-
-    return (
-      <Box sx={{ width: '100%', mt: 1 }}>
-        <LinearProgress
-          variant="determinate"
-          value={(passwordStrength / 4) * 100}
-          color={progressColor}
-          sx={{ height: 8 }}
-        />
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-          Força da senha: {strengthLabel}
-        </Typography>
-      </Box>
-    );
-  };
-
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>

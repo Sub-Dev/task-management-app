@@ -19,6 +19,8 @@ import { useNavigate } from 'react-router-dom';
 import Copyright from '../Copyright.tsx';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useSnackbar } from '../context/SnackbarContext.tsx';
+import { calculateStrength, PasswordStrengthMeter } from '../components/PasswordStrength.tsx';
 
 const theme = createTheme({
   palette: {
@@ -52,9 +54,11 @@ const theme = createTheme({
 
 export default function SignUp() {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showStrengthMeter, setShowStrengthMeter] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [password, setPassword] = useState('');
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -67,15 +71,18 @@ export default function SignUp() {
     email: '',
     password: '',
   });
-
-  // Snackbar States
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const { showSnackbar } = useSnackbar();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({ ...prevData, [name]: value }));
+
+    if (name === 'password') {
+      setFormData(prevData => ({ ...prevData, password: value }));
+      setShowStrengthMeter(true);
+      setPasswordStrength(calculateStrength(value));
+    } else {
+      setFormData(prevData => ({ ...prevData, [name]: value }));
+    }
   };
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -129,9 +136,7 @@ export default function SignUp() {
 
     try {
       await axiosInstance.post('/auth/register', dataToSend);
-      setSnackbarMessage('Cadastro realizado com sucesso! Redirecionando para login...');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
+      showSnackbar('Cadastro realizado com sucesso! Redirecionando para login...', 'success');
       setTimeout(() => navigate('/signin'), 2000);
     } catch (error: any) {
       console.error('Erro ao cadastrar:', error);
@@ -140,31 +145,20 @@ export default function SignUp() {
         const statusCode = error.response.status;
 
         if (statusCode === 409) {
-          setSnackbarMessage('Nome de usuário ou email já estão em uso.');
-          setSnackbarSeverity('error');
+          showSnackbar('Nome de usuário ou email já estão em uso.', 'error');
         } else if (statusCode === 400) {
-          setSnackbarMessage('Verifique os dados enviados. Alguma informação pode estar incorreta.');
-          setSnackbarSeverity('error');
+          showSnackbar('Verifique os dados enviados. Alguma informação pode estar incorreta.', 'error');
         } else if (statusCode === 500) {
-          setSnackbarMessage('Erro interno no servidor. Tente novamente mais tarde.');
-          setSnackbarSeverity('error');
+          showSnackbar('Erro interno no servidor. Tente novamente mais tarde.', 'error');
         } else {
-          setSnackbarMessage(`Erro inesperado: ${statusCode}. Por favor, tente novamente.`);
-          setSnackbarSeverity('error');
+          showSnackbar(`Erro inesperado: ${statusCode}. Por favor, tente novamente.`, 'error');
         }
       } else if (error.request) {
-        setSnackbarMessage('Sem resposta do servidor. Por favor, verifique sua conexão de internet.');
-        setSnackbarSeverity('error');
+        showSnackbar('Sem resposta do servidor. Por favor, verifique sua conexão de internet.', 'error');
       } else {
-        setSnackbarMessage('Erro ao realizar cadastro. Por favor, tente novamente.');
-        setSnackbarSeverity('error');
+        showSnackbar('Erro ao realizar cadastro. Por favor, tente novamente.', 'error');
       }
-      setSnackbarOpen(true);
     }
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
   };
 
   return (
@@ -345,6 +339,11 @@ export default function SignUp() {
                       },
                     }}
                   />
+                  {showStrengthMeter && (
+                    <Box width="100%">
+                      <PasswordStrengthMeter passwordStrength={passwordStrength} />
+                    </Box>
+                  )}
                 </Grid>
               </Grid>
               <Button
@@ -367,26 +366,6 @@ export default function SignUp() {
           <Copyright sx={{ color: theme.palette.text.primary }} />
         </Container>
       </Box>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        message={snackbarMessage}
-        action={
-          <IconButton
-            size="small"
-            aria-label="close"
-            color="inherit"
-            onClick={handleSnackbarClose}
-          >
-            <i className="material-icons">close</i>
-          </IconButton>
-        }
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </ThemeProvider>
   );
 }
