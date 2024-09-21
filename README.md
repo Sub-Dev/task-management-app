@@ -193,23 +193,85 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 
 Durante o desenvolvimento deste projeto, adquiri conhecimentos valiosos em diversas áreas:
 
-- **Dependência Circular**: Aprendi sobre a importância de evitar dependências circulares em estruturas de código, o que pode levar a problemas de manutenção e confusão no fluxo de dados.
+🔁 Dependência Circular
 
-- **Análise de Banco de Dados**: Realizei uma análise mais profunda da modelagem de banco de dados, entendendo como projetar relações eficientes entre as entidades.
+- Uma das lições mais significativas foi sobre dependências circulares. Esse problema ocorre quando duas ou mais entidades referenciam-se mutuamente, criando um ciclo. Isso pode causar dificuldades na manutenção, aumentar a complexidade do código e dificultar a compreensão do fluxo de dados.
 
-- **Criptografia Simétrica**: Explorei o uso de identificadores aleatórios para mascarar IDs nas URLs dos Kanbans, melhorando a segurança e a privacidade.
+- No projeto, encontrei dependências circulares entre as entidades User, Task e Project. Cada uma dessas entidades possui relações que acabam formando um loop. Abaixo estão os trechos de código que mostram esse comportamento:
 
-- **JWT (JSON Web Tokens)**: Identifiquei a importância de não armazenar tokens JWT no local storage por questões de segurança e de evitar passar dados sensíveis dentro do token.
+### Entidade User
 
-- **Planejamento de Arquitetura**: Compreendi a necessidade de um planejamento melhor para a arquitetura do aplicativo e uma análise mais abrangente da interface do usuário nas telas do frontend.
+```typescript
+@ManyToMany(() => Project, project => project.users)
+projects: Project[];
 
-- **Validação de Entrada de Dados**: Aprendi a implementar validações adequadas para evitar erros de entrada, garantindo que o sistema seja robusto e confiável.
+@ManyToMany(() => Task, task => task.users)
+tasks: Task[];
 
-- **Performance de Aplicações**: Descobri técnicas para otimizar a performance do aplicativo, como o uso de cache e gerenciamento eficiente de sessões.
+@OneToMany(() => Task, task => task.created_by)
+tasks_created: Task[];
+```
 
-- **Integração Contínua**: Ganhei experiência em configurar ambientes de desenvolvimento usando Docker, facilitando o trabalho em equipe e a entrega contínua de features.
+### Entidade Task
 
-Estou continuamente aprendendo e adaptando as melhores práticas em cada etapa do desenvolvimento que tive no projeto.
+```typescript
+@ManyToOne(() => Project, project => project.tasks)
+project: Project;
+
+@ManyToMany(() => User, user => user.tasks)
+users: User[];
+
+@ManyToOne(() => User, user => user.tasks_created)
+created_by: User;
+
+@ManyToOne(() => KanbanColumn, column => column.tasks)
+column: KanbanColumn;
+```
+
+### Entidade Project
+
+```typescript
+@ManyToMany(() => User, (user) => user.projects)
+users: User[];
+
+@OneToMany(() => Task, task => task.project)
+tasks: Task[];
+
+@OneToMany(() => KanbanColumn, column => column.project)
+columns: KanbanColumn[];
+```
+
+- Essas inter-relações criam um ciclo de dependência, onde as entidades User, Task e Project dependem umas das outras. Por exemplo, Task depende de User para saber quem criou a tarefa, enquanto User depende de Task para armazenar as tarefas criadas. O mesmo ocorre com Project, que está relacionado tanto a Task quanto a User. Essas dependências circulares podem tornar o código difícil de entender, testar e manter.
+
+📊 Análise de Banco de Dados
+
+- Compreendi melhor como projetar uma modelagem de banco de dados eficiente, garantindo que as relações entre entidades fossem bem planejadas e otimizadas.
+
+🔐 Criptografia Simétrica
+
+- Criptografia para mascarar IDs nas URLs do Kanban, melhorando a privacidade e segurança das informações sensíveis.
+
+🛡 JWT (JSON Web Tokens)
+
+- Estudei o uso de JWTs e entendi que é fundamental não armazenar tokens no localStorage por questões de segurança. Além disso, passei a evitar a inclusão de dados sensíveis no payload do token.
+
+🏗 Planejamento de Arquitetura
+
+- Aprendi a importância de um planejamento detalhado da arquitetura da aplicação, incluindo a interface de usuário no frontend e o fluxo de dados entre backend e frontend.
+
+🔍 Validação de Entrada de Dados
+
+- Validações robustas para garantir a integridade dos dados e prevenir falhas causadas por entradas incorretas.
+
+🚀 Performance de Aplicações
+
+- Explorei técnicas para otimizar a performance da aplicação, como o uso de cache e uma gestão eficiente de sessões de usuário.
+
+🛠 Integração Contínua
+
+- Configurei ambiente de desenvolvimento com Docker, o que facilitou o trabalho colaborativo e a entrega contínua de novas funcionalidades.
+
+Estou continuamente aprendendo e adaptando as melhores práticas para aplicar futuramente em cada etapa do desenvolvimento que tiver em projetos futuros.
 
 ## Funcionalidades
 
