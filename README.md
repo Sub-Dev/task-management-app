@@ -6,13 +6,24 @@
 </h3>
 
 <p align="center">
-  <img alt="Interface da aplicação" src=".github/frontend-dashboard-v4.png" width="100%">
-  <img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%">
-  <img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%">
   <h3 align = "center" fontSize="60px">
-  Versão Previa(Em desenvolvimento)
+    Task Management App DEMO
   </h3>
+  <img alt="Interface da aplicação Homepage" src=".github/homepage.gif" width="100%">
+  <img alt="Interface da aplicação geral" src=".github/task-management.gif" width="100%">
 </p>
+
+<h3 align="center" style="font-size: 60px;">
+  Task Management App Imagens (Mais imagens no final do README)
+</h3>
+
+<table>
+  <tr>
+    <td><img alt="Interface da aplicação" src=".github/frontend-dashboard-v4.png" width="100%"></td>
+    <td><img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%"></td>
+    <td><img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%"></td>
+  </tr>
+</table>
 
 # Task Management App
 
@@ -20,16 +31,35 @@
 
 Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do meu progresso na aplicação de tecnologias modernas de desenvolvimento web. No desenvolvimento deste projeto, estou explorando e aprimorando minhas habilidades nas seguintes áreas se utilizando das seguintes tecnologias para o desenvolver da aplicação:
 
-- React.js: Utilizado para criar uma interface de usuário dinâmica e responsiva, com o objetivo de melhorar a experiência do usuário e a interação com a aplicação.
-- NestJS: Implementado para construir uma API de back-end robusta e escalável, proporcionando uma base sólida para a manipulação de dados e lógica de negócios.
-- PostgreSQL: Escolhido para o armazenamento de dados, com o intuito de garantir eficiência e confiabilidade no gerenciamento e recuperação de informações.
-- Docker: Utilizado para conteinerização, facilitando a implantação contínua e a gestão de ambientes de desenvolvimento e produção.
-- Redis: Integrado para cache e gerenciamento de sessões, melhorando a performance do aplicativo e a eficiência no armazenamento temporário de dados.
-- React-beautiful-dnd: Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
-- React-chartjs-2: Implementado para criar gráficos e visualizações de dados, permitindo a apresentação visual de métricas e estatísticas relacionadas ao gerenciamento de tarefas.
-- Axios: Utilizado para fazer requisições HTTP à API, facilitando a comunicação entre o frontend e o backend.
-- Jwt-decode: Usado para decodificar tokens JWT e extrair informações, como para gerenciar autenticação e autorização.
-- JWT (JSON Web Token): Implementado para autenticação segura e gerenciamento de sessões de usuário, garantindo que os usuários estejam autenticados e autorizados a acessar recursos protegidos.
+- ![React](https://img.shields.io/badge/-React.js-61DAFB?style=flat&logo=react&logoColor=black)  
+  Utilizado para criar uma interface de usuário dinâmica e responsiva, com o objetivo de melhorar a experiência do usuário e a interação com a aplicação.
+
+- ![NestJS](https://img.shields.io/badge/-NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)  
+  Implementado para construir uma API de back-end robusta e escalável, proporcionando uma base sólida para a manipulação de dados e lógica de negócios.
+
+- ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)  
+  Escolhido para o armazenamento de dados, com o intuito de garantir eficiência e confiabilidade no gerenciamento e recuperação de informações.
+
+- ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white)  
+  Utilizado para conteinerização, facilitando a implantação contínua e a gestão de ambientes de desenvolvimento e produção.
+
+- ![Redis](https://img.shields.io/badge/-Redis-D32F2F?style=flat&logo=redis&logoColor=white)  
+  Integrado para cache e gerenciamento de sessões, melhorando a performance do aplicativo e a eficiência no armazenamento temporário de dados.
+
+- ![React Beautiful DnD](https://img.shields.io/badge/-React%20Beautiful%20DnD-00D8FF?style=flat)  
+  Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
+
+- ![Chart.js](https://img.shields.io/badge/-Chart.js-FCA121?style=flat&logo=chart.js&logoColor=black)  
+  Implementado para criar gráficos e visualizações de dados, permitindo a apresentação visual de métricas e estatísticas relacionadas ao gerenciamento de tarefas.
+
+- ![Axios](https://img.shields.io/badge/-Axios-5A29E3?style=flat&logo=axios&logoColor=white)  
+  Utilizado para fazer requisições HTTP à API, facilitando a comunicação entre o frontend e o backend.
+
+- ![JWT](https://img.shields.io/badge/-JWT-000000?style=flat&logo=json-web-tokens&logoColor=white)  
+  Implementado para autenticação segura e gerenciamento de sessões de usuário, garantindo que os usuários estejam autenticados e autorizados a acessar recursos protegidos.
+
+- ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)  
+  Utilizado para documentar e testar os endpoints da API, facilitando a interação com a documentação da API e melhorando a compreensão dos recursos disponíveis.
 
 Estou constantemente aprendendo e aplicando novas técnicas e boas práticas para otimizar a performance e a escalabilidade do aplicativo. Este projeto não apenas me permite explorar novas tecnologias, mas também me desafia a resolver problemas complexos e a melhorar minhas habilidades de desenvolvimento.
 
@@ -37,103 +67,132 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 
 ### Progresso Total
 
-![Progresso Total](https://geps.dev/progress/70)
+![Progresso Total](https://geps.dev/progress/100)
 
-- **Progresso Total**: 70% concluído
+- **Progresso Total**: 100% concluído
 - **Descrição**:
-
-1. Implementação inicial concluída, estrutura básica do projeto configurada.
-2. Configurações basicas frontend e backend finalizadas.
-3. Implementação de funcionalidades básicas concluída.
-4. Frontend Pagina Home Completa
-5. Backend Endpoints em funcionamento.
-6. Implementação de funcionalidades básicas, como CRUD de tarefas e autenticação de usuários
-7. Configuração do banco de dados PostgreSQL com Docker.
-8. Criação da estrutura básica do frontend com React.js e Material-UI
+  1. Implementação inicial concluída, estrutura básica do projeto configurada.
+  2. Configurações básicas do frontend e backend finalizadas.
+  3. Implementação de funcionalidades básicas concluída.
+  4. Página Home do frontend completa.
+  5. Endpoints do backend em funcionamento.
+  6. Implementação de funcionalidades como CRUD de tarefas e autenticação de usuários.
+  7. Configuração do banco de dados PostgreSQL utilizando Docker.
+  8. Criação da estrutura básica do frontend com React.js e Material-UI.
+  9. Ajustes finais implementados.
 
 ### Frontend
 
-![Progresso Frontend](https://geps.dev/progress/80)
+![Progresso Frontend](https://geps.dev/progress/100)
 
-- **Frontend**: 80% concluído
+- **Frontend**: 100% concluído
 - **Descrição**:
-
-1. Estrutura do frontend configurada, começando a implementação dos componentes principais
-2. Criação das telas de login,cadastro e tela do dashboard com o kanban inicial
-3. Criação das telas de login, cadastro e homepage com React.js e Material-UI
-4. Implementação do kanban inicial do dashboard com React.js e Material-UI
-5. Desenvolvimento de componentes principais, como header e footer
+  1. Estrutura do frontend configurada, começando a implementação dos componentes principais.
+  2. Criação das telas de login, cadastro e dashboard com o Kanban inicial.
+  3. Desenvolvimento de componentes principais, como Header e Footer.
+  4. Integração do Kanban com as funcionalidades de arrastar e soltar utilizando React Beautiful DnD.
+  5. Implementação de gráficos e visualizações de dados com React-chartjs-2.
 
 ### Backend
 
-![Progresso Backend](https://geps.dev/progress/90)
+![Progresso Backend](https://geps.dev/progress/100)
 
-- **Backend**: 90% concluído
+- **Backend**: 100% concluído
 - **Descrição**:
-
-1. Estrutura básica do backend configurada, início da implementação da API e integração com o banco de dados.
-2. Configurado o JWT criando componentes referentes a autenticação do login e cadastro de usuario nas fases iniciais através do token.
-3. Finalizado CRUD basico dos usuarios,tarefas,colunas e projetos com seus devidos endpoints.
-4. Implementação da API com NestJS e TypeORM
-5. Criação de endpoints para CRUD de tarefas e autenticação de usuários
-6. Configuração completa do JWT para autenticação segura
-7. Implementação de validação de objetos e propriedades com Class-Validator e Class-Transformer
-
----
-
-### Próximos Passos
-
-- **Frontend**:
-  - Ajustar a lógica de negócios para o kanban
-  - Ajustar a lógica de negócios para o CRUD de tarefas
-  - Ajustar Kanban e Refatorar adicionando logicas de mudança de coluna e visão de usuarios que estão no projeto
-- **Backend**:
-
-  - Ajustar a lógica de negócios para o CRUD de tarefas
-  - Ajustar a lógica de negócios para o CRUD de usuários
-  - Ajustar a lógica de negócios para o CRUD de projetos
-  - Refatorar Backend para funcionamento de autenticação de usuarios por projeto
-
-- **Progresso Total**:
-  - Refinar a estrutura do projeto.
-  - Realizar testes e ajustes conforme necessário.
+  1. Estrutura básica do backend configurada, com início da implementação da API e integração com o banco de dados.
+  2. Configuração do JWT para autenticação segura, incluindo login e cadastro de usuários.
+  3. Finalização do CRUD básico para usuários, tarefas, colunas e projetos, com endpoints devidamente configurados.
+  4. Implementação da API utilizando NestJS e TypeORM.
+  5. Criação de endpoints para CRUD de tarefas e autenticação de usuários.
+  6. Configuração completa do JWT para autenticação segura.
+  7. Implementação de validação de objetos e propriedades com Class-Validator e Class-Transformer.
+  8. Adição do Swagger para documentação da API, permitindo testes interativos dos endpoints.
+  9. Integração do Redis para cache e gerenciamento de sessões.
 
 ## 🎨 Tecnologias Utilizadas
 
-### Frontend
+### 🌐 Frontend
 
-- **React**: Biblioteca JavaScript para construção de interfaces de usuário.
-- **Material-UI**: Biblioteca de componentes React para um design moderno e responsivo.
-- **Axios**: Cliente HTTP para fazer requisições à API.
+- ![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)
+  Biblioteca JavaScript para construção de interfaces de usuário dinâmicas e responsivas.
 
-### Backend
+- ![Material-UI](https://img.shields.io/badge/-Material--UI-007FFF?style=flat&logo=material-ui&logoColor=white)
+  Biblioteca de componentes React para um design moderno e responsivo.
 
-- **NestJS**: Framework Node.js para construção de aplicações server-side escaláveis.
-- **TypeORM**: ORM para TypeScript e JavaScript (ES7, ES6, ES5).
-- **JWT**: Mecanismo para autenticação segura usando tokens JSON Web.
-- **Class-Validator**: Biblioteca para validação de objetos e propriedades.
-- **Class-Transformer**: Biblioteca para transformar objetos em classes e vice-versa.
+- ![Axios](https://img.shields.io/badge/-Axios-5A29E3?style=flat&logo=axios&logoColor=white)
+  Cliente HTTP para fazer requisições à API.
 
-### Banco de Dados
+- ![React Beautiful DnD](https://img.shields.io/badge/-React%20Beautiful%20DnD-00D8FF?style=flat)  
+   Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
 
-- **PostgreSQL**: Sistema de gerenciamento de banco de dados relacional poderoso e open-source.
+- ![Chart.js](https://img.shields.io/badge/-Chart.js-FCA121?style=flat&logo=chart.js&logoColor=black)  
+  Implementado para criar gráficos e visualizações de dados, permitindo a apresentação visual de métricas e estatísticas relacionadas ao gerenciamento de tarefas.
 
-### DevOps
+---
 
-- **Docker**: Plataforma para desenvolvimento, envio e execução de aplicações em containers.
-- **Docker Compose**: Ferramenta para definir e gerenciar multi-containers Docker.
-- **Adminer**: Ferramenta de gerenciamento de banco de dados com uma interface de usuário amigável.
+### ⚙️ Backend
 
-### Design e Modelagem
+- ![NestJS](https://img.shields.io/badge/-NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)
+  Framework Node.js para construção de aplicações server-side escaláveis.
 
-- **dbDesigner**: Ferramenta online para modelagem de banco de dados ER.
-- **Figma**: Ferramenta para design de interface e prototipagem colaborativa.
+- ![TypeORM](https://img.shields.io/badge/-TypeORM-6A5DAB?style=flat)
+  ORM para TypeScript e JavaScript (ES7, ES6, ES5).
+
+- ![JWT](https://img.shields.io/badge/-JWT-000000?style=flat&logo=json-web-tokens&logoColor=white)
+  Mecanismo para autenticação segura usando tokens JSON Web.
+
+- ![Class-Validator](https://img.shields.io/badge/-Class--Validator-1E1E1E?style=flat)
+  Biblioteca para validação de objetos e propriedades.
+
+- ![Class-Transformer](https://img.shields.io/badge/-Class--Transformer-1E1E1E?style=flat)
+  Biblioteca para transformar objetos em classes e vice-versa.
+
+- ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)
+  Ferramenta para documentação e teste de APIs RESTful.
+
+- ![Redis](https://img.shields.io/badge/-Redis-D32F2F?style=flat&logo=redis&logoColor=white)
+  Sistema de armazenamento em memória para cache e gerenciamento de sessões.
+
+---
+
+### 🗄️ Banco de Dados
+
+- ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
+  Sistema de gerenciamento de banco de dados relacional poderoso e open-source.
+
+---
+
+### 🚀 DevOps
+
+- ![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white)
+  Plataforma para desenvolvimento, envio e execução de aplicações em containers.
+
+- ![Docker Compose](https://img.shields.io/badge/-Docker%20Compose-2496ED?style=flat&logo=docker&logoColor=white)
+  Ferramenta para definir e gerenciar multi-containers Docker.
+
+- ![Adminer](https://img.shields.io/badge/-Adminer-6D6D6D?style=flat)
+  Ferramenta de gerenciamento de banco de dados com uma interface de usuário amigável.
+
+---
+
+### 🎨 Design e Modelagem
+
+- ![dbDesigner](https://img.shields.io/badge/-dbDesigner-6D6D6D?style=flat)
+  Ferramenta online para modelagem de banco de dados ER.
+
+- ![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat&logo=figma&logoColor=white)
+  Ferramenta para design de interface e prototipagem colaborativa.
 
 ## Funcionalidades
 
 - [x] Autenticação e autorização de usuários na manipulação das tarefas de projetos
 - [x] CRUD de tarefas
 - [x] Gestão de projetos
+- [x] Kanban para visualização das tarefas
+- [x] Refatoração do backend para funcionamento de autenticação de usuários por JWT
+- [x] Implementação de validação de dados para evitar erros de entrada de dados
+- [x] Compartilhamento de projetos entre usuarios do sistema
+- [x] Funcionalidade de alterar imagem do usuario na edição do perfil
 
 ## Estrutura do Projeto
 
@@ -159,6 +218,8 @@ cd backend
 npm install
 ```
 
+Lembrar de altera o arquivo .env.example para .env e com os dados necessarios na pasta de backend. 😊
+
 ### Instruções para Executar com Docker
 
 ```bash
@@ -179,6 +240,12 @@ A API estará disponível em:
 
 ```bash
 http://localhost:4000
+```
+
+E o Swagger estará disponível em:
+
+```bash
+http://localhost:4000/api-docs
 ```
 
 ## Aplicação Frontend
@@ -219,14 +286,15 @@ http://localhost:3000
 
 ## Mais Imagens do Projeto Tela Home Page
 
-<p align="center">
-  <img alt="Interface Home Page 1" src=".github/frontend-homepage-v2-1.png" width="100%">
+<table>
+  <tr>
+   <img alt="Interface Home Page 1" src=".github/frontend-homepage-v2-1.png" width="100%">
   <img alt="Interface Home Page 2" src=".github/frontend-homepage-v2-2.png" width="100%">
   <img alt="Interface Home Page 3" src=".github/frontend-homepage-v2-3.png" width="100%">
   <img alt="Interface Home Page 4" src=".github/frontend-homepage-v2-4.png" width="100%">
   <img alt="Interface Home Page 5" src=".github/frontend-homepage-v2-5.png" width="100%">
-  
-</p>
+  </tr>
+</table>
 
 ## Licença
 
