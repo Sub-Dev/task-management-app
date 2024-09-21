@@ -160,6 +160,12 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 - ![PostgreSQL](https://img.shields.io/badge/-PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
   Sistema de gerenciamento de banco de dados relacional poderoso e open-source.
 
+#### 🗄️ Modelo ER
+
+<p align="center">
+  <img alt="Interface da aplicação Homepage" src=".github/Modelo-ER-v2.0-TaskManagement.png" width="100%">
+</p>
+
 ---
 
 ### 🚀 DevOps
@@ -182,6 +188,21 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
 
 - ![Figma](https://img.shields.io/badge/-Figma-F24E1E?style=flat&logo=figma&logoColor=white)
   Ferramenta para design de interface e prototipagem colaborativa.
+
+## 📚 Aprendizados e erros cometidos no projeto
+
+Durante o desenvolvimento deste projeto, adquiri conhecimentos valiosos em diversas áreas:
+
+- **Dependência Circular**: Aprendi sobre a importância de evitar dependências circulares em estruturas de código, o que pode levar a problemas de manutenção e confusão no fluxo de dados.
+- **Análise de Banco de Dados**: Realizei uma análise mais profunda da modelagem de banco de dados, entendendo como projetar relações eficientes entre as entidades.
+- **Criptografia Simétrica**: Explorei o uso de identificadores aleatórios para mascarar IDs nas URLs dos Kanbans, melhorando a segurança e a privacidade.
+- **JWT (JSON Web Tokens)**: Identifiquei a importância de não armazenar tokens JWT no local storage por questões de segurança e de evitar passar dados sensíveis dentro do token.
+- **Planejamento de Arquitetura**: Compreendi a necessidade de um planejamento melhor para a arquitetura do aplicativo e uma análise mais abrangente da interface do usuário nas telas do frontend.
+- **Validação de Entrada de Dados**: Aprendi a implementar validações adequadas para evitar erros de entrada, garantindo que o sistema seja robusto e confiável.
+- **Performance de Aplicações**: Descobri técnicas para otimizar a performance do aplicativo, como o uso de cache e gerenciamento eficiente de sessões.
+- **Integração Contínua**: Ganhei experiência em configurar ambientes de desenvolvimento usando Docker, facilitando o trabalho em equipe e a entrega contínua de features.
+
+Estou continuamente aprendendo e adaptando as melhores práticas em cada etapa do desenvolvimento que tive no projeto.
 
 ## Funcionalidades
 
@@ -273,26 +294,27 @@ http://localhost:3000
 
 ## Mais Imagens do Projeto
 
-<p align="center">
-  <img alt="Interface Signin" src=".github/frontend-signin-v1.png" width="100%">  
-  <img alt="Interface Signup" src=".github/frontend-signup-v1.png" width="100%">
-  <img alt="Interface Perfil" src=".github/frontend-perfil-v2.png" width="100%">
-  <img alt="Interface Dashboard" src=".github/frontend-dashboard-v4.png" width="100%">
-  <img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%">
-  <img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%">
-  <img alt="Loading" src=".github/loading-page.png" width="100%">
-
-</p>
+<table>
+  <tr>
+   <td><img alt="Interface Signin" src=".github/frontend-signin-v1.png" width="100%"></td>  
+  <td><img alt="Interface Signup" src=".github/frontend-signup-v1.png" width="100%"></td>
+  <td><img alt="Interface Perfil" src=".github/frontend-perfil-v2.png" width="100%"></td>
+  <td><img alt="Interface Dashboard" src=".github/frontend-dashboard-v4.png" width="100%"></td>
+  <td><img alt="Interface Projetos" src=".github/frontend-projects-v3.png" width="100%"></td>
+  <td><img alt="Interface Kanban" src=".github/frontend-kanban-v4.png" width="100%"></td>
+  <td><img alt="Loading" src=".github/loading-page.png" width="100%"></td>
+  </tr>
+</table>
 
 ## Mais Imagens do Projeto Tela Home Page
 
 <table>
   <tr>
-   <img alt="Interface Home Page 1" src=".github/frontend-homepage-v2-1.png" width="100%">
-  <img alt="Interface Home Page 2" src=".github/frontend-homepage-v2-2.png" width="100%">
-  <img alt="Interface Home Page 3" src=".github/frontend-homepage-v2-3.png" width="100%">
-  <img alt="Interface Home Page 4" src=".github/frontend-homepage-v2-4.png" width="100%">
-  <img alt="Interface Home Page 5" src=".github/frontend-homepage-v2-5.png" width="100%">
+  <td><img alt="Interface Home Page 1" src=".github/frontend-homepage-v2-1.png" width="100%"></td>
+  <td><img alt="Interface Home Page 2" src=".github/frontend-homepage-v2-2.png" width="100%"></td>
+  <td><img alt="Interface Home Page 3" src=".github/frontend-homepage-v2-3.png" width="100%"></td>
+  <td><img alt="Interface Home Page 4" src=".github/frontend-homepage-v2-4.png" width="100%"></td>
+  <td><img alt="Interface Home Page 5" src=".github/frontend-homepage-v2-5.png" width="100%"></td>
   </tr>
 </table>
 
