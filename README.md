@@ -44,7 +44,7 @@ Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do m
   Utilizado para conteinerização, facilitando a implantação contínua e a gestão de ambientes de desenvolvimento e produção.
 
 - ![Redis](https://img.shields.io/badge/-Redis-D32F2F?style=flat&logo=redis&logoColor=white)  
-  Integrado para cache e gerenciamento de sessões, melhorando a performance do aplicativo e a eficiência no armazenamento temporário de dados.
+  Integrado para cache melhorando a performance do aplicativo e a eficiência no armazenamento temporário de dados.
 
 - ![React Beautiful DnD](https://img.shields.io/badge/-React%20Beautiful%20DnD-00D8FF?style=flat)  
   Utilizado no Kanban board para permitir a funcionalidade de arrastar e soltar tarefas, proporcionando uma experiência interativa e intuitiva.
@@ -60,6 +60,9 @@ Este aplicativo fullstack de gerenciamento de tarefas é uma demonstração do m
 
 - ![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)  
   Utilizado para documentar e testar os endpoints da API, facilitando a interação com a documentação da API e melhorando a compreensão dos recursos disponíveis.
+
+- ![Adminer](https://img.shields.io/badge/-Adminer-6D6D6D?style=flat)
+  Ferramenta de gerenciamento de banco de dados com uma interface de usuário amigável.
 
 Estou constantemente aprendendo e aplicando novas técnicas e boas práticas para otimizar a performance e a escalabilidade do aplicativo. Este projeto não apenas me permite explorar novas tecnologias, mas também me desafia a resolver problemas complexos e a melhorar minhas habilidades de desenvolvimento.
 
@@ -107,7 +110,7 @@ Estou constantemente aprendendo e aplicando novas técnicas e boas práticas par
   6. Configuração completa do JWT para autenticação segura.
   7. Implementação de validação de objetos e propriedades com Class-Validator e Class-Transformer.
   8. Adição do Swagger para documentação da API, permitindo testes interativos dos endpoints.
-  9. Integração do Redis para cache e gerenciamento de sessões.
+  9. Integração do Redis para cache.
 
 ## 🎨 Tecnologias Utilizadas
 
@@ -253,7 +256,7 @@ columns: KanbanColumn[];
 
 🛡 JWT (JSON Web Tokens)
 
-- Estudei o uso de JWTs e entendi que é fundamental não armazenar tokens no localStorage por questões de segurança. Além disso, passei a evitar a inclusão de dados sensíveis no payload do token.
+- Estudei o uso de JWTs e entendi que é fundamental não armazenar tokens no localStorage por questões de segurança. Além disso, passarei a evitar a inclusão de dados sensíveis no payload do token.
 
 🏗 Planejamento de Arquitetura
 
@@ -269,7 +272,7 @@ columns: KanbanColumn[];
 
 🛠 Integração Contínua
 
-- Configurei ambiente de desenvolvimento com Docker, o que facilitou o trabalho colaborativo e a entrega contínua de novas funcionalidades.
+- Configurei ambiente de desenvolvimento com Docker, o que facilitou o trabalho e a entrega contínua de novas funcionalidades.
 
 Estou continuamente aprendendo e adaptando as melhores práticas para aplicar futuramente em cada etapa do desenvolvimento que tiver em projetos futuros.
 
@@ -332,11 +335,17 @@ A API estará disponível em:
 http://localhost:4000
 ```
 
+## Swagger
+
 E o Swagger estará disponível em:
 
 ```bash
 http://localhost:4000/api-docs
 ```
+
+<p align="center">
+  <img alt="Swagger" src=".github/swagger.png" width="100%">
+</p>
 
 ## Aplicação Frontend
 
